@@ -1,14 +1,14 @@
-# 인제우리 (Inje_uri)
+  # 인제우리 (Inje_uri)
 
   인제대학교 재학생 전용 소개팅 모바일 웹 앱. Next.js App Router 기반, 모바일 퍼스트 프로토타입.
-  
+
   ## 브랜치 전략
 
-  main
-  └── dev
-      ├── feature/기능이름
-      ├── feature/기능이름
-      └── ...
+      main
+      └── dev
+          ├── feature/기능이름
+          ├── feature/기능이름
+          └── ...
 
   | 브랜치 | 용도 |
   |---|---|
@@ -23,9 +23,8 @@
   3. `dev`에서 통합 검증 완료 후 `main`에 PR & merge
 
   > `main` 직접 push 금지. 반드시 `dev`를 거쳐야 함.
-    
 
-
+  ---
 
   ## 기술 스택
 
@@ -55,118 +54,101 @@
 
   # 5. 개발 서버
   npm run dev
+  ```
 
-  환경변수
+  ## 환경변수
 
-  .env.example 참고. 필수 항목:
+  `.env.example` 참고. 필수 항목:
 
+  ```
   DATABASE_URL="postgresql://postgres:비밀번호@localhost:5432/injeuri?schema=public"
+  ```
 
-  디렉토리 구조
+  ## 디렉토리 구조
 
+  ```
+  src/
+  ├── app/
+  │   ├── (main)/               # 바텀 네비 있는 메인 레이아웃
+  │   │   ├── match/            # 오늘 우리 (일일 추천)
+  │   │   │   └── [id]/         # 프로필 상세
+  │   │   ├── interest/         # 나를 좋아하는 사람
+  │   │   ├── chat/             # 채팅 목록
+  │   │   │   └── [id]/         # 채팅방
+  │   │   ├── self-date/        # 셀프소개팅 피드
+  │   │   │   ├── [id]/         # 스토리 상세
+  │   │   │   ├── create/       # 스토리 작성
+  │   │   │   └── mine/         # 내 스토리
+  │   │   └── my/               # 마이페이지
+  │   │       ├── profile/      # 프로필 보기
+  │   │       │   └── edit/     # 프로필 편집 (키워드 선택형)
+  │   │       ├── ideal-type/   # 이상형 설정
+  │   │       ├── posts/        # 내 게시물
+  │   │       └── settings/     # 설정
+  │   └── page.tsx              # 루트 진입점
+  ├── components/
+  │   ├── chat/                 # ChatBubble, ChatInput, ChatPreview, ChatExpiryNotifier
+  │   ├── interest/             # InterestCard
+  │   ├── layout/               # BottomNav, PageContainer
+  │   ├── match/                # ProfileCard, ProfileCardCarousel, InterestBanner, RecommendationNotice
+  │   ├── navigation/           # NavigationTracker
+  │   ├── profile/              # KeywordSelector, ProfilePreview, RecommendationSettingsFields
+  │   ├── self-date/            # FeedCard, StoryCard, StoryViewer, MyStoriesView
+  │   └── ui/                   # Badge, Button, Card, Chip, BottomSheet, Toast 등
+  ├── lib/
+  │   ├── data/                 # 목업 데이터 (chats, interests, stories, users)
+  │   ├── navigation/           # 라우팅 유틸 (routes, history, viewState, hooks)
+  │   ├── types/                # 도메인 타입 정의
+  │   └── utils/                # 날짜, 피드, 추천 설정 등 유틸
+  └── generated/
+      └── prisma/               # Prisma 자동 생성 클라이언트 (직접 수정 금지)
+  prisma/
+  ├── schema.prisma
+  ├── seed.js
+  └── migrations/
+  ```
 
-```
-src/
-├── app/                         # Next.js App Router (페이지 + API 라우트)
-│   ├── (main)/                  # 기존 모바일 페이지 (레이아웃 공유)
-│   └── api/                     # ★ 새로 추가: 서버 API 엔드포인트
-│       ├── auth/                # A 담당: 로그인/회원가입/세션
-│       ├── users/               # A 담당: 사용자 정보/프로필
-│       ├── keywords/            # A 담당: 키워드 카탈로그
-│       ├── recommendations/     # B 담당: 하루 추천/설정
-│       ├── interests/           # B 담당: 호감 CRUD/상태전이
-│       ├── chat/                # C 담당: 채팅방/메시지
-│       ├── feeds/               # D 담당: 셀프소개 피드
-│       ├── blocks/              # D 담당: 차단
-│       ├── reports/             # D 담당: 신고
-│       └── admin/               # D 담당: 운영 (잡, 설정)
-│
-├── server/                      # ★ 새로 추가: 서버 전용 로직 (클라이언트 번들 제외)
-│   ├── db/                      # Prisma 클라이언트 싱글톤
-│   ├── lib/                     # 공통 서버 유틸 (응답 포맷, 에러, 인증)
-│   ├── repositories/            # DB 접근 계층 (CRUD 추상화)
-│   │   ├── auth/                # A 담당
-│   │   ├── user/                # A 담당
-│   │   ├── recommendation/      # B 담당
-│   │   ├── interest/            # B 담당
-│   │   ├── chat/                # C 담당
-│   │   ├── feed/                # D 담당
-│   │   └── safety/              # D 담당
-│   └── services/                # 비즈니스 로직 계층 (규칙/정책)
-│       ├── auth/                # A 담당
-│       ├── matching/            # B 담당
-│       ├── conversation/        # C 담당
-│       └── content/             # D 담당
-│
-├── components/                  # 기존 UI 컴포넌트 (변경 없음)
-└── lib/                         # 기존 공유 로직 (types, utils, navigation)
-```
+  ## DB 주요 모델
 
+  | 모델 | 설명 |
+  |---|---|
+  | `User` | 유저 (이름, 이메일, 학번, 학과, 키워드 등) |
+  | `UserProfileImage` | 프로필 이미지 (복수, 정렬순) |
+  | `Category` / `Keyword` | 키워드 카탈로그 (성격, 취미 등 카테고리별) |
+  | `UserKeywordSelection` | 유저가 선택한 키워드 |
+  | `RecommendationSetting` | 추천 필터 설정 (학과 제외, 연령대 등) |
+  | `DailyRecommendation` | 일일 추천 (1일 1명 선택) |
+  | `Interest` | 호감 (보낸/받은, 매칭 여부) |
+  | `ChatRoom` | 채팅방 (만료 시간, 최대 5개 제한) |
+  | `Message` | 채팅 메시지 |
+  | `SelfDateFeed` | 셀프소개팅 24시간 스토리 |
+  | `FeedComment` | 피드 댓글 (댓글로 채팅 생성 가능) |
+  | `Block` / `PhoneBlock` / `Report` | 차단 및 신고 |
+  | `Place` | 데이트 장소 추천 (채팅방 연동) |
+  | `UserContact` | 연락처 기반 지인 필터링 |
 
-  DB 주요 모델
+  ## Prisma 명령어
 
-  ┌─────────────────────────────┬────────────────────────────────────────────┐
-  │            모델             │                    설명                    │
-  ├─────────────────────────────┼────────────────────────────────────────────┤
-  │ User                        │ 유저 (이름, 이메일, 학번, 학과, 키워드 등) │
-  ├─────────────────────────────┼────────────────────────────────────────────┤
-  │ UserProfileImage            │ 프로필 이미지 (복수, 정렬순)               │
-  ├─────────────────────────────┼────────────────────────────────────────────┤
-  │ Category / Keyword          │ 키워드 카탈로그 (성격, 취미 등 카테고리별) │
-  ├─────────────────────────────┼────────────────────────────────────────────┤
-  │ UserKeywordSelection        │ 유저가 선택한 키워드                       │
-  ├─────────────────────────────┼────────────────────────────────────────────┤
-  │ RecommendationSetting       │ 추천 필터 설정 (학과 제외, 연령대 등)      │
-  ├─────────────────────────────┼────────────────────────────────────────────┤
-  │ DailyRecommendation         │ 일일 추천 (1일 1명 선택)                   │
-  ├─────────────────────────────┼────────────────────────────────────────────┤
-  │ Interest                    │ 호감 (보낸/받은, 매칭 여부)                │
-  ├─────────────────────────────┼────────────────────────────────────────────┤
-  │ ChatRoom                    │ 채팅방 (만료 시간, 최대 5개 제한)          │
-  ├─────────────────────────────┼────────────────────────────────────────────┤
-  │ Message                     │ 채팅 메시지                                │
-  ├─────────────────────────────┼────────────────────────────────────────────┤
-  │ SelfDateFeed                │ 셀프소개팅 24시간 스토리                   │
-  ├─────────────────────────────┼────────────────────────────────────────────┤
-  │ FeedComment                 │ 피드 댓글 (댓글로 채팅 생성 가능)          │
-  ├─────────────────────────────┼────────────────────────────────────────────┤
-  │ Block / PhoneBlock / Report │ 차단 및 신고                               │
-  ├─────────────────────────────┼────────────────────────────────────────────┤
-  │ Place                       │ 데이트 장소 추천 (채팅방 연동)             │
-  ├─────────────────────────────┼────────────────────────────────────────────┤
-  │ UserContact                 │ 연락처 기반 지인 필터링                    │
-  └─────────────────────────────┴────────────────────────────────────────────┘
-
-  Prisma 명령어
-
-  npm run prisma:generate      # 클라이언트 재생성
-  npm run prisma:migrate:dev   # 마이그레이션 적용 (dev)
+  ```bash
+  npm run prisma:generate       # 클라이언트 재생성
+  npm run prisma:migrate:dev    # 마이그레이션 적용 (dev)
   npm run prisma:migrate:deploy # 마이그레이션 적용 (prod)
-  npm run prisma:studio        # DB GUI
-  npm run prisma:seed          # 시드 데이터 삽입
+  npm run prisma:studio         # DB GUI
+  npm run prisma:seed           # 시드 데이터 삽입
+  ```
 
-  현재 상태
+  ## 현재 상태
 
   - UI 프로토타입 완성 (목업 데이터 기반)
   - DB 스키마 및 마이그레이션 완료
-  - API 라우트 및 실제 DB 연동 미구현 (src/lib/data/의 목업 데이터 사용 중)
+  - API 라우트 및 실제 DB 연동 미구현 (`src/lib/data/`의 목업 데이터 사용 중)
 
-  핵심 기획
+  ## 핵심 기획
 
   - 데스크톱: 가운데 정렬된 앱 컬럼 / 모바일: 기기 폭 전체 활용
   - 일일 추천 1일 1명 선택, 자정 기준 리셋
   - 셀프소개팅은 24시간 스토리형
-  - 나를 좋아하는 사람 화면에서 바로 채팅 생성
+  - `나를 좋아하는 사람` 화면에서 바로 채팅 생성
   - 활성 채팅방 최대 5개 제한
   - 프로필 편집은 직접 입력이 아닌 선택형 키워드
-  - 댓글로도 채팅방 생성 가능 (source_type: comment)
-
-  ---
-
-  주요 변경사항:
-  - 기술 스택 표로 정리
-  - 실행 방법에 DB 셋업 단계 추가
-  - 전체 디렉토리 구조 정리 (실제 파일 기준)
-  - DB 모델 표로 요약
-  - Prisma 명령어 모음
-  - 현재 개발 상태(목업 단계) 명시
+  - 댓글로도 채팅방 생성 가능 (`source_type: comment`)
