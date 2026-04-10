@@ -10,7 +10,7 @@ datasource db {
 enum user_status {
   active
   inactive
-  suspended
+  banned
   withdrawn
 }
 
@@ -233,7 +233,6 @@ model Interest {
   id              Int             @id @default(autoincrement())
   from_user_id    Int
   to_user_id      Int
-  source_type     String          @db.VarChar(50)
   status          interest_status @default(pending)
   matched_at      DateTime?       @db.Timestamptz(6)
   declined_at     DateTime?       @db.Timestamptz(6)
