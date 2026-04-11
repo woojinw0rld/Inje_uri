@@ -1,6 +1,5 @@
-import { redirect } from 'next/navigation';
+import { LoginPageClient } from '@/components/auth/LoginPageClient';
 
 export default function Home() {
-  // Redirect to match page by default
-  redirect('/match');
+  return <LoginPageClient />;
 }
