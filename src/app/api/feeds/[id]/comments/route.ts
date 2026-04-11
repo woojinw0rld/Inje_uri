@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { NextRequest } from "next/server";
+import prisma from "@/server/db/prisma";
+import { ok, fail } from "@/server/lib/response";
 
 /**
  * D-06: 댓글 작성 API
@@ -40,32 +41,14 @@ export async function POST(
     const feedId = Number(id); // 문자열 → 숫자 변환
 
     if (Number.isNaN(feedId) || !Number.isInteger(feedId)) { // 피드 ID가 정수가 아닌 경우
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "INVALID_FEED_ID",
-            message: "유효하지 않은 피드 ID입니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("INVALID_FEED_ID", "유효하지 않은 피드 ID입니다.");
     }
 
     const body = await request.json(); // 요청 바디 파싱
     const { content } = body as { content: unknown };
 
     if (typeof content !== "string" || !content.trim()) { // 댓글 본문이 빈 값이거나 문자열이 아닌 경우
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "INVALID_CONTENT",
-            message: "댓글 본문은 빈 값이 아닌 문자열이어야 합니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("INVALID_CONTENT", "댓글 본문은 빈 값이 아닌 문자열이어야 합니다.");
     }
 
     // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
@@ -77,56 +60,20 @@ export async function POST(
     });
 
     if (!feed) { // 피드가 존재하지 않는 경우
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "FEED_NOT_FOUND",
-            message: "존재하지 않는 피드입니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("FEED_NOT_FOUND", "존재하지 않는 피드입니다.");
     }
 
     if (feed.status !== "active") { // 활성 상태가 아닌 피드에는 댓글 불가
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "FEED_NOT_AVAILABLE",
-            message: "활성 상태가 아닌 피드에는 댓글을 작성할 수 없습니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("FEED_NOT_AVAILABLE", "활성 상태가 아닌 피드에는 댓글을 작성할 수 없습니다.");
     }
 
     const now = new Date();
     if (feed.expires_at <= now) { // 만료된 피드에는 댓글 불가
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "FEED_NOT_AVAILABLE",
-            message: "만료된 피드에는 댓글을 작성할 수 없습니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("FEED_NOT_AVAILABLE", "만료된 피드에는 댓글을 작성할 수 없습니다.");
     }
 
     if (feed.author_user_id === currentUserId) { // 자기 피드에 댓글 작성 방지
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "CANNOT_COMMENT_OWN_FEED",
-            message: "본인의 피드에는 댓글을 작성할 수 없습니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("CANNOT_COMMENT_OWN_FEED", "본인의 피드에는 댓글을 작성할 수 없습니다.");
     }
 
     const blockExists = await prisma.block.findFirst({ // 차단 관계 확인 (양방향)
@@ -141,16 +88,7 @@ export async function POST(
     });
 
     if (blockExists) { // 차단 관계면 피드 존재 자체를 숨김
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "FEED_NOT_FOUND",
-            message: "존재하지 않는 피드입니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("FEED_NOT_FOUND", "존재하지 않는 피드입니다.");
     }
 
     const existingComment = await prisma.feedComment.findUnique({ // 1인 1댓글 중복 확인
@@ -164,16 +102,7 @@ export async function POST(
     });
 
     if (existingComment) { // 이미 댓글을 작성한 경우
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "COMMENT_ALREADY_EXISTS",
-            message: "이미 이 피드에 댓글을 작성했습니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("COMMENT_ALREADY_EXISTS", "이미 이 피드에 댓글을 작성했습니다.");
     }
 
     const comment = await prisma.feedComment.create({ // 댓글 생성
@@ -185,23 +114,11 @@ export async function POST(
       select: { id: true },
     });
 
-    return NextResponse.json({ // 성공 응답
-      success: true,
-      data: { commentId: comment.id },
-    });
+    return ok({ commentId: comment.id }); // 성공 응답
   } catch (error) {
     console.error("[POST /api/feeds/:id/comments]", error); // 서버 에러 로그
 
-    return NextResponse.json( // 실패 응답
-      {
-        success: false,
-        error: {
-          code: "INTERNAL_SERVER_ERROR",
-          message: "댓글 작성 중 오류가 발생했습니다.",
-        },
-      },
-      { status: 400 },
-    );
+    return fail("INTERNAL_SERVER_ERROR", "댓글 작성 중 오류가 발생했습니다."); // 실패 응답
   }
 }
 
@@ -244,16 +161,7 @@ export async function GET(
     const feedId = Number(id); // 문자열 → 숫자 변환
 
     if (Number.isNaN(feedId) || !Number.isInteger(feedId)) { // 피드 ID가 정수가 아닌 경우
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "INVALID_FEED_ID",
-            message: "유효하지 않은 피드 ID입니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("INVALID_FEED_ID", "유효하지 않은 피드 ID입니다.");
     }
 
     // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
@@ -265,43 +173,16 @@ export async function GET(
     });
 
     if (!feed) { // 피드가 존재하지 않는 경우
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "FEED_NOT_FOUND",
-            message: "존재하지 않는 피드입니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("FEED_NOT_FOUND", "존재하지 않는 피드입니다.");
     }
 
     if (feed.status !== "active") { // 활성 상태가 아닌 피드
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "FEED_NOT_AVAILABLE",
-            message: "활성 상태가 아닌 피드입니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("FEED_NOT_AVAILABLE", "활성 상태가 아닌 피드입니다.");
     }
 
     const now = new Date();
     if (feed.expires_at <= now) { // 만료된 피드
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "FEED_NOT_AVAILABLE",
-            message: "만료된 피드입니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("FEED_NOT_AVAILABLE", "만료된 피드입니다.");
     }
 
     const isOwner = feed.author_user_id === currentUserId; // 본인 피드 여부
@@ -319,16 +200,7 @@ export async function GET(
       });
 
       if (blockExists) { // 차단 관계면 존재 자체를 숨김
-        return NextResponse.json(
-          {
-            success: false,
-            error: {
-              code: "FEED_NOT_FOUND",
-              message: "존재하지 않는 피드입니다.",
-            },
-          },
-          { status: 400 },
-        );
+        return fail("FEED_NOT_FOUND", "존재하지 않는 피드입니다.");
       }
     }
 
@@ -388,22 +260,10 @@ export async function GET(
       },
     }));
 
-    return NextResponse.json({ // 성공 응답
-      success: true,
-      data: { items },
-    });
+    return ok({ items }); // 성공 응답
   } catch (error) {
     console.error("[GET /api/feeds/:id/comments]", error); // 서버 에러 로그
 
-    return NextResponse.json( // 실패 응답
-      {
-        success: false,
-        error: {
-          code: "INTERNAL_SERVER_ERROR",
-          message: "댓글 목록을 불러오는 중 오류가 발생했습니다.",
-        },
-      },
-      { status: 400 },
-    );
+    return fail("INTERNAL_SERVER_ERROR", "댓글 목록을 불러오는 중 오류가 발생했습니다."); // 실패 응답
   }
 }

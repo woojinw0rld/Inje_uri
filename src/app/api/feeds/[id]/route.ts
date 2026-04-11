@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { NextRequest } from "next/server";
+import prisma from "@/server/db/prisma";
 import type { Prisma } from "@/generated/prisma/client";
+import { ok, fail } from "@/server/lib/response";
 
 /**
  * D-03: 피드 상세 조회 API
@@ -44,16 +45,7 @@ export async function GET(
     const feedId = Number(id); // 문자열 → 숫자 변환
 
     if (Number.isNaN(feedId) || !Number.isInteger(feedId)) { // 피드 ID가 정수가 아닌 경우
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "INVALID_FEED_ID",
-            message: "유효하지 않은 피드 ID입니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("INVALID_FEED_ID", "유효하지 않은 피드 ID입니다.");
     }
 
     // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
@@ -101,56 +93,20 @@ export async function GET(
     });
 
     if (!feed) { // 피드가 존재하지 않는 경우
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "FEED_NOT_FOUND",
-            message: "존재하지 않는 피드입니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("FEED_NOT_FOUND", "존재하지 않는 피드입니다.");
     }
 
     if (feed.author_user.status === "suspended") { // banned(현재 스키마: suspended) 작성자의 피드 → 숨김
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "FEED_NOT_FOUND",
-            message: "존재하지 않는 피드입니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("FEED_NOT_FOUND", "존재하지 않는 피드입니다.");
     }
 
     if (feed.status !== "active") { // 삭제/만료/숨김 피드는 조회 불가
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "FEED_NOT_AVAILABLE",
-            message: "활성 상태가 아닌 피드입니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("FEED_NOT_AVAILABLE", "활성 상태가 아닌 피드입니다.");
     }
 
     const now = new Date();
     if (feed.expires_at <= now) { // 만료된 피드는 조회 불가
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "FEED_NOT_AVAILABLE",
-            message: "만료된 피드입니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("FEED_NOT_AVAILABLE", "만료된 피드입니다.");
     }
 
     const isOwner = feed.author_user_id === currentUserId; // 본인 피드 여부
@@ -168,69 +124,48 @@ export async function GET(
       });
 
       if (blockExists) { // 차단 관계면 존재 자체를 숨김
-        return NextResponse.json(
-          {
-            success: false,
-            error: {
-              code: "FEED_NOT_FOUND",
-              message: "존재하지 않는 피드입니다.",
-            },
-          },
-          { status: 400 },
-        );
+        return fail("FEED_NOT_FOUND", "존재하지 않는 피드입니다.");
       }
     }
 
-    return NextResponse.json({ // 성공 응답
-      success: true,
-      data: {
-        feed: {
-          feedId: feed.id,
-          text: feed.text,
-          status: feed.status,
-          createdAt: feed.created_at.toISOString(),
-          updatedAt: feed.updated_at.toISOString(),
-          expiresAt: feed.expires_at.toISOString(),
-          boostScore: feed.boost_score,
-          author: {
-            userId: feed.author_user.id,
-            nickname: feed.author_user.nickname,
-            gender: feed.author_user.gender,
-            department: feed.author_user.department,
-            studentYear: feed.author_user.student_year,
-            bio: feed.author_user.bio,
-            profileImages: feed.author_user.userProfileImages.map((img) => ({ // 프로필 이미지 목록 변환
-              imageUrl: img.image_url,
-              sortOrder: img.sort_order,
-              isPrimary: img.is_primary,
-            })),
-          },
-          keywords: feed.keywords.map((k) => ({ // 키워드 목록 변환
-            feedKeywordId: k.feed_keyword.feed_keyword_id,
-            name: k.feed_keyword.name,
-          })),
-          images: feed.images.map((img) => ({ // 피드 이미지 목록 변환
-            imageId: img.id,
+    return ok({ // 성공 응답
+      feed: {
+        feedId: feed.id,
+        text: feed.text,
+        status: feed.status,
+        createdAt: feed.created_at.toISOString(),
+        updatedAt: feed.updated_at.toISOString(),
+        expiresAt: feed.expires_at.toISOString(),
+        boostScore: feed.boost_score,
+        author: {
+          userId: feed.author_user.id,
+          nickname: feed.author_user.nickname,
+          gender: feed.author_user.gender,
+          department: feed.author_user.department,
+          studentYear: feed.author_user.student_year,
+          bio: feed.author_user.bio,
+          profileImages: feed.author_user.userProfileImages.map((img) => ({ // 프로필 이미지 목록 변환
             imageUrl: img.image_url,
             sortOrder: img.sort_order,
+            isPrimary: img.is_primary,
           })),
-          commentCount: feed._count.comments,
         },
+        keywords: feed.keywords.map((k) => ({ // 키워드 목록 변환
+          feedKeywordId: k.feed_keyword.feed_keyword_id,
+          name: k.feed_keyword.name,
+        })),
+        images: feed.images.map((img) => ({ // 피드 이미지 목록 변환
+          imageId: img.id,
+          imageUrl: img.image_url,
+          sortOrder: img.sort_order,
+        })),
+        commentCount: feed._count.comments,
       },
     });
   } catch (error) {
     console.error("[GET /api/feeds/:id]", error); // 서버 에러 로그
 
-    return NextResponse.json( // 실패 응답
-      {
-        success: false,
-        error: {
-          code: "INTERNAL_SERVER_ERROR",
-          message: "피드 상세를 불러오는 중 오류가 발생했습니다.",
-        },
-      },
-      { status: 400 },
-    );
+    return fail("INTERNAL_SERVER_ERROR", "피드 상세를 불러오는 중 오류가 발생했습니다."); // 실패 응답
   }
 }
 
@@ -273,16 +208,7 @@ export async function PATCH(
     const feedId = Number(id); // 문자열 → 숫자 변환
 
     if (Number.isNaN(feedId) || !Number.isInteger(feedId)) { // 피드 ID가 정수가 아닌 경우
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "INVALID_FEED_ID",
-            message: "유효하지 않은 피드 ID입니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("INVALID_FEED_ID", "유효하지 않은 피드 ID입니다.");
     }
 
     const body = await request.json(); // 요청 바디 파싱
@@ -292,57 +218,21 @@ export async function PATCH(
     const hasKeywords = feedKeywordIds !== undefined; // 키워드 수정 여부
 
     if (!hasText && !hasKeywords) { // 수정할 내용이 없는 경우
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "NO_UPDATE_FIELDS",
-            message: "수정할 항목이 없습니다. text 또는 feedKeywordIds를 전달해주세요.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("NO_UPDATE_FIELDS", "수정할 항목이 없습니다. text 또는 feedKeywordIds를 전달해주세요.");
     }
 
     if (hasText && (typeof text !== "string" || !text.trim())) { // 본문이 빈 값이거나 문자열이 아닌 경우
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "INVALID_TEXT",
-            message: "피드 본문은 빈 값이 아닌 문자열이어야 합니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("INVALID_TEXT", "피드 본문은 빈 값이 아닌 문자열이어야 합니다.");
     }
 
     if (hasKeywords) { // 키워드 배열 검증
       if (!Array.isArray(feedKeywordIds) || feedKeywordIds.length === 0) { // 빈 배열이거나 배열이 아닌 경우
-        return NextResponse.json(
-          {
-            success: false,
-            error: {
-              code: "INVALID_KEYWORDS",
-              message: "피드 키워드 ID 배열은 1개 이상이어야 합니다.",
-            },
-          },
-          { status: 400 },
-        );
+        return fail("INVALID_KEYWORDS", "피드 키워드 ID 배열은 1개 이상이어야 합니다.");
       }
 
       const hasInvalidId = (feedKeywordIds as unknown[]).some((kwId) => typeof kwId !== "number" || !Number.isInteger(kwId)); // 배열 내 모든 값이 정수인지 검증
       if (hasInvalidId) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: {
-              code: "INVALID_KEYWORD_ID",
-              message: "피드 키워드 ID는 모두 정수여야 합니다.",
-            },
-          },
-          { status: 400 },
-        );
+        return fail("INVALID_KEYWORD_ID", "피드 키워드 ID는 모두 정수여야 합니다.");
       }
     }
 
@@ -355,56 +245,20 @@ export async function PATCH(
     });
 
     if (!feed) { // 피드가 존재하지 않는 경우
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "FEED_NOT_FOUND",
-            message: "존재하지 않는 피드입니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("FEED_NOT_FOUND", "존재하지 않는 피드입니다.");
     }
 
     if (feed.author_user_id !== currentUserId) { // 본인 피드가 아닌 경우
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "FEED_NOT_OWNER",
-            message: "본인이 작성한 피드만 수정할 수 있습니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("FEED_NOT_OWNER", "본인이 작성한 피드만 수정할 수 있습니다.");
     }
 
     if (feed.status !== "active") { // 활성 상태가 아닌 피드는 수정 불가
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "FEED_NOT_AVAILABLE",
-            message: "활성 상태가 아닌 피드는 수정할 수 없습니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("FEED_NOT_AVAILABLE", "활성 상태가 아닌 피드는 수정할 수 없습니다.");
     }
 
     const now = new Date();
     if (feed.expires_at <= now) { // 만료된 피드는 수정 불가
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "FEED_NOT_AVAILABLE",
-            message: "만료된 피드는 수정할 수 없습니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("FEED_NOT_AVAILABLE", "만료된 피드는 수정할 수 없습니다.");
     }
 
     if (hasKeywords) { // 키워드 유효성 검증 (수정 요청 시)
@@ -417,16 +271,7 @@ export async function PATCH(
       });
 
       if (validKeywords.length !== (feedKeywordIds as number[]).length) { // 유효하지 않은 키워드 포함
-        return NextResponse.json(
-          {
-            success: false,
-            error: {
-              code: "INVALID_KEYWORD_ID",
-              message: "존재하지 않거나 비활성 상태인 키워드가 포함되어 있습니다.",
-            },
-          },
-          { status: 400 },
-        );
+        return fail("INVALID_KEYWORD_ID", "존재하지 않거나 비활성 상태인 키워드가 포함되어 있습니다.");
       }
     }
 
@@ -457,22 +302,10 @@ export async function PATCH(
       // TODO: 이미지 교체 로직 추가 예정 (저장소 구현 후)
     });
 
-    return NextResponse.json({ // 성공 응답
-      success: true,
-      data: { updated: true },
-    });
+    return ok({ updated: true }); // 성공 응답
   } catch (error) {
     console.error("[PATCH /api/feeds/:id]", error); // 서버 에러 로그
 
-    return NextResponse.json( // 실패 응답
-      {
-        success: false,
-        error: {
-          code: "INTERNAL_SERVER_ERROR",
-          message: "피드 수정 중 오류가 발생했습니다.",
-        },
-      },
-      { status: 400 },
-    );
+    return fail("INTERNAL_SERVER_ERROR", "피드 수정 중 오류가 발생했습니다."); // 실패 응답
   }
 }

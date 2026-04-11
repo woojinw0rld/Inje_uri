@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { NextRequest } from "next/server";
+import prisma from "@/server/db/prisma";
+import { ok, fail } from "@/server/lib/response";
 
 /**
  * D-09: 피드 조회 기록 API
@@ -38,16 +39,7 @@ export async function POST( // HTTP POST(쓰기) 메서드로 조회 기록을 D
     const feedId = Number(id); // 문자열 → 숫자 변환
 
     if (Number.isNaN(feedId)) { // 피드 ID가 숫자가 아닌 경우
-      return NextResponse.json( 
-        {
-          success: false,
-          error: {
-            code: "INVALID_FEED_ID",
-            message: "유효하지 않은 피드 ID입니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("INVALID_FEED_ID", "유효하지 않은 피드 ID입니다.");
     }
 
     // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
@@ -59,29 +51,11 @@ export async function POST( // HTTP POST(쓰기) 메서드로 조회 기록을 D
     });
 
     if (!feed) { // 피드가 없으면 에러 반환
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "FEED_NOT_FOUND",
-            message: "존재하지 않는 피드입니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("FEED_NOT_FOUND", "존재하지 않는 피드입니다.");
     }
 
     if (feed.status !== "active") { // 만료/삭제/숨김 피드는 조회 기록 불가
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "FEED_NOT_ACTIVE",
-            message: "활성 상태가 아닌 피드입니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("FEED_NOT_ACTIVE", "활성 상태가 아닌 피드입니다.");
     }
 
     await prisma.feedView.upsert({ // UPSERT 이미 조회했으면 무시, 처음이면 저장(where,create,update)
@@ -98,22 +72,10 @@ export async function POST( // HTTP POST(쓰기) 메서드로 조회 기록을 D
       update: {}, // 이미 존재하면 아무것도 변경하지 않음 (멱등성)
     });
 
-    return NextResponse.json({ // 성공 응답
-      success: true,
-      data: { recorded: true },
-    });
+    return ok({ recorded: true }); // 성공 응답
   } catch (error) {
     console.error("[POST /api/feeds/:id/view]", error); // 서버 에러 로그
 
-    return NextResponse.json( // 실패 응답
-      {
-        success: false,
-        error: {
-          code: "INTERNAL_SERVER_ERROR",
-          message: "조회 기록 저장 중 오류가 발생했습니다.",
-        },
-      },
-      { status: 400 },
-    );
+    return fail("INTERNAL_SERVER_ERROR", "조회 기록 저장 중 오류가 발생했습니다."); // 실패 응답
   }
 }

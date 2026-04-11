@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { NextRequest } from "next/server";
+import prisma from "@/server/db/prisma";
+import { ok, fail } from "@/server/lib/response";
 
 /**
  * D-11: 공통 신고 API
@@ -49,55 +50,19 @@ export async function POST(request: NextRequest) { // HTTP POST 메서드로 신
     };
 
     if (typeof targetType !== "string" || !VALID_TARGET_TYPES.includes(targetType as TargetType)) { // targetType 유효성 검증
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "INVALID_TARGET_TYPE",
-            message: `신고 대상 종류는 ${VALID_TARGET_TYPES.join(", ")} 중 하나여야 합니다.`,
-          },
-        },
-        { status: 400 },
-      );
+      return fail("INVALID_TARGET_TYPE", `신고 대상 종류는 ${VALID_TARGET_TYPES.join(", ")} 중 하나여야 합니다.`);
     }
 
     if (typeof targetId !== "number" || !Number.isInteger(targetId)) { // targetId가 정수가 아닌 경우
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "INVALID_TARGET_ID",
-            message: "신고 대상 ID는 정수여야 합니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("INVALID_TARGET_ID", "신고 대상 ID는 정수여야 합니다.");
     }
 
     if (typeof reasonType !== "string" || !reasonType.trim()) { // reasonType이 빈 문자열이거나 문자열이 아닌 경우
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "INVALID_REASON_TYPE",
-            message: "신고 유형은 빈 값이 아닌 문자열이어야 합니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("INVALID_REASON_TYPE", "신고 유형은 빈 값이 아닌 문자열이어야 합니다.");
     }
 
     if (description !== undefined && typeof description !== "string") { // description이 있는데 문자열이 아닌 경우
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "INVALID_DESCRIPTION",
-            message: "상세 설명은 문자열이어야 합니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("INVALID_DESCRIPTION", "상세 설명은 문자열이어야 합니다.");
     }
 
     // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
@@ -108,29 +73,11 @@ export async function POST(request: NextRequest) { // HTTP POST 메서드로 신
     const targetOwnerUserId = await findTargetOwnerUserId(validatedType, targetId, reporterUserId); // targetType별로 대상 존재 확인 + 소유자 사용자 ID 추출
 
     if (targetOwnerUserId === null) { // 대상이 존재하지 않으면 에러 반환
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "TARGET_NOT_FOUND",
-            message: "신고 대상이 존재하지 않습니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("TARGET_NOT_FOUND", "신고 대상이 존재하지 않습니다.");
     }
 
     if (targetOwnerUserId === reporterUserId) { // 자기 자신을 신고하려는 경우
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "CANNOT_REPORT_SELF",
-            message: "자기 자신을 신고할 수 없습니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("CANNOT_REPORT_SELF", "자기 자신을 신고할 수 없습니다.");
     }
 
     if (alsoBlock) { // 신고 + 동시 차단: Prisma $transaction으로 묶음 처리
@@ -163,10 +110,7 @@ export async function POST(request: NextRequest) { // HTTP POST 메서드로 신
         }),
       ]);
 
-      return NextResponse.json({ // 신고 + 차단 성공 응답
-        success: true,
-        data: { reportId: report.id },
-      });
+      return ok({ reportId: report.id }); // 신고 + 차단 성공 응답
     }
 
     const report = await prisma.report.create({ // 신고만 생성 (차단 없이)
@@ -180,23 +124,11 @@ export async function POST(request: NextRequest) { // HTTP POST 메서드로 신
       select: { id: true },
     });
 
-    return NextResponse.json({ // 성공 응답
-      success: true,
-      data: { reportId: report.id },
-    });
+    return ok({ reportId: report.id }); // 성공 응답
   } catch (error) {
     console.error("[POST /api/reports]", error); // 서버 에러 로그
 
-    return NextResponse.json( // 실패 응답
-      {
-        success: false,
-        error: {
-          code: "INTERNAL_SERVER_ERROR",
-          message: "신고 처리 중 오류가 발생했습니다.",
-        },
-      },
-      { status: 400 },
-    );
+    return fail("INTERNAL_SERVER_ERROR", "신고 처리 중 오류가 발생했습니다."); // 실패 응답
   }
 }
 

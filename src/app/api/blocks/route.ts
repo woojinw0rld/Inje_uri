@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { NextRequest } from "next/server";
+import prisma from "@/server/db/prisma";
+import { ok, fail } from "@/server/lib/response";
 
 /**
  * D-12: 사용자 차단 API
@@ -36,45 +37,18 @@ export async function POST(request: NextRequest) { // HTTP POST 메서드로 사
     const { blockedUserId, reason } = body as { blockedUserId: unknown; reason: unknown }; // 차단 대상 ID + 사유 추출
 
     if (typeof blockedUserId !== "number" || !Number.isInteger(blockedUserId)) { // blockedUserId가 정수가 아닌 경우
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "INVALID_BLOCKED_USER_ID",
-            message: "차단 대상 사용자 ID가 유효하지 않습니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("INVALID_BLOCKED_USER_ID", "차단 대상 사용자 ID가 유효하지 않습니다.");
     }
 
     if (reason !== undefined && typeof reason !== "string") { // reason이 있는데 문자열이 아닌 경우
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "INVALID_REASON",
-            message: "차단 사유가 string이 아닙니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("INVALID_REASON", "차단 사유가 string이 아닙니다.");
     }
 
     // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
     const blockerUserId = 1; // 현재는 고정값 1 사용 (테스트용)
 
     if (blockerUserId === blockedUserId) { // 자기 자신을 차단하려는 경우
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "CANNOT_BLOCK_SELF",
-            message: "자기 자신을 차단할 수 없습니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("CANNOT_BLOCK_SELF", "자기 자신을 차단할 수 없습니다.");
     }
 
     const targetUser = await prisma.user.findUnique({ // 차단 대상 사용자 존재 여부 확인 , findUnique는 고유값 조회, user_id는 고유값이므로 findUnique 사용 가능
@@ -83,16 +57,7 @@ export async function POST(request: NextRequest) { // HTTP POST 메서드로 사
     });
 
     if (!targetUser) { // 대상 사용자가 없으면 에러 반환
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "USER_NOT_FOUND",
-            message: "존재하지 않는 사용자입니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("USER_NOT_FOUND", "존재하지 않는 사용자입니다.");
     }
 
     const existingBlock = await prisma.block.findUnique({ // 이미 차단된 관계인지 확인함
@@ -106,16 +71,7 @@ export async function POST(request: NextRequest) { // HTTP POST 메서드로 사
     });
 
     if (existingBlock && !existingBlock.unblocked_at) { // 차단 중인 관계가 이미 존재하면 에러 반환
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "ALREADY_BLOCKED",
-            message: "이미 차단한 사용자입니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("ALREADY_BLOCKED", "이미 차단한 사용자입니다.");
     }
 
     if (existingBlock && existingBlock.unblocked_at) { // 과거에 차단했다가 해제한 경우 → 다시 차단 (unblocked_at 초기화)
@@ -128,10 +84,7 @@ export async function POST(request: NextRequest) { // HTTP POST 메서드로 사
         select: { id: true },
       });
 
-      return NextResponse.json({ // 재차단 성공 응답
-        success: true,
-        data: { blockId: reblocked.id },
-      });
+      return ok({ blockId: reblocked.id }); // 재차단 성공 응답
     }
 
     const block = await prisma.block.create({ // 신규 차단 생성 , 위 조건들 다 통과하면 = 차단 관계가 없음
@@ -143,22 +96,10 @@ export async function POST(request: NextRequest) { // HTTP POST 메서드로 사
       select: { id: true },
     });
 
-    return NextResponse.json({ // 성공 응답
-      success: true,
-      data: { blockId: block.id },
-    });
+    return ok({ blockId: block.id }); // 성공 응답
   } catch (error) {
     console.error("[POST /api/blocks]", error); // 서버 에러 로그
 
-    return NextResponse.json( // 실패 응답
-      {
-        success: false,
-        error: {
-          code: "INTERNAL_SERVER_ERROR",
-          message: "차단 처리 중 오류가 발생했습니다.",
-        },
-      },
-      { status: 400 },
-    );
+    return fail("INTERNAL_SERVER_ERROR", "차단 처리 중 오류가 발생했습니다."); // 실패 응답
   }
 }

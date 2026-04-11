@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { NextRequest } from "next/server";
+import prisma from "@/server/db/prisma";
+import { ok, fail } from "@/server/lib/response";
 
 /**
  * D-08: 댓글 선택 → 채팅방 생성 API
@@ -38,16 +39,7 @@ export async function POST(
     const commentId = Number(id); // 문자열 → 숫자 변환
 
     if (Number.isNaN(commentId) || !Number.isInteger(commentId)) { // 댓글 ID가 정수가 아닌 경우
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "INVALID_COMMENT_ID",
-            message: "유효하지 않은 댓글 ID입니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("INVALID_COMMENT_ID", "유효하지 않은 댓글 ID입니다.");
     }
 
     // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
@@ -73,68 +65,23 @@ export async function POST(
     });
 
     if (!comment) { // 댓글이 존재하지 않는 경우
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "COMMENT_NOT_FOUND",
-            message: "존재하지 않는 댓글입니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("COMMENT_NOT_FOUND", "존재하지 않는 댓글입니다.");
     }
 
     if (comment.deleted_at) { // 삭제된 댓글인 경우 (soft delete)
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "COMMENT_DELETED",
-            message: "삭제된 댓글입니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("COMMENT_DELETED", "삭제된 댓글입니다.");
     }
 
     if (comment.feed.author_user_id !== currentUserId) { // 피드 작성자만 댓글 선택 가능
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "NOT_FEED_AUTHOR",
-            message: "피드 작성자만 댓글을 선택할 수 있습니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("NOT_FEED_AUTHOR", "피드 작성자만 댓글을 선택할 수 있습니다.");
     }
 
     if (comment.feed.status !== "active") { // 활성 상태가 아닌 피드의 댓글은 선택 불가
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "FEED_NOT_AVAILABLE",
-            message: "활성 상태가 아닌 피드의 댓글은 선택할 수 없습니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("FEED_NOT_AVAILABLE", "활성 상태가 아닌 피드의 댓글은 선택할 수 없습니다.");
     }
 
     if (comment.commenter_user.status === "suspended") { // 댓글 작성자가 banned(현재 스키마: suspended)인 경우
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "COMMENTER_BANNED",
-            message: "제재된 사용자의 댓글은 선택할 수 없습니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("COMMENTER_BANNED", "제재된 사용자의 댓글은 선택할 수 없습니다.");
     }
 
     const blockExists = await prisma.block.findFirst({ // 차단 관계 확인 (양방향)
@@ -149,16 +96,7 @@ export async function POST(
     });
 
     if (blockExists) { // 차단 관계면 선택 불가
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "BLOCKED_RELATIONSHIP",
-            message: "차단 관계인 사용자의 댓글은 선택할 수 없습니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("BLOCKED_RELATIONSHIP", "차단 관계인 사용자의 댓글은 선택할 수 없습니다.");
     }
 
     const existingChatRoom = await prisma.chatRoom.findFirst({ // 같은 댓글로 이미 생성된 채팅방이 있는지 확인
@@ -170,16 +108,7 @@ export async function POST(
     });
 
     if (existingChatRoom) { // 이미 채팅방이 존재하면 중복 생성 방지
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "CHAT_ROOM_ALREADY_EXISTS",
-            message: "이미 이 댓글로 생성된 채팅방이 있습니다.",
-          },
-        },
-        { status: 400 },
-      );
+      return fail("CHAT_ROOM_ALREADY_EXISTS", "이미 이 댓글로 생성된 채팅방이 있습니다.");
     }
 
     const now = new Date();
@@ -206,22 +135,10 @@ export async function POST(
       return room;
     });
 
-    return NextResponse.json({ // 성공 응답
-      success: true,
-      data: { chatRoomId: chatRoom.id },
-    });
+    return ok({ chatRoomId: chatRoom.id }); // 성공 응답
   } catch (error) {
     console.error("[POST /api/feed-comments/:id/select-chat]", error); // 서버 에러 로그
 
-    return NextResponse.json( // 실패 응답
-      {
-        success: false,
-        error: {
-          code: "INTERNAL_SERVER_ERROR",
-          message: "댓글 선택 처리 중 오류가 발생했습니다.",
-        },
-      },
-      { status: 400 },
-    );
+    return fail("INTERNAL_SERVER_ERROR", "댓글 선택 처리 중 오류가 발생했습니다."); // 실패 응답
   }
 }
