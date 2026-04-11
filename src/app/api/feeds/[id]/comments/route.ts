@@ -185,26 +185,11 @@ export async function GET(
       return fail("FEED_NOT_AVAILABLE", "만료된 피드입니다.");
     }
 
-    const isOwner = feed.author_user_id === currentUserId; // 본인 피드 여부
-
-    if (!isOwner) { // 본인 피드가 아닐 때만 차단 관계 확인
-      const blockExists = await prisma.block.findFirst({
-        where: {
-          unblocked_at: null, // 활성 차단만
-          OR: [
-            { blocker_user_id: currentUserId, blocked_user_id: feed.author_user_id }, // 내가 차단한
-            { blocker_user_id: feed.author_user_id, blocked_user_id: currentUserId }, // 나를 차단한
-          ],
-        },
-        select: { id: true },
-      });
-
-      if (blockExists) { // 차단 관계면 존재 자체를 숨김
-        return fail("FEED_NOT_FOUND", "존재하지 않는 피드입니다.");
-      }
+    if (feed.author_user_id !== currentUserId) { // 피드 작성자만 댓글 목록 조회 가능 (정책 §1)
+      return fail("FEED_NOT_OWNER", "피드 작성자만 댓글을 확인할 수 있습니다.");
     }
 
-    const blockedRelations = await prisma.block.findMany({ // 차단 관계 조회: 댓글 작성자 필터용 (양방향)
+    const blockedRelations = await prisma.block.findMany({ // 차단 관계 조회: 차단된 사용자 댓글 숨김용 (양방향)
       where: {
         unblocked_at: null, // 현재 활성 차단만
         OR: [

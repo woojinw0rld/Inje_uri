@@ -309,3 +309,74 @@ export async function PATCH(
     return fail("INTERNAL_SERVER_ERROR", "피드 수정 중 오류가 발생했습니다."); // 실패 응답
   }
 }
+
+/**
+ * D-14: 피드 삭제 API
+ *
+ * 본인 피드를 soft delete한다 (status를 "deleted"로 변경).
+ * 이미 삭제된 피드는 중복 삭제 불가.
+ *
+ * @route DELETE /api/feeds/:id
+ *
+ * @requires 인증 - 로그인 사용자만 (본인 피드 검증에 사용자 ID 필요)
+ *
+ * @param id - URL 경로의 피드 ID
+ *
+ * @returns 200 - 성공
+ * {
+ *   success: true,
+ *   data: { deleted: true }
+ * }
+ *
+ * @returns 400 - 에러 (권한 없음, 피드 없음, 이미 삭제됨 등)
+ * {
+ *   success: false,
+ *   error: { code: string, message: string }
+ * }
+ *
+ * @see self_date_feeds 테이블 (prisma/schema.prisma)
+ */
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    const { id } = await params; // URL에서 피드 ID 추출
+    const feedId = Number(id); // 문자열 → 숫자 변환
+
+    if (Number.isNaN(feedId) || !Number.isInteger(feedId)) { // 피드 ID가 정수가 아닌 경우
+      return fail("INVALID_FEED_ID", "유효하지 않은 피드 ID입니다.");
+    }
+
+    // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
+    const currentUserId = 1; // 현재는 고정값 1 사용 (테스트용)
+
+    const feed = await prisma.selfDateFeed.findUnique({ // 피드 존재 + 소유권 확인
+      where: { id: feedId },
+      select: { id: true, author_user_id: true, status: true },
+    });
+
+    if (!feed) { // 피드가 존재하지 않는 경우
+      return fail("FEED_NOT_FOUND", "존재하지 않는 피드입니다.");
+    }
+
+    if (feed.author_user_id !== currentUserId) { // 본인 피드가 아닌 경우
+      return fail("FEED_NOT_OWNER", "본인이 작성한 피드만 삭제할 수 있습니다.");
+    }
+
+    if (feed.status === "deleted") { // 이미 삭제된 피드
+      return fail("FEED_ALREADY_DELETED", "이미 삭제된 피드입니다.");
+    }
+
+    await prisma.selfDateFeed.update({ // status를 deleted로 변경 (soft delete)
+      where: { id: feedId },
+      data: { status: "deleted", updated_at: new Date() },
+    });
+
+    return ok({ deleted: true }); // 성공 응답
+  } catch (error) {
+    console.error("[DELETE /api/feeds/:id]", error); // 서버 에러 로그
+
+    return fail("INTERNAL_SERVER_ERROR", "피드 삭제 중 오류가 발생했습니다."); // 실패 응답
+  }
+}
