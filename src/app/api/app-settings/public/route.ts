@@ -16,7 +16,9 @@ export async function GET() {
       orderBy: { key: 'asc' },
     });
 
-    const dbSettings = Object.fromEntries(rows.map((row) => [row.key, row.value]));
+    const dbSettings = Object.fromEntries(
+      rows.map((row: { key: string; value: string }) => [row.key, row.value]),
+    );
     const settings = {
       ...DEFAULT_PUBLIC_APP_SETTINGS,
       ...dbSettings,
@@ -27,4 +29,3 @@ export async function GET() {
     return toErrorResponse(error);
   }
 }
-

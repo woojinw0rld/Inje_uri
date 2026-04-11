@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { NextRequest } from 'next/server';
 import { apiErrors } from '@/lib/server/api/errors';
 import { ok } from '@/lib/server/api/response';
@@ -40,33 +41,31 @@ export const POST = withAuth(async (request: NextRequest, auth) => {
   }
 
   const requestedPrimary = parseBoolean(formData.get('isPrimary'));
-  const createdImage = await prisma.$transaction(async (tx) => {
-    const images = await tx.userProfileImage.findMany({
+  const images = await prisma.userProfileImage.findMany({
+    where: { user_id: auth.user.id },
+    orderBy: { sort_order: 'asc' },
+  });
+
+  if (images.length >= MAX_PROFILE_IMAGES) {
+    throw apiErrors.conflict(`프로필 이미지는 최대 ${MAX_PROFILE_IMAGES}개까지 등록할 수 있습니다.`);
+  }
+
+  const shouldSetPrimary = requestedPrimary || images.length === 0;
+  if (shouldSetPrimary) {
+    await prisma.userProfileImage.updateMany({
       where: { user_id: auth.user.id },
-      orderBy: { sort_order: 'asc' },
+      data: { is_primary: false },
     });
+  }
 
-    if (images.length >= MAX_PROFILE_IMAGES) {
-      throw apiErrors.conflict(`프로필 이미지는 최대 ${MAX_PROFILE_IMAGES}개까지 등록할 수 있습니다.`);
-    }
-
-    const shouldSetPrimary = requestedPrimary || images.length === 0;
-    if (shouldSetPrimary) {
-      await tx.userProfileImage.updateMany({
-        where: { user_id: auth.user.id },
-        data: { is_primary: false },
-      });
-    }
-
-    const maxSortOrder = images.reduce((maxValue, image) => Math.max(maxValue, image.sort_order), 0);
-    return tx.userProfileImage.create({
-      data: {
-        user_id: auth.user.id,
-        image_url: imageUrl,
-        sort_order: maxSortOrder + 1,
-        is_primary: shouldSetPrimary,
-      },
-    });
+  const maxSortOrder = images.reduce((maxValue: number, image: any) => Math.max(maxValue, image.sort_order), 0);
+  const createdImage = await prisma.userProfileImage.create({
+    data: {
+      user_id: auth.user.id,
+      image_url: imageUrl,
+      sort_order: maxSortOrder + 1,
+      is_primary: shouldSetPrimary,
+    },
   });
 
   return ok({
@@ -78,4 +77,3 @@ export const POST = withAuth(async (request: NextRequest, auth) => {
     },
   }, { status: 201 });
 });
-

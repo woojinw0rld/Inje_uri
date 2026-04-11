@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { NextRequest } from 'next/server';
 import { apiErrors } from '@/lib/server/api/errors';
 import { ok } from '@/lib/server/api/response';
@@ -133,14 +134,14 @@ async function loadCurrentUserProfile(userId: number) {
       createdAt: user.created_at.toISOString(),
       lastActiveAt: user.last_active_at?.toISOString() ?? null,
     },
-    profileImages: user.userProfileImages.map((image) => ({
+    profileImages: user.userProfileImages.map((image: any) => ({
       id: image.id,
       imageUrl: image.image_url,
       sortOrder: image.sort_order,
       isPrimary: image.is_primary,
     })),
     keywordSelections: groupSelectionsByCategory(
-      user.userKeywordSelections.map((selection) => ({
+      user.userKeywordSelections.map((selection: any) => ({
         category_id: selection.category.category_id,
         category_code: selection.category.category_code,
         category_name: selection.category.name,
@@ -193,7 +194,7 @@ async function normalizeKeywordSelections(rawValue: unknown) {
     include: { keywords: true },
   });
 
-  const categoryMap = new Map(categories.map((category) => [category.category_id, category]));
+  const categoryMap = new Map(categories.map((category: any) => [category.category_id, category]));
   if (categoryMap.size !== categoryIds.length) {
     throw apiErrors.validation('존재하지 않는 카테고리가 포함되어 있습니다.');
   }
@@ -204,19 +205,19 @@ async function normalizeKeywordSelections(rawValue: unknown) {
       throw apiErrors.validation('존재하지 않는 카테고리가 포함되어 있습니다.');
     }
 
-    const validKeywordIds = new Set(category.keywords.map((keyword) => keyword.keyword_id));
+    const validKeywordIds = new Set((category as any).keywords.map((keyword: any) => keyword.keyword_id));
     const hasInvalidKeyword = item.keywordIds.some((keywordId) => !validKeywordIds.has(keywordId));
 
     if (hasInvalidKeyword) {
       throw apiErrors.validation('카테고리와 맞지 않는 키워드가 포함되어 있습니다.');
     }
 
-    if (item.keywordIds.length > category.max_select_count) {
-      throw apiErrors.validation(`${category.name} 선택 개수를 초과했습니다.`);
+    if (item.keywordIds.length > (category as any).max_select_count) {
+      throw apiErrors.validation(`${(category as any).name} 선택 개수를 초과했습니다.`);
     }
 
-    if (category.selection_type === 'single' && item.keywordIds.length > 1) {
-      throw apiErrors.validation(`${category.name}는 하나만 선택할 수 있습니다.`);
+    if ((category as any).selection_type === 'single' && item.keywordIds.length > 1) {
+      throw apiErrors.validation(`${(category as any).name}는 하나만 선택할 수 있습니다.`);
     }
   }
 
@@ -344,34 +345,32 @@ export const PATCH = withAuth(async (request: NextRequest, auth) => {
 
   const keywordSelections = await normalizeKeywordSelections(body.keywordSelections);
 
-  await prisma.$transaction(async (tx) => {
-    if (Object.keys(updateData).length > 0) {
-      await tx.user.update({
-        where: { id: auth.user.id },
-        data: updateData,
+  if (Object.keys(updateData).length > 0) {
+    await prisma.user.update({
+      where: { id: auth.user.id },
+      data: updateData,
+    });
+  }
+
+  if (keywordSelections !== null) {
+    await prisma.userKeywordSelection.deleteMany({
+      where: { user_id: auth.user.id },
+    });
+
+    const rows = keywordSelections.flatMap((selection) => (
+      selection.keywordIds.map((keywordId) => ({
+        user_id: auth.user.id,
+        category_id: selection.categoryId,
+        keyword_id: keywordId,
+      }))
+    ));
+
+    if (rows.length > 0) {
+      await prisma.userKeywordSelection.createMany({
+        data: rows,
       });
     }
-
-    if (keywordSelections !== null) {
-      await tx.userKeywordSelection.deleteMany({
-        where: { user_id: auth.user.id },
-      });
-
-      const rows = keywordSelections.flatMap((selection) => (
-        selection.keywordIds.map((keywordId) => ({
-          user_id: auth.user.id,
-          category_id: selection.categoryId,
-          keyword_id: keywordId,
-        }))
-      ));
-
-      if (rows.length > 0) {
-        await tx.userKeywordSelection.createMany({
-          data: rows,
-        });
-      }
-    }
-  });
+  }
 
   return ok(await loadCurrentUserProfile(auth.user.id));
 });

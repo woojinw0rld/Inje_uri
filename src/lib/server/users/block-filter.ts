@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { prisma } from '@/lib/server/prisma';
 
 export async function getBlockedUserIdSet(userId: number): Promise<Set<number>> {
@@ -48,7 +49,6 @@ export async function filterAllowedCandidateUserIds(
   });
 
   return users
-    .map((user) => user.id)
-    .filter((userId) => !blockedSet.has(userId));
+    .map((user: any) => user.id)
+    .filter((userId: number) => !blockedSet.has(userId));
 }
-

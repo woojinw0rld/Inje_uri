@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ok, toErrorResponse } from '@/lib/server/api/response';
 import { prisma } from '@/lib/server/prisma';
 
@@ -15,13 +16,13 @@ export async function GET() {
     });
 
     return ok({
-      categories: categories.map((category) => ({
+      categories: categories.map((category: any) => ({
         id: category.category_id,
         code: category.category_code,
         name: category.name,
         selectionType: category.selection_type,
         maxSelectCount: category.max_select_count,
-        keywords: category.keywords.map((keyword) => ({
+        keywords: category.keywords.map((keyword: any) => ({
           id: keyword.keyword_id,
           code: keyword.keyword_code,
           label: keyword.label,
@@ -33,4 +34,3 @@ export async function GET() {
     return toErrorResponse(error);
   }
 }
-
