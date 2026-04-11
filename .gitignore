@@ -1,10 +1,33 @@
-node_modules
+# 의존성                                                                                                                
+node_modules                                                                                                            
+                
+# Next.js 빌드 결과물
 .next
 out
 dist
+
+# 로그
 *.log
+npm-debug.log*
+
+# TypeScript
 *.tsbuildinfo
-.DS_Store
+
+# 환경변수
 .env*
 !.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
 .vscode
+.idea
+
+# Prisma 자동생성 클라이언트
+src/generated/*
+src/generated/
+
+# 인증서
+*.pem
