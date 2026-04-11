@@ -30,7 +30,7 @@ import prisma from "@/lib/prisma";
  * @see phone_blocks 테이블 (prisma/schema.prisma)
  * @see Analysis/d-part-detail_v2.md - D-13 상세 스펙
  */
-export async function POST(request: NextRequest) { // HTTP POST 메서드로 전화번호 차단을 생성하는 API
+export async function POST(request: NextRequest) { // HTTP POST(쓰기) 메서드로 전화번호 차단을 생성하는 API
   try {
     const body = await request.json(); // 요청 바디에서 JSON 파싱
     const { phoneNumberE164 } = body as { phoneNumberE164: unknown }; // 전화번호 추출
