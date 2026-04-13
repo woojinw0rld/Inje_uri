@@ -2898,7 +2898,6 @@ export const InterestScalarFieldEnum = {
   id: 'id',
   from_user_id: 'from_user_id',
   to_user_id: 'to_user_id',
-  source_type: 'source_type',
   status: 'status',
   matched_at: 'matched_at',
   declined_at: 'declined_at',

@@ -109,11 +109,18 @@ const categorySeeds = [
 ];
 
 const feedKeywordSeeds = [
-  "First Impression",
-  "Daily Mood",
-  "Campus Spot",
-  "Date Course",
-  "Weekend Plan",
+  "산책",
+  "카페",
+  "맛집",
+  "공부",
+  "영화",
+  "드라이브",
+  "운동",
+  "전시",
+  "술",
+  "독서",
+  "수다",
+  "취미",
 ];
 
 const placeCategorySeeds = [

@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
-import prisma from "@/server/db/prisma";
-import type { Prisma } from "@/generated/prisma/client";
 import { ok, fail } from "@/server/lib/response";
+import { AppError } from "@/server/lib/app-error";
+import { deleteFeed, getFeedDetail, updateFeed } from "@/server/services/content/feed.service";
 
 /**
  * D-03: 피드 상세 조회 API
@@ -41,131 +41,22 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = await params; // URL에서 피드 ID 추출
-    const feedId = Number(id); // 문자열 → 숫자 변환
+    const { id } = await params;
+    const feedId = Number(id);
 
-    if (Number.isNaN(feedId) || !Number.isInteger(feedId)) { // 피드 ID가 정수가 아닌 경우
+    if (Number.isNaN(feedId) || !Number.isInteger(feedId)) {
       return fail("INVALID_FEED_ID", "유효하지 않은 피드 ID입니다.");
     }
 
     // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
     const currentUserId = 1; // 현재는 고정값 1 사용 (테스트용)
 
-    const feed = await prisma.selfDateFeed.findUnique({
-      where: { id: feedId },
-      select: {
-        id: true,
-        text: true,
-        status: true,
-        created_at: true,
-        updated_at: true,
-        expires_at: true,
-        boost_score: true,
-        author_user_id: true,
-        author_user: { // 작성자 상세 정보
-          select: {
-            id: true,
-            nickname: true,
-            gender: true,
-            department: true,
-            student_year: true,
-            bio: true,
-            status: true,
-            userProfileImages: { // 전체 프로필 이미지 목록
-              orderBy: { sort_order: "asc" },
-              select: { image_url: true, sort_order: true, is_primary: true },
-            },
-          },
-        },
-        keywords: { // 피드 키워드
-          select: {
-            feed_keyword: {
-              select: { feed_keyword_id: true, name: true },
-            },
-          },
-        },
-        images: { // 피드 이미지 전체
-          orderBy: { sort_order: "asc" },
-          select: { id: true, image_url: true, sort_order: true },
-        },
-        _count: { select: { comments: true } }, // 댓글 수
-      },
-    });
-
-    if (!feed) { // 피드가 존재하지 않는 경우
-      return fail("FEED_NOT_FOUND", "존재하지 않는 피드입니다.");
-    }
-
-    if (feed.author_user.status === "suspended") { // banned(현재 스키마: suspended) 작성자의 피드 → 숨김
-      return fail("FEED_NOT_FOUND", "존재하지 않는 피드입니다.");
-    }
-
-    if (feed.status !== "active") { // 삭제/만료/숨김 피드는 조회 불가
-      return fail("FEED_NOT_AVAILABLE", "활성 상태가 아닌 피드입니다.");
-    }
-
-    const now = new Date();
-    if (feed.expires_at <= now) { // 만료된 피드는 조회 불가
-      return fail("FEED_NOT_AVAILABLE", "만료된 피드입니다.");
-    }
-
-    const isOwner = feed.author_user_id === currentUserId; // 본인 피드 여부
-
-    if (!isOwner) { // 본인 피드가 아닐 때만 차단 관계 확인
-      const blockExists = await prisma.block.findFirst({
-        where: {
-          unblocked_at: null, // 활성 차단만
-          OR: [
-            { blocker_user_id: currentUserId, blocked_user_id: feed.author_user_id }, // 내가 차단한
-            { blocker_user_id: feed.author_user_id, blocked_user_id: currentUserId }, // 나를 차단한
-          ],
-        },
-        select: { id: true },
-      });
-
-      if (blockExists) { // 차단 관계면 존재 자체를 숨김
-        return fail("FEED_NOT_FOUND", "존재하지 않는 피드입니다.");
-      }
-    }
-
-    return ok({ // 성공 응답
-      feed: {
-        feedId: feed.id,
-        text: feed.text,
-        status: feed.status,
-        createdAt: feed.created_at.toISOString(),
-        updatedAt: feed.updated_at.toISOString(),
-        expiresAt: feed.expires_at.toISOString(),
-        boostScore: feed.boost_score,
-        author: {
-          userId: feed.author_user.id,
-          nickname: feed.author_user.nickname,
-          gender: feed.author_user.gender,
-          department: feed.author_user.department,
-          studentYear: feed.author_user.student_year,
-          bio: feed.author_user.bio,
-          profileImages: feed.author_user.userProfileImages.map((img) => ({ // 프로필 이미지 목록 변환
-            imageUrl: img.image_url,
-            sortOrder: img.sort_order,
-            isPrimary: img.is_primary,
-          })),
-        },
-        keywords: feed.keywords.map((k) => ({ // 키워드 목록 변환
-          feedKeywordId: k.feed_keyword.feed_keyword_id,
-          name: k.feed_keyword.name,
-        })),
-        images: feed.images.map((img) => ({ // 피드 이미지 목록 변환
-          imageId: img.id,
-          imageUrl: img.image_url,
-          sortOrder: img.sort_order,
-        })),
-        commentCount: feed._count.comments,
-      },
-    });
+    const data = await getFeedDetail(currentUserId, feedId);
+    return ok(data);
   } catch (error) {
-    console.error("[GET /api/feeds/:id]", error); // 서버 에러 로그
-
-    return fail("INTERNAL_SERVER_ERROR", "피드 상세를 불러오는 중 오류가 발생했습니다."); // 실패 응답
+    if (error instanceof AppError) return fail(error.code, error.message, error.status);
+    console.error("[GET /api/feeds/:id]", error);
+    return fail("INTERNAL_SERVER_ERROR", "피드 상세를 불러오는 중 오류가 발생했습니다.");
   }
 }
 
@@ -204,33 +95,34 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = await params; // URL에서 피드 ID 추출
-    const feedId = Number(id); // 문자열 → 숫자 변환
+    const { id } = await params;
+    const feedId = Number(id);
 
-    if (Number.isNaN(feedId) || !Number.isInteger(feedId)) { // 피드 ID가 정수가 아닌 경우
+    if (Number.isNaN(feedId) || !Number.isInteger(feedId)) {
       return fail("INVALID_FEED_ID", "유효하지 않은 피드 ID입니다.");
     }
 
-    const body = await request.json(); // 요청 바디 파싱
-    const { text, feedKeywordIds } = body as { text: unknown; feedKeywordIds: unknown };
+    const body = await request.json() as Record<string, unknown>;
+    const text = body.text;
+    const feedKeywordIds = body.feedKeywordIds;
 
-    const hasText = text !== undefined; // 본문 수정 여부
-    const hasKeywords = feedKeywordIds !== undefined; // 키워드 수정 여부
+    const hasText = text !== undefined;
+    const hasKeywords = feedKeywordIds !== undefined;
 
-    if (!hasText && !hasKeywords) { // 수정할 내용이 없는 경우
+    if (!hasText && !hasKeywords) {
       return fail("NO_UPDATE_FIELDS", "수정할 항목이 없습니다. text 또는 feedKeywordIds를 전달해주세요.");
     }
 
-    if (hasText && (typeof text !== "string" || !text.trim())) { // 본문이 빈 값이거나 문자열이 아닌 경우
+    if (hasText && (typeof text !== "string" || !text.trim())) {
       return fail("INVALID_TEXT", "피드 본문은 빈 값이 아닌 문자열이어야 합니다.");
     }
 
-    if (hasKeywords) { // 키워드 배열 검증
-      if (!Array.isArray(feedKeywordIds) || feedKeywordIds.length === 0) { // 빈 배열이거나 배열이 아닌 경우
+    if (hasKeywords) {
+      if (!Array.isArray(feedKeywordIds) || feedKeywordIds.length === 0) {
         return fail("INVALID_KEYWORDS", "피드 키워드 ID 배열은 1개 이상이어야 합니다.");
       }
 
-      const hasInvalidId = (feedKeywordIds as unknown[]).some((kwId) => typeof kwId !== "number" || !Number.isInteger(kwId)); // 배열 내 모든 값이 정수인지 검증
+      const hasInvalidId = feedKeywordIds.some((kwId) => typeof kwId !== "number" || !Number.isInteger(kwId));
       if (hasInvalidId) {
         return fail("INVALID_KEYWORD_ID", "피드 키워드 ID는 모두 정수여야 합니다.");
       }
@@ -239,74 +131,17 @@ export async function PATCH(
     // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
     const currentUserId = 1; // 현재는 고정값 1 사용 (테스트용)
 
-    const feed = await prisma.selfDateFeed.findUnique({ // 피드 존재 + 소유권 확인
-      where: { id: feedId },
-      select: { id: true, author_user_id: true, status: true, expires_at: true },
-    });
-
-    if (!feed) { // 피드가 존재하지 않는 경우
-      return fail("FEED_NOT_FOUND", "존재하지 않는 피드입니다.");
-    }
-
-    if (feed.author_user_id !== currentUserId) { // 본인 피드가 아닌 경우
-      return fail("FEED_NOT_OWNER", "본인이 작성한 피드만 수정할 수 있습니다.");
-    }
-
-    if (feed.status !== "active") { // 활성 상태가 아닌 피드는 수정 불가
-      return fail("FEED_NOT_AVAILABLE", "활성 상태가 아닌 피드는 수정할 수 없습니다.");
-    }
-
-    const now = new Date();
-    if (feed.expires_at <= now) { // 만료된 피드는 수정 불가
-      return fail("FEED_NOT_AVAILABLE", "만료된 피드는 수정할 수 없습니다.");
-    }
-
-    if (hasKeywords) { // 키워드 유효성 검증 (수정 요청 시)
-      const validKeywords = await prisma.feedKeyword.findMany({
-        where: {
-          feed_keyword_id: { in: feedKeywordIds as number[] },
-          is_active: true,
-        },
-        select: { feed_keyword_id: true },
-      });
-
-      if (validKeywords.length !== (feedKeywordIds as number[]).length) { // 유효하지 않은 키워드 포함
-        return fail("INVALID_KEYWORD_ID", "존재하지 않거나 비활성 상태인 키워드가 포함되어 있습니다.");
-      }
-    }
-
-    await prisma.$transaction(async (tx) => { // 묶음 처리: 본문 수정 + 키워드 교체를 하나의 트랜잭션으로
-      const updateData: Prisma.SelfDateFeedUpdateInput = { // 업데이트할 필드 구성
-        updated_at: now,
-      };
-      if (hasText) updateData.text = (text as string).trim(); // 본문 수정
-
-      await tx.selfDateFeed.update({ // 피드 본체 수정
-        where: { id: feedId },
-        data: updateData,
-      });
-
-      if (hasKeywords) { // 키워드 전체 교체: 기존 삭제 → 새로 연결
-        await tx.selfDateFeedKeyword.deleteMany({ // 기존 키워드 연결 삭제
-          where: { feed_id: feedId },
-        });
-
-        await tx.selfDateFeedKeyword.createMany({ // 새 키워드 연결 생성
-          data: (feedKeywordIds as number[]).map((kwId) => ({
-            feed_id: feedId,
-            feed_keyword_id: kwId,
-          })),
-        });
-      }
-
-      // TODO: 이미지 교체 로직 추가 예정 (저장소 구현 후)
-    });
-
-    return ok({ updated: true }); // 성공 응답
+    const data = await updateFeed(
+      currentUserId,
+      feedId,
+      typeof text === "string" ? text : undefined,
+      Array.isArray(feedKeywordIds) ? feedKeywordIds : undefined,
+    );
+    return ok(data);
   } catch (error) {
-    console.error("[PATCH /api/feeds/:id]", error); // 서버 에러 로그
-
-    return fail("INTERNAL_SERVER_ERROR", "피드 수정 중 오류가 발생했습니다."); // 실패 응답
+    if (error instanceof AppError) return fail(error.code, error.message, error.status);
+    console.error("[PATCH /api/feeds/:id]", error);
+    return fail("INTERNAL_SERVER_ERROR", "피드 수정 중 오류가 발생했습니다.");
   }
 }
 
@@ -341,42 +176,21 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = await params; // URL에서 피드 ID 추출
-    const feedId = Number(id); // 문자열 → 숫자 변환
+    const { id } = await params;
+    const feedId = Number(id);
 
-    if (Number.isNaN(feedId) || !Number.isInteger(feedId)) { // 피드 ID가 정수가 아닌 경우
+    if (Number.isNaN(feedId) || !Number.isInteger(feedId)) {
       return fail("INVALID_FEED_ID", "유효하지 않은 피드 ID입니다.");
     }
 
     // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
     const currentUserId = 1; // 현재는 고정값 1 사용 (테스트용)
 
-    const feed = await prisma.selfDateFeed.findUnique({ // 피드 존재 + 소유권 확인
-      where: { id: feedId },
-      select: { id: true, author_user_id: true, status: true },
-    });
-
-    if (!feed) { // 피드가 존재하지 않는 경우
-      return fail("FEED_NOT_FOUND", "존재하지 않는 피드입니다.");
-    }
-
-    if (feed.author_user_id !== currentUserId) { // 본인 피드가 아닌 경우
-      return fail("FEED_NOT_OWNER", "본인이 작성한 피드만 삭제할 수 있습니다.");
-    }
-
-    if (feed.status === "deleted") { // 이미 삭제된 피드
-      return fail("FEED_ALREADY_DELETED", "이미 삭제된 피드입니다.");
-    }
-
-    await prisma.selfDateFeed.update({ // status를 deleted로 변경 (soft delete)
-      where: { id: feedId },
-      data: { status: "deleted", updated_at: new Date() },
-    });
-
-    return ok({ deleted: true }); // 성공 응답
+    const data = await deleteFeed(currentUserId, feedId);
+    return ok(data);
   } catch (error) {
-    console.error("[DELETE /api/feeds/:id]", error); // 서버 에러 로그
-
-    return fail("INTERNAL_SERVER_ERROR", "피드 삭제 중 오류가 발생했습니다."); // 실패 응답
+    if (error instanceof AppError) return fail(error.code, error.message, error.status);
+    console.error("[DELETE /api/feeds/:id]", error);
+    return fail("INTERNAL_SERVER_ERROR", "피드 삭제 중 오류가 발생했습니다.");
   }
 }

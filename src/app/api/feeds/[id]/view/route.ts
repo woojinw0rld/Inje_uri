@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
-import prisma from "@/server/db/prisma";
 import { ok, fail } from "@/server/lib/response";
+import { AppError } from "@/server/lib/app-error";
+import { recordFeedView } from "@/server/services/content/feed.service";
 
 /**
  * D-09: 피드 조회 기록 API
@@ -35,47 +36,21 @@ export async function POST( // HTTP POST(쓰기) 메서드로 조회 기록을 D
   { params }: { params: Promise<{ id: string }> }, // URL 경로 매개변수 (피드 ID) - Next.js 라우팅에서 자동으로 전달
 ) {
   try {
-    const { id } = await params; // URL에서 피드 ID 추출
-    const feedId = Number(id); // 문자열 → 숫자 변환
+    const { id } = await params;
+    const feedId = Number(id);
 
-    if (Number.isNaN(feedId)) { // 피드 ID가 숫자가 아닌 경우
+    if (Number.isNaN(feedId) || !Number.isInteger(feedId)) {
       return fail("INVALID_FEED_ID", "유효하지 않은 피드 ID입니다.");
     }
 
     // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
     const viewerUserId = 1; // const viewerUserId = request.userId; // 현재는 고정값 1 사용 (테스트용) → 실제로는 인증된 사용자 ID를 사용해야 함
 
-    const feed = await prisma.selfDateFeed.findUnique({ // 피드 존재 + 활성 상태 확인
-      where: { id: feedId },
-      select: { id: true, status: true }, // 필요한 필드만 선택하여 조회 (응답 데이터 최소화)
-    });
-
-    if (!feed) { // 피드가 없으면 에러 반환
-      return fail("FEED_NOT_FOUND", "존재하지 않는 피드입니다.");
-    }
-
-    if (feed.status !== "active") { // 만료/삭제/숨김 피드는 조회 기록 불가
-      return fail("FEED_NOT_ACTIVE", "활성 상태가 아닌 피드입니다.");
-    }
-
-    await prisma.feedView.upsert({ // UPSERT 이미 조회했으면 무시, 처음이면 저장(where,create,update)
-      where: { //어디에 기록할지
-        feed_id_viewer_user_id: { // unique 제약 조건 (feed_id + viewer_user_id)
-          feed_id: feedId,
-          viewer_user_id: viewerUserId,
-        },
-      },
-      create: { // 처음 조회 시 새로 생성
-        feed_id: feedId,
-        viewer_user_id: viewerUserId,
-      },
-      update: {}, // 이미 존재하면 아무것도 변경하지 않음 (멱등성)
-    });
-
-    return ok({ recorded: true }); // 성공 응답
+    const data = await recordFeedView(feedId, viewerUserId);
+    return ok(data);
   } catch (error) {
-    console.error("[POST /api/feeds/:id/view]", error); // 서버 에러 로그
-
-    return fail("INTERNAL_SERVER_ERROR", "조회 기록 저장 중 오류가 발생했습니다."); // 실패 응답
+    if (error instanceof AppError) return fail(error.code, error.message, error.status);
+    console.error("[POST /api/feeds/:id/view]", error);
+    return fail("INTERNAL_SERVER_ERROR", "조회 기록 저장 중 오류가 발생했습니다.");
   }
 }

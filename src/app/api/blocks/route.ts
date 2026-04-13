@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
-import prisma from "@/server/db/prisma";
+import { AppError } from "@/server/lib/app-error";
 import { ok, fail } from "@/server/lib/response";
+import { blockUser, listBlocks, unblockUser } from "@/server/services/content/safety.service";
 
 /**
  * D-16: 차단 목록 조회 API
@@ -28,48 +29,18 @@ import { ok, fail } from "@/server/lib/response";
  *
  * @see blocks, users 테이블 (prisma/schema.prisma)
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
     const currentUserId = 1; // 현재는 고정값 1 사용 (테스트용)
+    const data = await listBlocks(currentUserId);
 
-    const blocks = await prisma.block.findMany({
-      where: {
-        blocker_user_id: currentUserId,
-        unblocked_at: null, // 활성 차단만
-      },
-      orderBy: { created_at: "desc" }, // 최근 차단 순
-      select: {
-        id: true,
-        reason: true,
-        created_at: true,
-        blocked_user: {
-          select: {
-            id: true,
-            nickname: true,
-            userProfileImages: {
-              where: { is_primary: true },
-              select: { image_url: true },
-              take: 1,
-            },
-          },
-        },
-      },
-    });
-
-    const items = blocks.map((block) => ({
-      blockId: block.id,
-      blockedUser: {
-        userId: block.blocked_user.id,
-        nickname: block.blocked_user.nickname,
-        profileImage: block.blocked_user.userProfileImages[0]?.image_url ?? null,
-      },
-      reason: block.reason,
-      createdAt: block.created_at.toISOString(),
-    }));
-
-    return ok({ items });
+    return ok(data);
   } catch (error) {
+    if (error instanceof AppError) {
+      return fail(error.code, error.message, error.status);
+    }
+
     console.error("[GET /api/blocks]", error);
 
     return fail("INTERNAL_SERVER_ERROR", "차단 목록을 불러오는 중 오류가 발생했습니다.");
@@ -121,57 +92,14 @@ export async function POST(request: NextRequest) { // HTTP POST 메서드로 사
     // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
     const blockerUserId = 1; // 현재는 고정값 1 사용 (테스트용)
 
-    if (blockerUserId === blockedUserId) { // 자기 자신을 차단하려는 경우
-      return fail("CANNOT_BLOCK_SELF", "자기 자신을 차단할 수 없습니다.");
-    }
+    const data = await blockUser(blockerUserId, blockedUserId, (reason as string | undefined) ?? null);
 
-    const targetUser = await prisma.user.findUnique({ // 차단 대상 사용자 존재 여부 확인 , findUnique는 고유값 조회, user_id는 고유값이므로 findUnique 사용 가능
-      where: { id: blockedUserId },
-      select: { id: true }, 
-    });
-
-    if (!targetUser) { // 대상 사용자가 없으면 에러 반환
-      return fail("USER_NOT_FOUND", "존재하지 않는 사용자입니다.");
-    }
-
-    const existingBlock = await prisma.block.findUnique({ // 이미 차단된 관계인지 확인함
-      where: {
-        blocker_user_id_blocked_user_id: { // unique 제약 조건 (blocker_user_id + blocked_user_id)
-          blocker_user_id: blockerUserId,
-          blocked_user_id: blockedUserId,
-        },
-      },
-      select: { id: true, unblocked_at: true },
-    });
-
-    if (existingBlock && !existingBlock.unblocked_at) { // 차단 중인 관계가 이미 존재하면 에러 반환
-      return fail("ALREADY_BLOCKED", "이미 차단한 사용자입니다.");
-    }
-
-    if (existingBlock && existingBlock.unblocked_at) { // 과거에 차단했다가 해제한 경우 → 다시 차단 (unblocked_at 초기화)
-      const reblocked = await prisma.block.update({
-        where: { id: existingBlock.id },
-        data: {
-          reason: reason as string | undefined ?? null, // 새 사유로 덮어쓰기 (없으면 null)
-          unblocked_at: null, // 차단 해제 시각 초기화(NULL) → 다시 활성 차단 상태 / 차단 중 일 떈 null, 해체 중 일땐 timestamp / unblocked_at이 존재
-        },
-        select: { id: true },
-      });
-
-      return ok({ blockId: reblocked.id }); // 재차단 성공 응답
-    }
-
-    const block = await prisma.block.create({ // 신규 차단 생성 , 위 조건들 다 통과하면 = 차단 관계가 없음
-      data: {
-        blocker_user_id: blockerUserId,
-        blocked_user_id: blockedUserId,
-        reason: reason as string | undefined ?? null, // 사유가 없으면 null 저장
-      },
-      select: { id: true },
-    });
-
-    return ok({ blockId: block.id }); // 성공 응답
+    return ok(data); // 성공 응답
   } catch (error) {
+    if (error instanceof AppError) {
+      return fail(error.code, error.message, error.status);
+    }
+
     console.error("[POST /api/blocks]", error); // 서버 에러 로그
 
     return fail("INTERNAL_SERVER_ERROR", "차단 처리 중 오류가 발생했습니다."); // 실패 응답
@@ -216,30 +144,14 @@ export async function DELETE(request: NextRequest) {
     // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
     const currentUserId = 1; // 현재는 고정값 1 사용 (테스트용)
 
-    const block = await prisma.block.findUnique({
-      where: { id: blockId },
-      select: { id: true, blocker_user_id: true, unblocked_at: true },
-    });
+    const data = await unblockUser(currentUserId, blockId);
 
-    if (!block) {
-      return fail("BLOCK_NOT_FOUND", "존재하지 않는 차단입니다.");
-    }
-
-    if (block.blocker_user_id !== currentUserId) { // 본인이 차단한 관계만 해제 가능
-      return fail("BLOCK_NOT_OWNER", "본인이 차단한 관계만 해제할 수 있습니다.");
-    }
-
-    if (block.unblocked_at) { // 이미 해제된 차단
-      return fail("ALREADY_UNBLOCKED", "이미 해제된 차단입니다.");
-    }
-
-    await prisma.block.update({
-      where: { id: blockId },
-      data: { unblocked_at: new Date() },
-    });
-
-    return ok({ unblocked: true });
+    return ok(data);
   } catch (error) {
+    if (error instanceof AppError) {
+      return fail(error.code, error.message, error.status);
+    }
+
     console.error("[DELETE /api/blocks]", error);
 
     return fail("INTERNAL_SERVER_ERROR", "차단 해제 중 오류가 발생했습니다.");
