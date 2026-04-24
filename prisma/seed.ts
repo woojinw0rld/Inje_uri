@@ -217,6 +217,7 @@ const testUserSeeds = [
     university: "인제대학교",
     department: "컴퓨터공학과",
     student_year: 3,
+    onboarding_completed: true,
   },
   {
     real_name: "테스트유저B",
@@ -228,6 +229,7 @@ const testUserSeeds = [
     university: "인제대학교",
     department: "간호학과",
     student_year: 2,
+    onboarding_completed: true,
   },
   {
     real_name: "테스트유저C",
@@ -239,6 +241,7 @@ const testUserSeeds = [
     university: "인제대학교",
     department: "소프트웨어학과",
     student_year: 1,
+    onboarding_completed: true,
   },
 ];
 

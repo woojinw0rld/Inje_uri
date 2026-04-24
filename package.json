@@ -8,7 +8,7 @@
     "npm": "11.6.2"
   },
   "scripts": {
-    "dev": "next dev --webpack",
+    "dev": "npx rimraf .next && next dev --webpack",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
