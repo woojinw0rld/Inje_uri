@@ -24,13 +24,13 @@
    *   - 보통 [createdByUserId, targetUserId] 2명
    */
   export type CreateChatRoomInput = {
-    source_type: chat_room_status;
+    source_type: chat_room_source_type;
     created_by_user_id: number;
     source_interest_id?: number; // source_type = interest 일 때
     source_comment_id?: number;  // source_type = comment 일 때
     expires_at: Date;
     participantUserIds: number[];
-  };
+  }; //create_at은 DB에서 자동으로 채움. 
 
   // ─────────────────────────────────────────────
   // 조회
@@ -43,29 +43,30 @@
    * - 참여자 정보(닉네임, 대표 이미지)와 마지막 메시지 미리보기 포함
    * - 마지막 메시지 시각 기준 재정렬은 호출 측(service)에서 처리
    *   (Prisma가 관계 필드 기준 orderBy를 직접 지원 안 하므로)
+   *  
    */
   export async function findRoomsByUserId(userId: number) {
     return prisma.chatRoom.findMany({
-      where: {
+      where: { //어떤 방을 가져올지(where)
         participants: {
           some: {
-            user_id: userId,
-            left_at: null,
+            user_id: userId, //내가 아직 참여자로 있고 
+            left_at: null, // 아직 안 나간 방만
           },
         },
       },
       include: {
         // 채팅 목록에서 상대방 닉네임/이미지 표시에 필요
         participants: {
-          where: { left_at: null },
+          where: { left_at: null }, //상대방도 아직 안나간 사람만
           include: {
             user: {
               select: {
                 id: true,
-                nickname: true,
+                nickname: true, //채팅방 목록에 표시할 이름
                 userProfileImages: {
                   where: { is_primary: true },
-                  select: { image_url: true },
+                  select: { image_url: true }, //대표이미지 하나
                   take: 1,
                 },
               },
@@ -158,8 +159,8 @@
     return prisma.chatRoom.findFirst({
       where: {
         AND: [
-          { participants: { some: { user_id: userIdA } } },
-          { participants: { some: { user_id: userIdB } } },
+          { participants: { some: { user_id: userIdA } } }, //A가 이방 참여
+          { participants: { some: { user_id: userIdB } } }, //B가 이방 참여
           // 한쪽이라도 나간 기록이 있는 방
           { participants: { some: { left_at: { not: null } } } },
         ],
@@ -196,7 +197,7 @@
       data: {
         source_type: input.source_type,
         created_by_user_id: input.created_by_user_id,
-        source_interest_id: input.source_interest_id ?? null,
+        source_interest_id: input.source_interest_id ?? null, //값이 있으면 넣고 없으면 null
         source_comment_id: input.source_comment_id ?? null,
         expires_at: input.expires_at,
         participants: {
