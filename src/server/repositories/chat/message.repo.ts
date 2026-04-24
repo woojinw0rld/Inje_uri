@@ -41,8 +41,7 @@
       where: {
         chat_room_id: roomId,
         deleted_at: null,
-        ...(cursor !== undefined ? { id: { lt: cursor } } :
-  {}),
+        ...(cursor !== undefined ? { id: { lt: cursor } } : {}),
       },
       orderBy: { id: "desc" },
       take: limit,
@@ -75,8 +74,7 @@
         chat_room_id: input.chat_room_id,
         sender_user_id: input.sender_user_id,
         content: input.content,
-        ...(input.type !== undefined ? { type: input.type } :
-  {}),
+        ...(input.type !== undefined ? { type: input.type } : {}),
       },
     });
   }
