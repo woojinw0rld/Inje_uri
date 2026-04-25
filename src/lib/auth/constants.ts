@@ -1,4 +1,4 @@
-export const BUS_LOGIN_ENDPOINT = 'https://bus.inje.ac.kr/app/api.php?ctrl=Member&action=Login&lang=1';
+﻿export const BUS_LOGIN_ENDPOINT = 'https://bus.inje.ac.kr/app/api.php?ctrl=Member&action=Login&lang=1';
 export const BUS_INJE_CHECK_ENDPOINT = 'https://bus.inje.ac.kr/app/api.php?ctrl=Member&action=InjeCheck';
 
 export const APP_AUTH_COOKIE_NAME = 'injeuri_bus_auth';

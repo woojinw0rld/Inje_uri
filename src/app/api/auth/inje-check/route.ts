@@ -40,18 +40,18 @@ export async function POST(request: Request) {
   try {
     body = await request.json() as InjeCheckBody;
   } catch {
-    return validationFail('?붿껌 ?뺤떇???뺤씤?댁＜?몄슂.');
+    return validationFail('요청 형식을 확인해주세요.');
   }
 
   const studentNumber = normalizeValue(body.studentNumber);
   const birth = normalizeValue(body.birth);
 
   if (!studentNumber) {
-    return validationFail('?숇쾲???낅젰?댁＜?몄슂.');
+    return validationFail('학번을 입력해주세요.');
   }
 
   if (!/^\d{6}$/.test(birth)) {
-    return validationFail('?앸뀈?붿씪 6?먮━瑜??낅젰?댁＜?몄슂.');
+    return validationFail('생년월일 6자리를 입력해주세요.');
   }
 
   let upstreamBody: { status?: string; message?: string } | null = null;
@@ -73,14 +73,14 @@ export async function POST(request: Request) {
     upstreamBody = parseUpstreamInjeBody(await upstreamResponse.text());
   } catch {
     return NextResponse.json(
-      { ok: false, message: '?몄쬆 ?쒕쾭???곌껐?????놁뒿?덈떎. ?좎떆 ???ㅼ떆 ?쒕룄?댁＜?몄슂.' },
+      { ok: false, message: '인증 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.' },
       { status: 502 },
     );
   }
 
   if (!upstreamBody) {
     return NextResponse.json(
-      { ok: false, message: '?몄쬆 ?묐떟??泥섎━?섏? 紐삵뻽?듬땲?? ?좎떆 ???ㅼ떆 ?쒕룄?댁＜?몄슂.' },
+      { ok: false, message: '인증 응답을 처리하지 못했습니다. 잠시 후 다시 시도해주세요.' },
       { status: 502 },
     );
   }
@@ -90,10 +90,11 @@ export async function POST(request: Request) {
 
   if (isNotFoundFailure) {
     return NextResponse.json(
-      { ok: false, message: '?낅젰???뺣낫瑜?李얠쓣???놁뒿?덈떎.' },
+      { ok: false, message: '입력한 정보를 찾을수 없습니다.' },
       { status: 401 },
     );
   }
+
   const existingUser = await prisma.user.findFirst({
     where: { student_number: studentNumber },
     select: { id: true },
@@ -125,4 +126,3 @@ export async function POST(request: Request) {
   attachPreSignupCookie(response, token);
   return response;
 }
-

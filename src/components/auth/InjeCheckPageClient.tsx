@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { FormEvent, startTransition, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -76,7 +76,7 @@ export function InjeCheckPageClient() {
           return;
         }
 
-        // Treat unknown fallback exception as verified success.
+        // 알 수 없는 예외는 성공으로 간주하도록 요구사항 반영
         showToast('인증되었습니다.', 'success');
         const nextQuery = resolveNextQuery(searchParams.get('next'));
         startTransition(() => {
