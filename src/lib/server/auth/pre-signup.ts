@@ -98,12 +98,20 @@ export async function consumePreSignupVerification(request: NextRequest): Promis
     return null;
   }
 
-  await prisma.preSignupVerification.delete({ where: { token_hash: row.token_hash } });
-
   return {
     studentNumber: row.student_number,
     birthHash: row.birth_hash,
   };
+}
+
+export async function clearPreSignupVerification(request: NextRequest) {
+  const token = request.cookies.get(PRE_SIGNUP_COOKIE_NAME)?.value;
+  if (!token) {
+    return;
+  }
+
+  const tokenHash = hashValue(token);
+  await prisma.preSignupVerification.delete({ where: { token_hash: tokenHash } }).catch(() => undefined);
 }
 
 export function attachPreSignupCookie(response: NextResponse, token: string) {

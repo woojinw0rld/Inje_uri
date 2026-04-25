@@ -1,7 +1,11 @@
 import bcrypt from 'bcrypt';
 import { NextRequest, NextResponse } from 'next/server';
 import { attachAppAccessCookie } from '@/lib/server/auth/app-access-cookie';
-import { clearPreSignupCookie, consumePreSignupVerification } from '@/lib/server/auth/pre-signup';
+import {
+  clearPreSignupCookie,
+  clearPreSignupVerification,
+  consumePreSignupVerification,
+} from '@/lib/server/auth/pre-signup';
 import { attachSessionCookie, createUserSession } from '@/lib/server/auth/session';
 import { prisma } from '@/lib/server/prisma';
 
@@ -154,6 +158,7 @@ export async function POST(request: NextRequest) {
 
   attachSessionCookie(response, token, expiresAt);
   attachAppAccessCookie(response);
+  await clearPreSignupVerification(request);
   clearPreSignupCookie(response);
   return response;
 }
