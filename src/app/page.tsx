@@ -1,5 +1,5 @@
-import { LoginPageClient } from '@/components/auth/LoginPageClient';
+import { InjeCheckPageClient } from '@/components/auth/InjeCheckPageClient';
 
 export default function Home() {
-  return <LoginPageClient />;
+  return <InjeCheckPageClient />;
 }
