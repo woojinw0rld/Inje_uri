@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import {
+  INJE_CHECK_ALREADY_REGISTERED_MESSAGE,
   BUS_INJE_CHECK_ENDPOINT,
   INJE_CHECK_FAIL_MESSAGE,
 } from '@/lib/auth/constants';
@@ -24,6 +25,14 @@ function normalizeValue(value: unknown): string {
 
 function validationFail(message: string) {
   return NextResponse.json({ ok: false, message }, { status: 400 });
+}
+
+function normalizeUpstreamMessage(message: string | undefined): string {
+  if (!message) {
+    return '';
+  }
+
+  return message.replace(/\\\//g, '/').trim();
 }
 
 export async function POST(request: Request) {
@@ -77,14 +86,21 @@ export async function POST(request: Request) {
     );
   }
 
-  if (
-    upstreamBody?.status === 'fail'
-    && upstreamBody?.message === INJE_CHECK_FAIL_MESSAGE
-  ) {
+  const upstreamMessage = normalizeUpstreamMessage(upstreamBody.message);
+  const isNotFoundFailure = upstreamBody.status === 'fail' && upstreamMessage === INJE_CHECK_FAIL_MESSAGE;
+  const isAlreadyRegisteredNotice = upstreamBody.status === 'fail' && upstreamMessage === INJE_CHECK_ALREADY_REGISTERED_MESSAGE;
+
+  if (isNotFoundFailure) {
     return NextResponse.json(
       { ok: false, message: '입력한 정보를 찾을수 없습니다.' },
       { status: 401 },
     );
+  }
+
+  // External API may return "이미 등록된 학번/사번입니다." with fail status.
+  // Treat this as verified success as requested.
+  if (isAlreadyRegisteredNotice) {
+    // no-op: continue into success flow below
   }
 
   const existingUser = await prisma.user.findFirst({
