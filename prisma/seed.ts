@@ -109,11 +109,18 @@ const categorySeeds = [
 ];
 
 const feedKeywordSeeds = [
-  "First Impression",
-  "Daily Mood",
-  "Campus Spot",
-  "Date Course",
-  "Weekend Plan",
+  "산책",
+  "카페",
+  "맛집",
+  "공부",
+  "영화",
+  "드라이브",
+  "운동",
+  "전시",
+  "술",
+  "독서",
+  "수다",
+  "취미",
 ];
 
 const placeCategorySeeds = [
@@ -210,6 +217,7 @@ const testUserSeeds = [
     university: "인제대학교",
     department: "컴퓨터공학과",
     student_year: 3,
+    onboarding_completed: true,
   },
   {
     real_name: "테스트유저B",
@@ -221,6 +229,7 @@ const testUserSeeds = [
     university: "인제대학교",
     department: "간호학과",
     student_year: 2,
+    onboarding_completed: true,
   },
   {
     real_name: "테스트유저C",
@@ -232,6 +241,7 @@ const testUserSeeds = [
     university: "인제대학교",
     department: "소프트웨어학과",
     student_year: 1,
+    onboarding_completed: true,
   },
 ];
 

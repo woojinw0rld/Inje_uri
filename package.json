@@ -8,7 +8,7 @@
     "npm": "11.6.2"
   },
   "scripts": {
-    "dev": "next dev --webpack",
+    "dev": "npx rimraf .next && next dev --webpack",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
@@ -25,9 +25,11 @@
     "@prisma/client": "^7.0.0",
     "bcrypt": "^6.0.0",
     "next": "^16.0.0",
-    "pg": "^8.20.0",
+    "next-swagger-doc": "^0.4.1",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "swagger-ui-react": "^5.32.2",
+    "tsx": "^4.21.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.1.0",
@@ -36,13 +38,13 @@
     "@types/node": "^24.0.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "@types/swagger-ui-react": "^5.18.0",
     "dotenv": "^17.4.0",
     "eslint": "^9.0.0",
     "eslint-config-next": "^16.0.0",
     "postcss": "^8.5.0",
     "prisma": "^7.0.0",
     "tailwindcss": "^4.0.0",
-    "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }
 }
