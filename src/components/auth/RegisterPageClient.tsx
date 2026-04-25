@@ -1,11 +1,12 @@
 'use client';
 
-import { FormEvent, startTransition, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import type { ReactNode } from 'react';
+import { FormEvent, startTransition, useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { PageContainer } from '@/components/layout';
 import { Button, Card, useToast } from '@/components/ui';
+import { PRE_AUTH_CREDENTIALS_STORAGE_KEY } from '@/lib/auth/constants';
 import { APP_NAME } from '@/lib/constants';
-import type { ReactNode } from 'react';
 
 interface RegisterApiResponse {
   ok?: boolean;
@@ -37,13 +38,51 @@ const INITIAL_FORM_STATE: RegisterFormState = {
   university: '인제대학교',
 };
 
+function resolveNextPath(nextPath: string | null): string | null {
+  if (!nextPath || !nextPath.startsWith('/') || nextPath.startsWith('//')) {
+    return null;
+  }
+
+  return nextPath;
+}
+
 export function RegisterPageClient() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { showToast } = useToast();
 
   const [form, setForm] = useState<RegisterFormState>(INITIAL_FORM_STATE);
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const raw = window.sessionStorage.getItem(PRE_AUTH_CREDENTIALS_STORAGE_KEY);
+    if (!raw) {
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(raw) as { loginId?: unknown; password?: unknown };
+      const prefilledLoginId = typeof parsed.loginId === 'string' ? parsed.loginId.trim() : '';
+      const prefilledPassword = typeof parsed.password === 'string' ? parsed.password : '';
+
+      if (!prefilledLoginId && !prefilledPassword) {
+        return;
+      }
+
+      setForm((prev) => ({
+        ...prev,
+        loginId: prev.loginId || prefilledLoginId,
+        password: prev.password || prefilledPassword,
+      }));
+    } catch {
+      window.sessionStorage.removeItem(PRE_AUTH_CREDENTIALS_STORAGE_KEY);
+    }
+  }, []);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -74,8 +113,15 @@ export function RegisterPageClient() {
         return;
       }
 
+      if (typeof window !== 'undefined') {
+        window.sessionStorage.removeItem(PRE_AUTH_CREDENTIALS_STORAGE_KEY);
+      }
+
       showToast('회원가입이 완료되었습니다.', 'success');
-      const nextPath = payload.nextPath?.startsWith('/') ? payload.nextPath : '/match';
+      const queryNextPath = resolveNextPath(searchParams.get('next'));
+      const apiNextPath = payload.nextPath?.startsWith('/') ? payload.nextPath : '/match';
+      const nextPath = queryNextPath ?? apiNextPath;
+
       startTransition(() => {
         router.replace(nextPath);
       });

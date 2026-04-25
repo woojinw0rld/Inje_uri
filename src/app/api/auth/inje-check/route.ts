@@ -6,7 +6,6 @@ import {
 import { prisma } from '@/lib/server/prisma';
 import {
   attachPreSignupCookie,
-  clearPreSignupCookie,
   issuePreSignupVerification,
   parseUpstreamInjeBody,
 } from '@/lib/server/auth/pre-signup';
@@ -95,31 +94,17 @@ export async function POST(request: Request) {
     );
   }
 
+  const token = await issuePreSignupVerification(studentNumber, birth);
   const existingUser = await prisma.user.findFirst({
     where: { student_number: studentNumber },
     select: { id: true },
   });
 
-  if (existingUser) {
-    const response = NextResponse.json(
-      {
-        ok: true,
-        verified: true,
-        nextStep: 'login',
-      },
-      { status: 200 },
-    );
-
-    clearPreSignupCookie(response);
-    return response;
-  }
-
-  const token = await issuePreSignupVerification(studentNumber, birth);
   const response = NextResponse.json(
     {
       ok: true,
       verified: true,
-      nextStep: 'register',
+      nextStep: existingUser ? 'login' : 'register',
     },
     { status: 200 },
   );
