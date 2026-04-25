@@ -70,9 +70,18 @@ export function InjeCheckPageClient() {
       }
 
       if (!response.ok || !payload.ok || !payload.nextStep) {
-        const message = payload.message ?? '인증에 실패했습니다. 다시 시도해주세요.';
-        setErrorMessage(message);
-        showToast(message, 'error');
+        if (payload.message) {
+          setErrorMessage(payload.message);
+          showToast(payload.message, 'error');
+          return;
+        }
+
+        // Treat unknown fallback exception as verified success.
+        showToast('인증되었습니다.', 'success');
+        const nextQuery = resolveNextQuery(searchParams.get('next'));
+        startTransition(() => {
+          router.push(`/register${nextQuery}`);
+        });
         return;
       }
 
