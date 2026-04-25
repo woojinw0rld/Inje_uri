@@ -10,6 +10,7 @@
  */
 export type * from './models/User'
 export type * from './models/AuthSession'
+export type * from './models/PreSignupVerification'
 export type * from './models/EmailVerification'
 export type * from './models/UserProfileImage'
 export type * from './models/Category'

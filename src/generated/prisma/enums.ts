@@ -12,7 +12,7 @@
 export const user_status = {
   active: 'active',
   inactive: 'inactive',
-  suspended: 'suspended',
+  banned: 'banned',
   withdrawn: 'withdrawn'
 } as const
 
