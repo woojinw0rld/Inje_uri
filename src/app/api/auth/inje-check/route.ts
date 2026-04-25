@@ -70,6 +70,13 @@ export async function POST(request: Request) {
     );
   }
 
+  if (!upstreamBody) {
+    return NextResponse.json(
+      { ok: false, message: '인증 응답을 처리하지 못했습니다. 잠시 후 다시 시도해주세요.' },
+      { status: 502 },
+    );
+  }
+
   if (
     upstreamBody?.status === 'fail'
     && upstreamBody?.message === INJE_CHECK_FAIL_MESSAGE
