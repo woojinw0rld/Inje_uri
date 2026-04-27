@@ -2849,6 +2849,7 @@ export const UserScalarFieldEnum = {
   age: 'age',
   email: 'email',
   password_hash: 'password_hash',
+  birth: 'birth',
   birth_hash: 'birth_hash',
   nickname: 'nickname',
   gender: 'gender',

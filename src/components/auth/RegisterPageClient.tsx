@@ -18,6 +18,8 @@ interface RegisterFormState {
   loginId: string;
   password: string;
   nickname: string;
+  birth: string;
+  age: string;
   studentYear: string;
   department: string;
   gender: 'male' | 'female';
@@ -30,6 +32,8 @@ const INITIAL_FORM_STATE: RegisterFormState = {
   loginId: '',
   password: '',
   nickname: '',
+  birth: '',
+  age: '',
   studentYear: '',
   department: '',
   gender: 'male',
@@ -44,6 +48,15 @@ function resolveNextPath(nextPath: string | null): string | null {
   }
 
   return nextPath;
+}
+
+function resolveLoginPath(nextPath: string | null): string {
+  const resolvedNextPath = resolveNextPath(nextPath);
+  if (!resolvedNextPath) {
+    return '/login';
+  }
+
+  return `/login?next=${encodeURIComponent(resolvedNextPath)}`;
 }
 
 export function RegisterPageClient() {
@@ -66,11 +79,12 @@ export function RegisterPageClient() {
     }
 
     try {
-      const parsed = JSON.parse(raw) as { loginId?: unknown; password?: unknown };
+      const parsed = JSON.parse(raw) as { loginId?: unknown; password?: unknown; birth?: unknown };
       const prefilledLoginId = typeof parsed.loginId === 'string' ? parsed.loginId.trim() : '';
       const prefilledPassword = typeof parsed.password === 'string' ? parsed.password : '';
+      const prefilledBirth = typeof parsed.birth === 'string' ? parsed.birth.replace(/\D/g, '').slice(0, 6) : '';
 
-      if (!prefilledLoginId && !prefilledPassword) {
+      if (!prefilledLoginId && !prefilledPassword && !prefilledBirth) {
         return;
       }
 
@@ -78,6 +92,7 @@ export function RegisterPageClient() {
         ...prev,
         loginId: prev.loginId || prefilledLoginId,
         password: prev.password || prefilledPassword,
+        birth: prev.birth || prefilledBirth,
       }));
     } catch {
       window.sessionStorage.removeItem(PRE_AUTH_CREDENTIALS_STORAGE_KEY);
@@ -95,7 +110,9 @@ export function RegisterPageClient() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...form,
+          age: Number(form.age),
           studentYear: Number(form.studentYear),
+          birth: form.birth.trim(),
         }),
       });
 
@@ -117,10 +134,11 @@ export function RegisterPageClient() {
         window.sessionStorage.removeItem(PRE_AUTH_CREDENTIALS_STORAGE_KEY);
       }
 
-      showToast('회원가입이 완료되었습니다.', 'success');
-      const queryNextPath = resolveNextPath(searchParams.get('next'));
-      const apiNextPath = payload.nextPath?.startsWith('/') ? payload.nextPath : '/match';
-      const nextPath = queryNextPath ?? apiNextPath;
+      showToast('회원가입이 완료되었습니다. 로그인해주세요.', 'success');
+      const apiNextPath = payload.nextPath?.startsWith('/') ? payload.nextPath : '/login';
+      const nextPath = apiNextPath === '/login'
+        ? resolveLoginPath(searchParams.get('next'))
+        : apiNextPath;
 
       startTransition(() => {
         router.replace(nextPath);
@@ -150,7 +168,7 @@ export function RegisterPageClient() {
               회원가입
             </h1>
             <p className="mt-2 text-sm leading-6 text-[var(--color-text-secondary)]">
-              인증된 학번 정보로 계정을 생성합니다.
+              인증된 학번 정보와 생년월일로 계정을 생성합니다.
             </p>
           </div>
 
@@ -185,6 +203,32 @@ export function RegisterPageClient() {
                 value={form.nickname}
                 onChange={(event) => updateField('nickname', event.target.value)}
                 placeholder="닉네임"
+                className={inputClassName}
+                disabled={isSubmitting}
+              />
+            </LabeledInput>
+
+            <LabeledInput label="생년월일 (6자리)">
+              <input
+                type="text"
+                inputMode="numeric"
+                maxLength={6}
+                value={form.birth}
+                onChange={(event) => updateField('birth', event.target.value.replace(/\D/g, '').slice(0, 6))}
+                placeholder="예: 020408"
+                className={inputClassName}
+                disabled={isSubmitting}
+              />
+            </LabeledInput>
+
+            <LabeledInput label="나이">
+              <input
+                type="number"
+                min={1}
+                max={100}
+                value={form.age}
+                onChange={(event) => updateField('age', event.target.value)}
+                placeholder="나이"
                 className={inputClassName}
                 disabled={isSubmitting}
               />

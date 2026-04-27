@@ -175,13 +175,18 @@ export function InjeCheckPageClient() {
   };
 
   const handleRegisterClick = () => {
-    const credentials = validateCredentials();
-    if (!credentials) {
-      return;
-    }
-
     if (typeof window !== 'undefined') {
-      window.sessionStorage.setItem(PRE_AUTH_CREDENTIALS_STORAGE_KEY, JSON.stringify(credentials));
+      const prefilledCredentials = {
+        loginId: loginId.trim(),
+        password: password.trim(),
+        birth: birth.trim(),
+      };
+
+      if (prefilledCredentials.loginId || prefilledCredentials.password || prefilledCredentials.birth) {
+        window.sessionStorage.setItem(PRE_AUTH_CREDENTIALS_STORAGE_KEY, JSON.stringify(prefilledCredentials));
+      } else {
+        window.sessionStorage.removeItem(PRE_AUTH_CREDENTIALS_STORAGE_KEY);
+      }
     }
 
     const nextQuery = resolveNextQuery(searchParams.get('next'));

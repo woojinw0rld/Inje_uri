@@ -72,6 +72,7 @@ model User {
   age                        Int?
   email                      String                    @unique @db.VarChar(255)
   password_hash              String                    @db.VarChar(255)
+  birth                      String?                   @db.VarChar(6)
   birth_hash                 String?                   @db.VarChar(255)
   nickname                   String                    @unique @db.VarChar(50)
   gender                     String                    @db.VarChar(50)

@@ -1,12 +1,13 @@
 import bcrypt from 'bcrypt';
 import { NextRequest, NextResponse } from 'next/server';
-import { attachAppAccessCookie } from '@/lib/server/auth/app-access-cookie';
+import { clearAppAccessCookie } from '@/lib/server/auth/app-access-cookie';
 import {
   clearPreSignupCookie,
   clearPreSignupVerification,
   consumePreSignupVerification,
+  hashBirth,
 } from '@/lib/server/auth/pre-signup';
-import { attachSessionCookie, createUserSession } from '@/lib/server/auth/session';
+import { clearSessionCookie } from '@/lib/server/auth/session';
 import { prisma } from '@/lib/server/prisma';
 
 export const runtime = 'nodejs';
@@ -15,6 +16,8 @@ interface RegisterBody {
   loginId?: unknown;
   password?: unknown;
   nickname?: unknown;
+  birth?: unknown;
+  age?: unknown;
   studentYear?: unknown;
   department?: unknown;
   gender?: unknown;
@@ -39,6 +42,21 @@ function normalizeGender(value: string): 'male' | 'female' | '' {
 }
 
 function toStudentYear(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isInteger(value)) {
+    return value;
+  }
+
+  if (typeof value === 'string' && value.trim()) {
+    const parsed = Number(value);
+    if (Number.isInteger(parsed)) {
+      return parsed;
+    }
+  }
+
+  return null;
+}
+
+function toInteger(value: unknown): number | null {
   if (typeof value === 'number' && Number.isInteger(value)) {
     return value;
   }
@@ -78,14 +96,16 @@ export async function POST(request: NextRequest) {
   const loginId = normalizeString(body.loginId);
   const password = normalizeString(body.password);
   const nickname = normalizeString(body.nickname);
+  const birth = normalizeString(body.birth);
   const department = normalizeString(body.department);
   const realName = normalizeString(body.realName);
   const email = normalizeString(body.email).toLowerCase();
   const university = normalizeString(body.university);
   const gender = normalizeGender(normalizeString(body.gender));
+  const age = toInteger(body.age);
   const studentYear = toStudentYear(body.studentYear);
 
-  if (!loginId || !password || !nickname || !department || !realName || !email || !university || !gender || !studentYear) {
+  if (!loginId || !password || !nickname || !birth || !age || !department || !realName || !email || !university || !gender || !studentYear) {
     return validationFail('회원가입 필드를 모두 입력해주세요.');
   }
 
@@ -95,6 +115,14 @@ export async function POST(request: NextRequest) {
 
   if (password.length < 8) {
     return validationFail('비밀번호는 8자 이상이어야 합니다.');
+  }
+
+  if (!/^\d{6}$/.test(birth)) {
+    return validationFail('생년월일 6자리를 입력해주세요.');
+  }
+
+  if (age < 1 || age > 100) {
+    return validationFail('나이 범위를 확인해주세요.');
   }
 
   if (studentYear < 1 || studentYear > 8) {
@@ -129,13 +157,15 @@ export async function POST(request: NextRequest) {
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
-  const user = await prisma.user.create({
+  await prisma.user.create({
     data: {
       login_id: loginId,
       real_name: realName,
+      age,
       email,
       password_hash: passwordHash,
-      birth_hash: preSignup.birthHash,
+      birth,
+      birth_hash: hashBirth(birth),
       nickname,
       gender,
       university,
@@ -145,20 +175,18 @@ export async function POST(request: NextRequest) {
     },
   });
 
-  const { token, expiresAt } = await createUserSession(user.id);
   const response = NextResponse.json(
     {
       ok: true,
       registered: true,
-      nextPath: '/match',
-      sessionExpiresAt: expiresAt.toISOString(),
+      nextPath: '/login',
     },
     { status: 200 },
   );
 
-  attachSessionCookie(response, token, expiresAt);
-  attachAppAccessCookie(response);
   await clearPreSignupVerification(request);
+  clearSessionCookie(response);
+  clearAppAccessCookie(response);
   clearPreSignupCookie(response);
   return response;
 }

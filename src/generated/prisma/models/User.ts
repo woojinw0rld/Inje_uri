@@ -45,6 +45,7 @@ export type UserMinAggregateOutputType = {
   age: number | null
   email: string | null
   password_hash: string | null
+  birth: string | null
   birth_hash: string | null
   nickname: string | null
   gender: string | null
@@ -69,6 +70,7 @@ export type UserMaxAggregateOutputType = {
   age: number | null
   email: string | null
   password_hash: string | null
+  birth: string | null
   birth_hash: string | null
   nickname: string | null
   gender: string | null
@@ -93,6 +95,7 @@ export type UserCountAggregateOutputType = {
   age: number
   email: number
   password_hash: number
+  birth: number
   birth_hash: number
   nickname: number
   gender: number
@@ -131,6 +134,7 @@ export type UserMinAggregateInputType = {
   age?: true
   email?: true
   password_hash?: true
+  birth?: true
   birth_hash?: true
   nickname?: true
   gender?: true
@@ -155,6 +159,7 @@ export type UserMaxAggregateInputType = {
   age?: true
   email?: true
   password_hash?: true
+  birth?: true
   birth_hash?: true
   nickname?: true
   gender?: true
@@ -179,6 +184,7 @@ export type UserCountAggregateInputType = {
   age?: true
   email?: true
   password_hash?: true
+  birth?: true
   birth_hash?: true
   nickname?: true
   gender?: true
@@ -290,6 +296,7 @@ export type UserGroupByOutputType = {
   age: number | null
   email: string
   password_hash: string
+  birth: string | null
   birth_hash: string | null
   nickname: string
   gender: string
@@ -337,6 +344,7 @@ export type UserWhereInput = {
   age?: Prisma.IntNullableFilter<"User"> | number | null
   email?: Prisma.StringFilter<"User"> | string
   password_hash?: Prisma.StringFilter<"User"> | string
+  birth?: Prisma.StringNullableFilter<"User"> | string | null
   birth_hash?: Prisma.StringNullableFilter<"User"> | string | null
   nickname?: Prisma.StringFilter<"User"> | string
   gender?: Prisma.StringFilter<"User"> | string
@@ -385,6 +393,7 @@ export type UserOrderByWithRelationInput = {
   age?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrder
   password_hash?: Prisma.SortOrder
+  birth?: Prisma.SortOrderInput | Prisma.SortOrder
   birth_hash?: Prisma.SortOrderInput | Prisma.SortOrder
   nickname?: Prisma.SortOrder
   gender?: Prisma.SortOrder
@@ -438,6 +447,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   real_name?: Prisma.StringFilter<"User"> | string
   age?: Prisma.IntNullableFilter<"User"> | number | null
   password_hash?: Prisma.StringFilter<"User"> | string
+  birth?: Prisma.StringNullableFilter<"User"> | string | null
   birth_hash?: Prisma.StringNullableFilter<"User"> | string | null
   gender?: Prisma.StringFilter<"User"> | string
   nationality?: Prisma.StringFilter<"User"> | string
@@ -484,6 +494,7 @@ export type UserOrderByWithAggregationInput = {
   age?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrder
   password_hash?: Prisma.SortOrder
+  birth?: Prisma.SortOrderInput | Prisma.SortOrder
   birth_hash?: Prisma.SortOrderInput | Prisma.SortOrder
   nickname?: Prisma.SortOrder
   gender?: Prisma.SortOrder
@@ -516,6 +527,7 @@ export type UserScalarWhereWithAggregatesInput = {
   age?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
   email?: Prisma.StringWithAggregatesFilter<"User"> | string
   password_hash?: Prisma.StringWithAggregatesFilter<"User"> | string
+  birth?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   birth_hash?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   nickname?: Prisma.StringWithAggregatesFilter<"User"> | string
   gender?: Prisma.StringWithAggregatesFilter<"User"> | string
@@ -539,6 +551,7 @@ export type UserCreateInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -587,6 +600,7 @@ export type UserUncheckedCreateInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -634,6 +648,7 @@ export type UserUpdateInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -682,6 +697,7 @@ export type UserUncheckedUpdateInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -730,6 +746,7 @@ export type UserCreateManyInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -753,6 +770,7 @@ export type UserUpdateManyMutationInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -777,6 +795,7 @@ export type UserUncheckedUpdateManyInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -801,6 +820,7 @@ export type UserCountOrderByAggregateInput = {
   age?: Prisma.SortOrder
   email?: Prisma.SortOrder
   password_hash?: Prisma.SortOrder
+  birth?: Prisma.SortOrder
   birth_hash?: Prisma.SortOrder
   nickname?: Prisma.SortOrder
   gender?: Prisma.SortOrder
@@ -831,6 +851,7 @@ export type UserMaxOrderByAggregateInput = {
   age?: Prisma.SortOrder
   email?: Prisma.SortOrder
   password_hash?: Prisma.SortOrder
+  birth?: Prisma.SortOrder
   birth_hash?: Prisma.SortOrder
   nickname?: Prisma.SortOrder
   gender?: Prisma.SortOrder
@@ -855,6 +876,7 @@ export type UserMinOrderByAggregateInput = {
   age?: Prisma.SortOrder
   email?: Prisma.SortOrder
   password_hash?: Prisma.SortOrder
+  birth?: Prisma.SortOrder
   birth_hash?: Prisma.SortOrder
   nickname?: Prisma.SortOrder
   gender?: Prisma.SortOrder
@@ -1274,6 +1296,7 @@ export type UserCreateWithoutAuthSessionsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -1321,6 +1344,7 @@ export type UserUncheckedCreateWithoutAuthSessionsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -1383,6 +1407,7 @@ export type UserUpdateWithoutAuthSessionsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1430,6 +1455,7 @@ export type UserUncheckedUpdateWithoutAuthSessionsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1476,6 +1502,7 @@ export type UserCreateWithoutEmailVerificationsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -1523,6 +1550,7 @@ export type UserUncheckedCreateWithoutEmailVerificationsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -1585,6 +1613,7 @@ export type UserUpdateWithoutEmailVerificationsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1632,6 +1661,7 @@ export type UserUncheckedUpdateWithoutEmailVerificationsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1678,6 +1708,7 @@ export type UserCreateWithoutUserProfileImagesInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -1725,6 +1756,7 @@ export type UserUncheckedCreateWithoutUserProfileImagesInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -1787,6 +1819,7 @@ export type UserUpdateWithoutUserProfileImagesInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1834,6 +1867,7 @@ export type UserUncheckedUpdateWithoutUserProfileImagesInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1880,6 +1914,7 @@ export type UserCreateWithoutUserKeywordSelectionsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -1927,6 +1962,7 @@ export type UserUncheckedCreateWithoutUserKeywordSelectionsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -1989,6 +2025,7 @@ export type UserUpdateWithoutUserKeywordSelectionsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2036,6 +2073,7 @@ export type UserUncheckedUpdateWithoutUserKeywordSelectionsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2082,6 +2120,7 @@ export type UserCreateWithoutRecommendationSettingInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -2129,6 +2168,7 @@ export type UserUncheckedCreateWithoutRecommendationSettingInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -2191,6 +2231,7 @@ export type UserUpdateWithoutRecommendationSettingInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2238,6 +2279,7 @@ export type UserUncheckedUpdateWithoutRecommendationSettingInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2284,6 +2326,7 @@ export type UserCreateWithoutDailyRecommendationsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -2331,6 +2374,7 @@ export type UserUncheckedCreateWithoutDailyRecommendationsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -2382,6 +2426,7 @@ export type UserCreateWithoutSelectedRecommendationsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -2429,6 +2474,7 @@ export type UserUncheckedCreateWithoutSelectedRecommendationsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -2491,6 +2537,7 @@ export type UserUpdateWithoutDailyRecommendationsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2538,6 +2585,7 @@ export type UserUncheckedUpdateWithoutDailyRecommendationsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2595,6 +2643,7 @@ export type UserUpdateWithoutSelectedRecommendationsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2642,6 +2691,7 @@ export type UserUncheckedUpdateWithoutSelectedRecommendationsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2688,6 +2738,7 @@ export type UserCreateWithoutDailyRecommendationItemsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -2735,6 +2786,7 @@ export type UserUncheckedCreateWithoutDailyRecommendationItemsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -2797,6 +2849,7 @@ export type UserUpdateWithoutDailyRecommendationItemsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2844,6 +2897,7 @@ export type UserUncheckedUpdateWithoutDailyRecommendationItemsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2890,6 +2944,7 @@ export type UserCreateWithoutSentInterestsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -2937,6 +2992,7 @@ export type UserUncheckedCreateWithoutSentInterestsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -2988,6 +3044,7 @@ export type UserCreateWithoutReceivedInterestsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -3035,6 +3092,7 @@ export type UserUncheckedCreateWithoutReceivedInterestsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -3097,6 +3155,7 @@ export type UserUpdateWithoutSentInterestsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3144,6 +3203,7 @@ export type UserUncheckedUpdateWithoutSentInterestsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3201,6 +3261,7 @@ export type UserUpdateWithoutReceivedInterestsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3248,6 +3309,7 @@ export type UserUncheckedUpdateWithoutReceivedInterestsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3294,6 +3356,7 @@ export type UserCreateWithoutRecommendationDismissesInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -3341,6 +3404,7 @@ export type UserUncheckedCreateWithoutRecommendationDismissesInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -3392,6 +3456,7 @@ export type UserCreateWithoutDismissedByRecommendationsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -3439,6 +3504,7 @@ export type UserUncheckedCreateWithoutDismissedByRecommendationsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -3501,6 +3567,7 @@ export type UserUpdateWithoutRecommendationDismissesInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3548,6 +3615,7 @@ export type UserUncheckedUpdateWithoutRecommendationDismissesInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3605,6 +3673,7 @@ export type UserUpdateWithoutDismissedByRecommendationsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3652,6 +3721,7 @@ export type UserUncheckedUpdateWithoutDismissedByRecommendationsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3698,6 +3768,7 @@ export type UserCreateWithoutCreatedChatRoomsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -3745,6 +3816,7 @@ export type UserUncheckedCreateWithoutCreatedChatRoomsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -3807,6 +3879,7 @@ export type UserUpdateWithoutCreatedChatRoomsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3854,6 +3927,7 @@ export type UserUncheckedUpdateWithoutCreatedChatRoomsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3900,6 +3974,7 @@ export type UserCreateWithoutChatRoomParticipantsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -3947,6 +4022,7 @@ export type UserUncheckedCreateWithoutChatRoomParticipantsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -4009,6 +4085,7 @@ export type UserUpdateWithoutChatRoomParticipantsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4056,6 +4133,7 @@ export type UserUncheckedUpdateWithoutChatRoomParticipantsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4102,6 +4180,7 @@ export type UserCreateWithoutMessagesInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -4149,6 +4228,7 @@ export type UserUncheckedCreateWithoutMessagesInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -4211,6 +4291,7 @@ export type UserUpdateWithoutMessagesInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4258,6 +4339,7 @@ export type UserUncheckedUpdateWithoutMessagesInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4304,6 +4386,7 @@ export type UserCreateWithoutSelfDateFeedsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -4351,6 +4434,7 @@ export type UserUncheckedCreateWithoutSelfDateFeedsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -4413,6 +4497,7 @@ export type UserUpdateWithoutSelfDateFeedsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4460,6 +4545,7 @@ export type UserUncheckedUpdateWithoutSelfDateFeedsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4506,6 +4592,7 @@ export type UserCreateWithoutFeedCommentsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -4553,6 +4640,7 @@ export type UserUncheckedCreateWithoutFeedCommentsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -4615,6 +4703,7 @@ export type UserUpdateWithoutFeedCommentsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4662,6 +4751,7 @@ export type UserUncheckedUpdateWithoutFeedCommentsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4708,6 +4798,7 @@ export type UserCreateWithoutFeedViewsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -4755,6 +4846,7 @@ export type UserUncheckedCreateWithoutFeedViewsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -4817,6 +4909,7 @@ export type UserUpdateWithoutFeedViewsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4864,6 +4957,7 @@ export type UserUncheckedUpdateWithoutFeedViewsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -4910,6 +5004,7 @@ export type UserCreateWithoutBlocksInitiatedInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -4957,6 +5052,7 @@ export type UserUncheckedCreateWithoutBlocksInitiatedInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -5008,6 +5104,7 @@ export type UserCreateWithoutBlocksReceivedInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -5055,6 +5152,7 @@ export type UserUncheckedCreateWithoutBlocksReceivedInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -5117,6 +5215,7 @@ export type UserUpdateWithoutBlocksInitiatedInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -5164,6 +5263,7 @@ export type UserUncheckedUpdateWithoutBlocksInitiatedInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -5221,6 +5321,7 @@ export type UserUpdateWithoutBlocksReceivedInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -5268,6 +5369,7 @@ export type UserUncheckedUpdateWithoutBlocksReceivedInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -5314,6 +5416,7 @@ export type UserCreateWithoutReportsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -5361,6 +5464,7 @@ export type UserUncheckedCreateWithoutReportsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -5423,6 +5527,7 @@ export type UserUpdateWithoutReportsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -5470,6 +5575,7 @@ export type UserUncheckedUpdateWithoutReportsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -5516,6 +5622,7 @@ export type UserCreateWithoutPhoneBlocksInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -5563,6 +5670,7 @@ export type UserUncheckedCreateWithoutPhoneBlocksInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -5625,6 +5733,7 @@ export type UserUpdateWithoutPhoneBlocksInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -5672,6 +5781,7 @@ export type UserUncheckedUpdateWithoutPhoneBlocksInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -5718,6 +5828,7 @@ export type UserCreateWithoutUserContactsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -5765,6 +5876,7 @@ export type UserUncheckedCreateWithoutUserContactsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -5816,6 +5928,7 @@ export type UserCreateWithoutMatchedContactsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -5863,6 +5976,7 @@ export type UserUncheckedCreateWithoutMatchedContactsInput = {
   age?: number | null
   email: string
   password_hash: string
+  birth?: string | null
   birth_hash?: string | null
   nickname: string
   gender: string
@@ -5925,6 +6039,7 @@ export type UserUpdateWithoutUserContactsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -5972,6 +6087,7 @@ export type UserUncheckedUpdateWithoutUserContactsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -6029,6 +6145,7 @@ export type UserUpdateWithoutMatchedContactsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -6076,6 +6193,7 @@ export type UserUncheckedUpdateWithoutMatchedContactsInput = {
   age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  birth?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   birth_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nickname?: Prisma.StringFieldUpdateOperationsInput | string
   gender?: Prisma.StringFieldUpdateOperationsInput | string
@@ -6352,6 +6470,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   age?: boolean
   email?: boolean
   password_hash?: boolean
+  birth?: boolean
   birth_hash?: boolean
   nickname?: boolean
   gender?: boolean
@@ -6401,6 +6520,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   age?: boolean
   email?: boolean
   password_hash?: boolean
+  birth?: boolean
   birth_hash?: boolean
   nickname?: boolean
   gender?: boolean
@@ -6425,6 +6545,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   age?: boolean
   email?: boolean
   password_hash?: boolean
+  birth?: boolean
   birth_hash?: boolean
   nickname?: boolean
   gender?: boolean
@@ -6449,6 +6570,7 @@ export type UserSelectScalar = {
   age?: boolean
   email?: boolean
   password_hash?: boolean
+  birth?: boolean
   birth_hash?: boolean
   nickname?: boolean
   gender?: boolean
@@ -6466,7 +6588,7 @@ export type UserSelectScalar = {
   deleted_at?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "login_id" | "real_name" | "age" | "email" | "password_hash" | "birth_hash" | "nickname" | "gender" | "phone_number" | "nationality" | "university" | "department" | "student_year" | "student_number" | "bio" | "onboarding_completed" | "status" | "created_at" | "last_active_at" | "deleted_at", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "login_id" | "real_name" | "age" | "email" | "password_hash" | "birth" | "birth_hash" | "nickname" | "gender" | "phone_number" | "nationality" | "university" | "department" | "student_year" | "student_number" | "bio" | "onboarding_completed" | "status" | "created_at" | "last_active_at" | "deleted_at", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   authSessions?: boolean | Prisma.User$authSessionsArgs<ExtArgs>
   emailVerifications?: boolean | Prisma.User$emailVerificationsArgs<ExtArgs>
@@ -6532,6 +6654,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     age: number | null
     email: string
     password_hash: string
+    birth: string | null
     birth_hash: string | null
     nickname: string
     gender: string
@@ -7000,6 +7123,7 @@ export interface UserFieldRefs {
   readonly age: Prisma.FieldRef<"User", 'Int'>
   readonly email: Prisma.FieldRef<"User", 'String'>
   readonly password_hash: Prisma.FieldRef<"User", 'String'>
+  readonly birth: Prisma.FieldRef<"User", 'String'>
   readonly birth_hash: Prisma.FieldRef<"User", 'String'>
   readonly nickname: Prisma.FieldRef<"User", 'String'>
   readonly gender: Prisma.FieldRef<"User", 'String'>
