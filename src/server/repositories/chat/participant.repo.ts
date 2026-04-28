@@ -21,12 +21,11 @@
    *
    * 없으면 null 반환 — service에서 NOT_PARTICIPANT 처리.
    */
-  export async function findParticipant(roomId: number,
-  userId: number) {
+  export async function findParticipant(roomId: number, userId: number) {
     return prisma.chatRoomParticipant.findUnique({
       where: {
-        chat_room_id_user_id: {
-          chat_room_id: roomId,
+        chat_room_id_user_id: {   // 스키마에 @@unique([chat_room_id, user_id])복합유니크 Prisma가 자동으로
+          chat_room_id: roomId,   // chat_room_id_user_id로 복합키 생성. 
           user_id: userId,
         },
       },
@@ -42,8 +41,7 @@
    전이
    * - SSE 이벤트 emit 시 수신 대상 유저 ID 목록 추출
    */
-  export async function findParticipantsByRoomId(roomId:
-  number) {
+  export async function findParticipantsByRoomId(roomId:number) {
     return prisma.chatRoomParticipant.findMany({
       where: { chat_room_id: roomId },
       select: {
@@ -62,11 +60,9 @@
    * 나가기 처리 — left_at에 현재 시각 기록.
    *
    * 호출 후 service에서 findParticipantsByRoomId로
-   * 양쪽 모두 left_at IS NOT NULL인지 확인 → closed 전이
-  판단.
+   * 양쪽 모두 left_at IS NOT NULL인지 확인 → closed 전이 판단.
    */
-  export async function updateLeftAt(roomId: number, userId:
-  number) {
+  export async function updateLeftAt(roomId: number, userId: number) {
     return prisma.chatRoomParticipant.update({
       where: {
         chat_room_id_user_id: {
