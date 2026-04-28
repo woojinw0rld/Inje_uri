@@ -88,11 +88,7 @@ export async function selectCandidate(
 ): Promise<SelectCandidateResponse> {
   const today = getKSTDateString();
 
-  const item = await findItemInTodayRecommendation(userId, recommendationItemId, today);
-  if (!item) {
-    throw new ApiError(ERROR.INVALID_ITEM, "유효하지 않은 추천 항목입니다.");
-  }
-
+  // 1. ALREADY_SELECTED: 오늘 추천 조회 후 이미 선택했는지 먼저 확인
   const rec = await findTodayRecommendation(userId, today);
   if (!rec) {
     throw new ApiError(ERROR.REC_NOT_GENERATED, "오늘의 추천을 찾을 수 없습니다.");
@@ -102,6 +98,13 @@ export async function selectCandidate(
     throw new ApiError(ERROR.ALREADY_SELECTED, "오늘 이미 호감을 보냈습니다.");
   }
 
+  // 2. INVALID_ITEM: item이 오늘 추천 목록에 있는지 확인
+  const item = await findItemInTodayRecommendation(userId, recommendationItemId, today);
+  if (!item) {
+    throw new ApiError(ERROR.INVALID_ITEM, "유효하지 않은 추천 항목입니다.");
+  }
+
+  // 3. BLOCKED_RELATION: 차단 관계 확인
   const hasBlock = await import("@/server/repositories/block.repository").then((m) =>
     m.hasBlockRelation(userId, item.candidate_user_id),
   );
@@ -109,6 +112,7 @@ export async function selectCandidate(
     throw new ApiError(ERROR.BLOCKED_RELATION, "차단 관계로 호감을 보낼 수 없습니다.");
   }
 
+  // 4. DUPLICATE_INTEREST: 중복 pending 호감 확인
   const existing = await findPendingInterest(userId, item.candidate_user_id);
   if (existing) {
     throw new ApiError(ERROR.DUPLICATE_INTEREST, "이미 호감을 보낸 상대입니다.");
@@ -171,6 +175,11 @@ export async function dismissCandidate(
   const item = await findItemInTodayRecommendation(userId, itemId, today);
   if (!item) {
     throw new ApiError(ERROR.INVALID_ITEM, "유효하지 않은 추천 항목입니다.");
+  }
+
+  const rec = await findTodayRecommendation(userId, today);
+  if (rec?.selected_candidate_user_id === item.candidate_user_id) {
+    throw new ApiError(ERROR.ALREADY_SELECTED, "이미 호감을 보낸 상대는 관심없음 처리할 수 없습니다.");
   }
 
   if (item.passed_at !== null) {
