@@ -15,14 +15,14 @@ import { NextRequest } from "next/server";
     const tokenHash = createHash("sha256").update(token).digest("hex");
 
     // 해시값으로 세션 조회 + 유저 정보 함께 로드
-    const session = await prisma.auth_sessions.findUnique({
+    const session = await prisma.authSession.findUnique({
       where: { token_hash: tokenHash },
-      include: { users: true },
+      include: { user: true },
     });
 
     // 세션 없음 또는 만료된 경우
     if (!session || session.expires_at < new Date()) return null;
 
     // 로그인한 유저 객체 반환
-    return session.users;
+    return session.user;
   }

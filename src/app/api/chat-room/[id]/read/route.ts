@@ -4,11 +4,12 @@ import { ok, fail } from "@/server/lib/response";
 import { ERROR } from "@/server/lib/errors";
 import * as messageService from "@/server/services/conversation/message.service";
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     const user = await getAuthUser(req);
     if (!user) return fail(ERROR.UNAUTHORIZED, 401);
 
-    const roomId = Number(params.id);
+    const { id } = await params;
+    const roomId = Number(id);
     if (isNaN(roomId)) return fail(ERROR.NOT_FOUND, 404);
 
     const body = await req.json();

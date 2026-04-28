@@ -31,3 +31,5 @@ src/generated/
 
 # 인증서
 *.pem
+
+test-session.ts
