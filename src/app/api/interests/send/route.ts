@@ -1,3 +1,8 @@
+/**
+ * @deprecated
+ * POST /api/interests/send — 직접 호감 전송 (B파트 구현 명세서 v1.2 기준 필수 API 아님)
+ * 추천/수락 흐름 외 직접 호감 전송 기능으로 일단 유지하되, 정식 문서 반영 전까지 optional로 관리.
+ */
 import type { NextRequest } from "next/server";
 import { getAuthUserId } from "@/server/lib/auth";
 import { ApiError } from "@/server/lib/errors";
@@ -22,6 +27,6 @@ export async function POST(req: NextRequest) {
       return fail(e.code, e.message);
     }
     console.error("[POST /api/interests/send]", e);
-    return fail(ERROR.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다.");
+    return fail(ERROR.INTERNAL_ERROR, "서버 오류가 발생했습니다.");
   }
 }

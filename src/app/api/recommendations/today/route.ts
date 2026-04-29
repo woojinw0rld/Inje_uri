@@ -15,6 +15,6 @@ export async function GET(req: NextRequest) {
       return fail(e.code, e.message);
     }
     console.error("[GET /api/recommendations/today]", e);
-    return fail(ERROR.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다.");
+    return fail(ERROR.INTERNAL_ERROR, "서버 오류가 발생했습니다.");
   }
 }

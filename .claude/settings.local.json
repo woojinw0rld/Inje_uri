@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm \"d:/Inje_uri_git/src/app/api/interests/[id]/route.ts\")",
+      "Bash(rmdir \"d:/Inje_uri_git/src/app/api/interests/[id]\")"
+    ]
+  }
+}

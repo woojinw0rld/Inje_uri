@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     if (e instanceof ApiError) {
       return fail(e.code, e.message);
     }
-    console.error("[GET /api/interests]", e);
-    return fail(ERROR.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다.");
+    console.error("[GET /api/interests/received]", e);
+    return fail(ERROR.INTERNAL_ERROR, "서버 오류가 발생했습니다.");
   }
 }

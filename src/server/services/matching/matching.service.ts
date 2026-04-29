@@ -6,10 +6,18 @@ import {
   confirmMatch,
   rollbackMatch,
 } from "@/server/repositories/interest.repository";
+import { passMatchedCandidateItem } from "@/server/repositories/recommendation.repository";
 
 export interface MatchResult {
   matched: boolean;
   chat_room_id: number | null;
+}
+
+/** KST 오늘 날짜 (YYYY-MM-DD) */
+function getKSTDateString(): string {
+  const now = new Date();
+  const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  return kst.toISOString().split("T")[0];
 }
 
 /**
@@ -43,6 +51,13 @@ export async function checkAndCreateMatch(
 
   // 양쪽 Interest matched_at 업데이트
   await confirmMatch(myInterestId, reverseInterest.id);
+
+  // 매칭된 두 유저의 오늘 추천 목록에서 서로를 passed_at 처리
+  const today = getKSTDateString();
+  await Promise.allSettled([
+    passMatchedCandidateItem(myUserId, targetUserId, today),
+    passMatchedCandidateItem(targetUserId, myUserId, today),
+  ]);
 
   // C파트 채팅방 생성 API 호출
   try {

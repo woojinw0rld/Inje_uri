@@ -1,6 +1,7 @@
 //daily_recommendations 테이블 조회/생성
 
 import prisma from "@/server/db/prisma";
+import { Prisma } from "@/generated/prisma/client";
 
 export interface CandidateRow {
   item_id: number;
@@ -131,6 +132,19 @@ export async function passItem(itemId: number): Promise<void> {
   `;
 }
 
+/** 단일 item passed_at 처리 (트랜잭션 내 호출용) */
+export async function passItemInTx(
+  tx: Prisma.TransactionClient,
+  itemId: number,
+): Promise<void> {
+  await tx.$executeRaw`
+    UPDATE daily_recommendation_items
+    SET passed_at = NOW()
+    WHERE id = ${itemId}
+      AND passed_at IS NULL
+  `;
+}
+
 /** 추천 배치용 — 최근 N일 내 추천된 user_id 목록 조회 */
 export async function getRecentlyRecommendedUserIds(
   userId: number,
@@ -144,6 +158,27 @@ export async function getRecentlyRecommendedUserIds(
       AND dr.recommendation_date >= (CURRENT_DATE - ${withinDays}::int)
   `;
   return new Set(rows.map((r) => r.candidate_user_id));
+}
+
+/**
+ * 매칭 완료 후 특정 유저의 오늘 추천 목록에서 상대방 후보 item을 passed_at 처리
+ * 매칭된 상대방이 더 이상 추천 목록에 노출되지 않도록 한다.
+ */
+export async function passMatchedCandidateItem(
+  userId: number,
+  candidateUserId: number,
+  today: string,
+): Promise<void> {
+  await prisma.$executeRaw`
+    UPDATE daily_recommendation_items dri
+    SET passed_at = NOW()
+    FROM daily_recommendations dr
+    WHERE dri.daily_recommendation_id = dr.id
+      AND dr.user_id = ${userId}
+      AND dr.recommendation_date = ${today}::date
+      AND dri.candidate_user_id = ${candidateUserId}
+      AND dri.passed_at IS NULL
+  `;
 }
 
 /** 추천 배치용 — DailyRecommendation + Items 생성 */

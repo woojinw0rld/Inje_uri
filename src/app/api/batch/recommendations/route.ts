@@ -64,6 +64,6 @@ export async function POST(req: NextRequest) {
       return fail(e.code, e.message);
     }
     console.error("[POST /api/batch/recommendations]", e);
-    return fail(ERROR.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다.");
+    return fail(ERROR.INTERNAL_ERROR, "서버 오류가 발생했습니다.");
   }
 }
