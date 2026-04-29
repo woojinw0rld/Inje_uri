@@ -1,5 +1,7 @@
 import { NextRequest } from "next/server";
 import prisma from "@/server/db/prisma";
+import { getAuthUserId } from "@/server/lib/auth";
+import { ApiError } from "@/server/lib/errors";
 import { ok, fail } from "@/server/lib/response";
 
 /**
@@ -42,8 +44,7 @@ export async function POST( // HTTP POST(쓰기) 메서드로 조회 기록을 D
       return fail("INVALID_FEED_ID", "유효하지 않은 피드 ID입니다.");
     }
 
-    // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
-    const viewerUserId = 1; // const viewerUserId = request.userId; // 현재는 고정값 1 사용 (테스트용) → 실제로는 인증된 사용자 ID를 사용해야 함
+    const viewerUserId = await getAuthUserId(request);
 
     const feed = await prisma.selfDateFeed.findUnique({ // 피드 존재 + 활성 상태 확인
       where: { id: feedId },
@@ -74,6 +75,10 @@ export async function POST( // HTTP POST(쓰기) 메서드로 조회 기록을 D
 
     return ok({ recorded: true }); // 성공 응답
   } catch (error) {
+    if (error instanceof ApiError) {
+      return fail(error.code, error.message);
+    }
+
     console.error("[POST /api/feeds/:id/view]", error); // 서버 에러 로그
 
     return fail("INTERNAL_SERVER_ERROR", "조회 기록 저장 중 오류가 발생했습니다."); // 실패 응답

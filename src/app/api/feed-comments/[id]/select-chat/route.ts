@@ -1,5 +1,7 @@
 import { NextRequest } from "next/server";
 import prisma from "@/server/db/prisma";
+import { getAuthUserId } from "@/server/lib/auth";
+import { ApiError } from "@/server/lib/errors";
 import { ok, fail } from "@/server/lib/response";
 
 /**
@@ -42,8 +44,7 @@ export async function POST(
       return fail("INVALID_COMMENT_ID", "유효하지 않은 댓글 ID입니다.");
     }
 
-    // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
-    const currentUserId = 1; // 현재는 고정값 1 사용 (테스트용)
+    const currentUserId = await getAuthUserId(request);
 
     const comment = await prisma.feedComment.findUnique({ // 댓글 존재 + 삭제 여부 + 피드·작성자 정보 조회
       where: { id: commentId },
@@ -59,7 +60,7 @@ export async function POST(
           },
         },
         commenter_user: { // 댓글 작성자 상태 확인용
-          select: { status: true },
+          select: { status: true, deleted_at: true },
         },
       },
     });
@@ -80,7 +81,7 @@ export async function POST(
       return fail("FEED_NOT_AVAILABLE", "활성 상태가 아닌 피드의 댓글은 선택할 수 없습니다.");
     }
 
-    if (comment.commenter_user.status === "suspended") { // 댓글 작성자가 banned(현재 스키마: suspended)인 경우
+    if (comment.commenter_user.status !== "active" || comment.commenter_user.deleted_at !== null) { // 댓글 작성자가 비활성인 경우
       return fail("COMMENTER_BANNED", "제재된 사용자의 댓글은 선택할 수 없습니다.");
     }
 
@@ -137,6 +138,10 @@ export async function POST(
 
     return ok({ chatRoomId: chatRoom.id }); // 성공 응답
   } catch (error) {
+    if (error instanceof ApiError) {
+      return fail(error.code, error.message);
+    }
+
     console.error("[POST /api/feed-comments/:id/select-chat]", error); // 서버 에러 로그
 
     return fail("INTERNAL_SERVER_ERROR", "댓글 선택 처리 중 오류가 발생했습니다."); // 실패 응답

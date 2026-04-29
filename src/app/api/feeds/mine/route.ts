@@ -1,5 +1,7 @@
 import { NextRequest } from "next/server";
 import prisma from "@/server/db/prisma";
+import { getAuthUserId } from "@/server/lib/auth";
+import { ApiError } from "@/server/lib/errors";
 import { ok, fail } from "@/server/lib/response";
 
 /**
@@ -30,8 +32,7 @@ import { ok, fail } from "@/server/lib/response";
  */
 export async function GET(request: NextRequest) {
   try {
-    // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
-    const currentUserId = 1; // 현재는 고정값 1 사용 (테스트용)
+    const currentUserId = await getAuthUserId(request);
 
     const now = new Date();
 
@@ -90,6 +91,10 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
+    if (error instanceof ApiError) {
+      return fail(error.code, error.message);
+    }
+
     console.error("[GET /api/feeds/mine]", error);
 
     return fail("INTERNAL_SERVER_ERROR", "내 피드를 불러오는 중 오류가 발생했습니다.");

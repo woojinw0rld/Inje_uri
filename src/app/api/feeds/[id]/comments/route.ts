@@ -1,5 +1,7 @@
 import { NextRequest } from "next/server";
 import prisma from "@/server/db/prisma";
+import { getAuthUserId } from "@/server/lib/auth";
+import { ApiError } from "@/server/lib/errors";
 import { ok, fail } from "@/server/lib/response";
 
 /**
@@ -51,8 +53,7 @@ export async function POST(
       return fail("INVALID_CONTENT", "댓글 본문은 빈 값이 아닌 문자열이어야 합니다.");
     }
 
-    // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
-    const currentUserId = 1; // 현재는 고정값 1 사용 (테스트용)
+    const currentUserId = await getAuthUserId(request);
 
     const feed = await prisma.selfDateFeed.findUnique({ // 피드 존재 + 상태 확인
       where: { id: feedId },
@@ -116,6 +117,10 @@ export async function POST(
 
     return ok({ commentId: comment.id }); // 성공 응답
   } catch (error) {
+    if (error instanceof ApiError) {
+      return fail(error.code, error.message);
+    }
+
     console.error("[POST /api/feeds/:id/comments]", error); // 서버 에러 로그
 
     return fail("INTERNAL_SERVER_ERROR", "댓글 작성 중 오류가 발생했습니다."); // 실패 응답
@@ -126,7 +131,7 @@ export async function POST(
  * D-05: 피드 댓글 목록 조회 API
  *
  * 특정 피드의 댓글 목록을 조회한다.
- * 삭제된 댓글(soft delete) 제외, banned 사용자 댓글 제외, 차단 관계 양방향 필터.
+ * 삭제된 댓글(soft delete) 제외, 비활성 사용자 댓글 제외, 차단 관계 양방향 필터.
  * 피드 존재 + 접근 권한 검증 (D-03과 동일한 검증).
  *
  * @route GET /api/feeds/:id/comments
@@ -164,8 +169,7 @@ export async function GET(
       return fail("INVALID_FEED_ID", "유효하지 않은 피드 ID입니다.");
     }
 
-    // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
-    const currentUserId = 1; // 현재는 고정값 1 사용 (테스트용)
+    const currentUserId = await getAuthUserId(request);
 
     const feed = await prisma.selfDateFeed.findUnique({ // 피드 존재 + 상태 확인
       where: { id: feedId },
@@ -211,7 +215,8 @@ export async function GET(
         feed_id: feedId,
         deleted_at: null, // 삭제된 댓글 제외 (soft delete)
         commenter_user: {
-          status: { not: "suspended" }, // banned(현재 스키마: suspended) 사용자 댓글 제외
+          status: "active", // 비활성/벤/탈퇴 사용자 댓글 제외
+          deleted_at: null,
         },
         ...(blockedUserIds.size > 0 ? { commenter_user_id: { notIn: [...blockedUserIds] } } : {}), // 차단된 사용자 댓글 제외
       },
@@ -232,7 +237,16 @@ export async function GET(
           },
         },
       },
-    });
+    }) as Array<{
+      id: number;
+      content: string;
+      created_at: Date;
+      commenter_user: {
+        id: number;
+        nickname: string;
+        userProfileImages: Array<{ image_url: string }>;
+      };
+    }>;
 
     const items = comments.map((comment) => ({ // DB 응답 → 클라이언트 응답 형식 변환
       commentId: comment.id,
@@ -247,6 +261,10 @@ export async function GET(
 
     return ok({ items }); // 성공 응답
   } catch (error) {
+    if (error instanceof ApiError) {
+      return fail(error.code, error.message);
+    }
+
     console.error("[GET /api/feeds/:id/comments]", error); // 서버 에러 로그
 
     return fail("INTERNAL_SERVER_ERROR", "댓글 목록을 불러오는 중 오류가 발생했습니다."); // 실패 응답

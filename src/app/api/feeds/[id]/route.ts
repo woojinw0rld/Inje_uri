@@ -1,13 +1,15 @@
 import { NextRequest } from "next/server";
 import prisma from "@/server/db/prisma";
 import type { Prisma } from "@/generated/prisma/client";
+import { getAuthUserId } from "@/server/lib/auth";
+import { ApiError } from "@/server/lib/errors";
 import { ok, fail } from "@/server/lib/response";
 
 /**
  * D-03: 피드 상세 조회 API
  *
  * 피드 상세와 작성자 요약, 키워드, 이미지, 댓글 수를 반환한다.
- * 활성(active) + 미만료 피드만 조회 가능. 차단 관계·banned 작성자는 404 처리.
+ * 활성(active) + 미만료 피드만 조회 가능. 차단 관계·비활성 작성자는 404 처리.
  *
  * @route GET /api/feeds/:id
  *
@@ -48,8 +50,7 @@ export async function GET(
       return fail("INVALID_FEED_ID", "유효하지 않은 피드 ID입니다.");
     }
 
-    // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
-    const currentUserId = 1; // 현재는 고정값 1 사용 (테스트용)
+    const currentUserId = await getAuthUserId(request);
 
     const feed = await prisma.selfDateFeed.findUnique({
       where: { id: feedId },
@@ -71,6 +72,7 @@ export async function GET(
             student_year: true,
             bio: true,
             status: true,
+            deleted_at: true,
             userProfileImages: { // 전체 프로필 이미지 목록
               orderBy: { sort_order: "asc" },
               select: { image_url: true, sort_order: true, is_primary: true },
@@ -96,7 +98,7 @@ export async function GET(
       return fail("FEED_NOT_FOUND", "존재하지 않는 피드입니다.");
     }
 
-    if (feed.author_user.status === "suspended") { // banned(현재 스키마: suspended) 작성자의 피드 → 숨김
+    if (feed.author_user.status !== "active" || feed.author_user.deleted_at !== null) { // 비활성 작성자의 피드 → 숨김
       return fail("FEED_NOT_FOUND", "존재하지 않는 피드입니다.");
     }
 
@@ -163,6 +165,10 @@ export async function GET(
       },
     });
   } catch (error) {
+    if (error instanceof ApiError) {
+      return fail(error.code, error.message);
+    }
+
     console.error("[GET /api/feeds/:id]", error); // 서버 에러 로그
 
     return fail("INTERNAL_SERVER_ERROR", "피드 상세를 불러오는 중 오류가 발생했습니다."); // 실패 응답
@@ -236,8 +242,7 @@ export async function PATCH(
       }
     }
 
-    // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
-    const currentUserId = 1; // 현재는 고정값 1 사용 (테스트용)
+    const currentUserId = await getAuthUserId(request);
 
     const feed = await prisma.selfDateFeed.findUnique({ // 피드 존재 + 소유권 확인
       where: { id: feedId },
@@ -304,6 +309,10 @@ export async function PATCH(
 
     return ok({ updated: true }); // 성공 응답
   } catch (error) {
+    if (error instanceof ApiError) {
+      return fail(error.code, error.message);
+    }
+
     console.error("[PATCH /api/feeds/:id]", error); // 서버 에러 로그
 
     return fail("INTERNAL_SERVER_ERROR", "피드 수정 중 오류가 발생했습니다."); // 실패 응답
@@ -348,8 +357,7 @@ export async function DELETE(
       return fail("INVALID_FEED_ID", "유효하지 않은 피드 ID입니다.");
     }
 
-    // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
-    const currentUserId = 1; // 현재는 고정값 1 사용 (테스트용)
+    const currentUserId = await getAuthUserId(request);
 
     const feed = await prisma.selfDateFeed.findUnique({ // 피드 존재 + 소유권 확인
       where: { id: feedId },
@@ -375,6 +383,10 @@ export async function DELETE(
 
     return ok({ deleted: true }); // 성공 응답
   } catch (error) {
+    if (error instanceof ApiError) {
+      return fail(error.code, error.message);
+    }
+
     console.error("[DELETE /api/feeds/:id]", error); // 서버 에러 로그
 
     return fail("INTERNAL_SERVER_ERROR", "피드 삭제 중 오류가 발생했습니다."); // 실패 응답
