@@ -6,6 +6,11 @@ export type ApiErrorCode =
   | 'CONFLICT'
   | 'BLOCKED_RELATION'
   | 'INTERNAL_ERROR'
+  | 'INVALID_CREDENTIALS'
+  | 'ACCOUNT_SUSPENDED'
+  | 'ACCOUNT_WITHDRAWN'
+  | 'NICKNAME_ALREADY_EXISTS'
+  | 'TARGET_NOT_FOUND'
   | 'CHAT_ROOM_EXPIRED'
   | 'RECOMMENDATION_ALREADY_SELECTED'
   | 'FEED_ALREADY_ACTIVE'
@@ -44,6 +49,21 @@ export const apiErrors = {
   },
   internal(message = '서버 내부 오류가 발생했습니다.'): ApiError {
     return new ApiError('INTERNAL_ERROR', message, 500);
+  },
+  invalidCredentials(message = '아이디 또는 비밀번호가 올바르지 않습니다.'): ApiError {
+    return new ApiError('INVALID_CREDENTIALS', message, 401);
+  },
+  accountSuspended(message = '제재된 계정은 로그인할 수 없습니다.'): ApiError {
+    return new ApiError('ACCOUNT_SUSPENDED', message, 403);
+  },
+  accountWithdrawn(message = '탈퇴한 계정은 로그인할 수 없습니다.'): ApiError {
+    return new ApiError('ACCOUNT_WITHDRAWN', message, 403);
+  },
+  nicknameAlreadyExists(message = '이미 사용 중인 닉네임입니다.'): ApiError {
+    return new ApiError('NICKNAME_ALREADY_EXISTS', message, 409);
+  },
+  targetNotFound(message = '대상을 찾을 수 없습니다.'): ApiError {
+    return new ApiError('TARGET_NOT_FOUND', message, 404);
   },
 };
 

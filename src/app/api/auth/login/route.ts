@@ -1,14 +1,16 @@
 import bcrypt from 'bcrypt';
-import { NextResponse } from 'next/server';
-import { ensureActiveUser } from '@/lib/server/auth/current-user';
 import { attachAppAccessCookie } from '@/lib/server/auth/app-access-cookie';
 import { attachSessionCookie, createUserSession } from '@/lib/server/auth/session';
+import { toAuthUserSummary } from '@/lib/server/auth/payload';
+import { apiErrors } from '@/lib/server/api/errors';
+import { fail, ok, toErrorResponse } from '@/lib/server/api/response';
 import { prisma } from '@/lib/server/prisma';
 
 export const runtime = 'nodejs';
 
 interface LoginRequestBody {
   loginId?: unknown;
+  studentId?: unknown;
   password?: unknown;
 }
 
@@ -17,56 +19,56 @@ function normalizeCredential(value: unknown): string {
 }
 
 function validationFail(message: string) {
-  return NextResponse.json({ ok: false, message }, { status: 400 });
+  return fail('VALIDATION_ERROR', message, 400);
 }
 
 export async function POST(request: Request) {
-  let body: LoginRequestBody;
   try {
-    body = await request.json() as LoginRequestBody;
-  } catch {
-    return validationFail('요청 형식을 확인해주세요.');
-  }
+    let body: LoginRequestBody;
+    try {
+      body = await request.json() as LoginRequestBody;
+    } catch {
+      return validationFail('요청 형식을 확인해주세요.');
+    }
 
-  const loginId = normalizeCredential(body.loginId);
-  const password = normalizeCredential(body.password);
+    const loginId = normalizeCredential(body.loginId ?? body.studentId);
+    const password = normalizeCredential(body.password);
 
-  if (!loginId || !password) {
-    return validationFail('아이디와 비밀번호를 모두 입력해주세요.');
-  }
+    if (!loginId || !password) {
+      return validationFail('아이디와 비밀번호를 모두 입력해주세요.');
+    }
 
-  const user = await prisma.user.findUnique({
-    where: { login_id: loginId },
-  });
+    const user = await prisma.user.findUnique({
+      where: { login_id: loginId },
+    });
 
-  if (!user) {
-    return NextResponse.json(
-      { ok: false, message: '아이디 또는 비밀번호가 올바르지 않습니다.' },
-      { status: 401 },
-    );
-  }
+    if (!user) {
+      throw apiErrors.invalidCredentials();
+    }
 
-  const isPasswordMatched = await bcrypt.compare(password, user.password_hash);
-  if (!isPasswordMatched) {
-    return NextResponse.json(
-      { ok: false, message: '아이디 또는 비밀번호가 올바르지 않습니다.' },
-      { status: 401 },
-    );
-  }
+    const isPasswordMatched = await bcrypt.compare(password, user.password_hash);
+    if (!isPasswordMatched) {
+      throw apiErrors.invalidCredentials();
+    }
 
-  ensureActiveUser(user);
+    if (user.deleted_at !== null || user.status === 'withdrawn') {
+      throw apiErrors.accountWithdrawn();
+    }
 
-  const { token, expiresAt } = await createUserSession(user.id);
-  const response = NextResponse.json(
-    {
-      ok: true,
-      message: '로그인되었습니다.',
+    if (user.status === 'banned' || user.status === 'inactive') {
+      throw apiErrors.accountSuspended();
+    }
+
+    const { token, expiresAt } = await createUserSession(user.id);
+    const response = ok({
+      user: toAuthUserSummary(user),
       sessionExpiresAt: expiresAt.toISOString(),
-    },
-    { status: 200 },
-  );
+    });
 
-  attachSessionCookie(response, token, expiresAt);
-  attachAppAccessCookie(response);
-  return response;
+    attachSessionCookie(response, token, expiresAt);
+    attachAppAccessCookie(response);
+    return response;
+  } catch (error) {
+    return toErrorResponse(error);
+  }
 }

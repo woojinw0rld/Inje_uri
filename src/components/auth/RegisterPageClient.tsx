@@ -9,9 +9,13 @@ import { PRE_AUTH_CREDENTIALS_STORAGE_KEY } from '@/lib/auth/constants';
 import { APP_NAME } from '@/lib/constants';
 
 interface RegisterApiResponse {
-  ok?: boolean;
-  message?: string;
-  nextPath?: string;
+  success?: boolean;
+  data?: {
+    nextPath?: string;
+  };
+  error?: {
+    message?: string;
+  };
 }
 
 interface RegisterFormState {
@@ -123,8 +127,8 @@ export function RegisterPageClient() {
         payload = {};
       }
 
-      if (!response.ok || !payload.ok) {
-        const message = payload.message ?? '회원가입에 실패했습니다.';
+      if (!response.ok || !payload.success) {
+        const message = payload.error?.message ?? '회원가입에 실패했습니다.';
         setErrorMessage(message);
         showToast(message, 'error');
         return;
@@ -135,7 +139,7 @@ export function RegisterPageClient() {
       }
 
       showToast('회원가입이 완료되었습니다. 로그인해주세요.', 'success');
-      const apiNextPath = payload.nextPath?.startsWith('/') ? payload.nextPath : '/login';
+      const apiNextPath = payload.data?.nextPath?.startsWith('/') ? payload.data.nextPath : '/login';
       const nextPath = apiNextPath === '/login'
         ? resolveLoginPath(searchParams.get('next'))
         : apiNextPath;

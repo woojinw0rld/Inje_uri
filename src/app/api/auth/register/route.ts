@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { clearAppAccessCookie } from '@/lib/server/auth/app-access-cookie';
 import {
   clearPreSignupCookie,
@@ -8,6 +8,7 @@ import {
   hashBirth,
 } from '@/lib/server/auth/pre-signup';
 import { clearSessionCookie } from '@/lib/server/auth/session';
+import { fail, ok, toErrorResponse } from '@/lib/server/api/response';
 import { prisma } from '@/lib/server/prisma';
 
 export const runtime = 'nodejs';
@@ -72,121 +73,118 @@ function toInteger(value: unknown): number | null {
 }
 
 function validationFail(message: string) {
-  return NextResponse.json({ ok: false, message }, { status: 400 });
+  return fail('VALIDATION_ERROR', message, 400);
 }
 
 export async function POST(request: NextRequest) {
-  const preSignup = await consumePreSignupVerification(request);
-  if (!preSignup) {
-    const response = NextResponse.json(
-      { ok: false, message: '인증이 만료되었습니다. 다시 인증해주세요.' },
-      { status: 401 },
-    );
-    clearPreSignupCookie(response);
-    return response;
-  }
-
-  let body: RegisterBody;
   try {
-    body = await request.json() as RegisterBody;
-  } catch {
-    return validationFail('요청 형식을 확인해주세요.');
-  }
+    const preSignup = await consumePreSignupVerification(request);
+    if (!preSignup) {
+      const response = fail('UNAUTHORIZED', '인증이 만료되었습니다. 다시 인증해주세요.', 401);
+      clearPreSignupCookie(response);
+      return response;
+    }
 
-  const loginId = normalizeString(body.loginId);
-  const password = normalizeString(body.password);
-  const nickname = normalizeString(body.nickname);
-  const birth = normalizeString(body.birth);
-  const department = normalizeString(body.department);
-  const realName = normalizeString(body.realName);
-  const email = normalizeString(body.email).toLowerCase();
-  const university = normalizeString(body.university);
-  const gender = normalizeGender(normalizeString(body.gender));
-  const age = toInteger(body.age);
-  const studentYear = toStudentYear(body.studentYear);
+    let body: RegisterBody;
+    try {
+      body = await request.json() as RegisterBody;
+    } catch {
+      return validationFail('요청 형식을 확인해주세요.');
+    }
 
-  if (!loginId || !password || !nickname || !birth || !age || !department || !realName || !email || !university || !gender || !studentYear) {
-    return validationFail('회원가입 필드를 모두 입력해주세요.');
-  }
+    const loginId = normalizeString(body.loginId);
+    const password = normalizeString(body.password);
+    const nickname = normalizeString(body.nickname);
+    const birth = normalizeString(body.birth);
+    const department = normalizeString(body.department);
+    const realName = normalizeString(body.realName);
+    const email = normalizeString(body.email).toLowerCase();
+    const university = normalizeString(body.university);
+    const gender = normalizeGender(normalizeString(body.gender));
+    const age = toInteger(body.age);
+    const studentYear = toStudentYear(body.studentYear);
 
-  if (loginId.length < 4 || loginId.length > 100) {
-    return validationFail('아이디는 4자 이상 100자 이하로 입력해주세요.');
-  }
+    if (!loginId || !password || !nickname || !birth || !age || !department || !realName || !email || !university || !gender || !studentYear) {
+      return validationFail('회원가입 필드를 모두 입력해주세요.');
+    }
 
-  if (password.length < 8) {
-    return validationFail('비밀번호는 8자 이상이어야 합니다.');
-  }
+    if (loginId.length < 4 || loginId.length > 100) {
+      return validationFail('아이디는 4자 이상 100자 이하로 입력해주세요.');
+    }
 
-  if (!/^\d{6}$/.test(birth)) {
-    return validationFail('생년월일 6자리를 입력해주세요.');
-  }
+    if (password.length < 8) {
+      return validationFail('비밀번호는 8자 이상이어야 합니다.');
+    }
 
-  if (age < 1 || age > 100) {
-    return validationFail('나이 범위를 확인해주세요.');
-  }
+    if (!/^\d{6}$/.test(birth)) {
+      return validationFail('생년월일 6자리를 입력해주세요.');
+    }
 
-  if (studentYear < 1 || studentYear > 8) {
-    return validationFail('학년 범위를 확인해주세요.');
-  }
+    if (age < 1 || age > 100) {
+      return validationFail('나이 범위를 확인해주세요.');
+    }
 
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return validationFail('이메일 형식을 확인해주세요.');
-  }
+    if (studentYear < 1 || studentYear > 8) {
+      return validationFail('학년 범위를 확인해주세요.');
+    }
 
-  const [loginIdDuplicated, emailDuplicated, nicknameDuplicated, studentDuplicated] = await Promise.all([
-    prisma.user.findUnique({ where: { login_id: loginId }, select: { id: true } }),
-    prisma.user.findUnique({ where: { email }, select: { id: true } }),
-    prisma.user.findUnique({ where: { nickname }, select: { id: true } }),
-    prisma.user.findFirst({ where: { student_number: preSignup.studentNumber }, select: { id: true } }),
-  ]);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return validationFail('이메일 형식을 확인해주세요.');
+    }
 
-  if (loginIdDuplicated) {
-    return NextResponse.json({ ok: false, message: '이미 사용 중인 아이디입니다.' }, { status: 409 });
-  }
+    const [loginIdDuplicated, emailDuplicated, nicknameDuplicated, studentDuplicated] = await Promise.all([
+      prisma.user.findUnique({ where: { login_id: loginId }, select: { id: true } }),
+      prisma.user.findUnique({ where: { email }, select: { id: true } }),
+      prisma.user.findUnique({ where: { nickname }, select: { id: true } }),
+      prisma.user.findFirst({ where: { student_number: preSignup.studentNumber }, select: { id: true } }),
+    ]);
 
-  if (emailDuplicated) {
-    return NextResponse.json({ ok: false, message: '이미 사용 중인 이메일입니다.' }, { status: 409 });
-  }
+    if (loginIdDuplicated) {
+      return fail('CONFLICT', '이미 사용 중인 아이디입니다.', 409);
+    }
 
-  if (nicknameDuplicated) {
-    return NextResponse.json({ ok: false, message: '이미 사용 중인 닉네임입니다.' }, { status: 409 });
-  }
+    if (emailDuplicated) {
+      return fail('CONFLICT', '이미 사용 중인 이메일입니다.', 409);
+    }
 
-  if (studentDuplicated) {
-    return NextResponse.json({ ok: false, message: '이미 가입된 학번입니다. 로그인해주세요.' }, { status: 409 });
-  }
+    if (nicknameDuplicated) {
+      return fail('NICKNAME_ALREADY_EXISTS', '이미 사용 중인 닉네임입니다.', 409);
+    }
 
-  const passwordHash = await bcrypt.hash(password, 10);
-  await prisma.user.create({
-    data: {
-      login_id: loginId,
-      real_name: realName,
-      age,
-      email,
-      password_hash: passwordHash,
-      birth,
-      birth_hash: hashBirth(birth),
-      nickname,
-      gender,
-      university,
-      department,
-      student_year: studentYear,
-      student_number: preSignup.studentNumber,
-    },
-  });
+    if (studentDuplicated) {
+      return fail('CONFLICT', '이미 가입된 학번입니다. 로그인해주세요.', 409);
+    }
 
-  const response = NextResponse.json(
-    {
-      ok: true,
+    const passwordHash = await bcrypt.hash(password, 10);
+    await prisma.user.create({
+      data: {
+        login_id: loginId,
+        real_name: realName,
+        age,
+        email,
+        password_hash: passwordHash,
+        birth,
+        birth_hash: hashBirth(birth),
+        nickname,
+        gender,
+        university,
+        department,
+        student_year: studentYear,
+        student_number: preSignup.studentNumber,
+      },
+    });
+
+    const response = ok({
       registered: true,
       nextPath: '/login',
-    },
-    { status: 200 },
-  );
+    });
 
-  await clearPreSignupVerification(request);
-  clearSessionCookie(response);
-  clearAppAccessCookie(response);
-  clearPreSignupCookie(response);
-  return response;
+    await clearPreSignupVerification(request);
+    clearSessionCookie(response);
+    clearAppAccessCookie(response);
+    clearPreSignupCookie(response);
+    return response;
+  } catch (error) {
+    return toErrorResponse(error);
+  }
 }

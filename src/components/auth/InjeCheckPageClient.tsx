@@ -8,14 +8,20 @@ import { PRE_AUTH_CREDENTIALS_STORAGE_KEY } from '@/lib/auth/constants';
 import { APP_NAME } from '@/lib/constants';
 
 interface InjeCheckResponse {
-  ok?: boolean;
-  message?: string;
-  nextStep?: 'login' | 'register';
+  success?: boolean;
+  data?: {
+    nextStep?: 'login' | 'register';
+  };
+  error?: {
+    message?: string;
+  };
 }
 
 interface LoginApiResponse {
-  ok?: boolean;
-  message?: string;
+  success?: boolean;
+  error?: {
+    message?: string;
+  };
 }
 
 function resolveNextQuery(nextPath: string | null): string {
@@ -107,15 +113,15 @@ export function InjeCheckPageClient() {
         payload = {};
       }
 
-      if (!response.ok || !payload.ok) {
-        const message = payload.message ?? '인증에 실패했습니다. 다시 시도해주세요.';
+      if (!response.ok || !payload.success) {
+        const message = payload.error?.message ?? '인증에 실패했습니다. 다시 시도해주세요.';
         setErrorMessage(message);
         showToast(message, 'error');
         return;
       }
 
       setIsVerified(true);
-      setRecommendedNextStep(payload.nextStep === 'login' ? 'login' : 'register');
+      setRecommendedNextStep(payload.data?.nextStep === 'login' ? 'login' : 'register');
       setErrorMessage('');
       showToast('인증되었습니다. 로그인 또는 회원가입을 진행해주세요.', 'success');
     } catch {
@@ -153,7 +159,7 @@ export function InjeCheckPageClient() {
         payload = {};
       }
 
-      if (response.ok && payload.ok) {
+      if (response.ok && payload.success) {
         showToast('로그인되었습니다.', 'success');
         const nextPath = resolveNextPath(searchParams.get('next'));
         startTransition(() => {
@@ -162,7 +168,7 @@ export function InjeCheckPageClient() {
         return;
       }
 
-      const message = payload.message ?? '로그인에 실패했습니다.';
+      const message = payload.error?.message ?? '로그인에 실패했습니다.';
       setErrorMessage(message);
       showToast(message, 'error');
     } catch {

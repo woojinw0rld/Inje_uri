@@ -7,8 +7,10 @@ import { Button, Card, useToast } from '@/components/ui';
 import { APP_NAME } from '@/lib/constants';
 
 interface LoginApiResponse {
-  ok?: boolean;
-  message?: string;
+  success?: boolean;
+  error?: {
+    message?: string;
+  };
 }
 
 function resolveNextPath(nextPath: string | null): string {
@@ -62,7 +64,7 @@ export function LoginPageClient() {
         payload = {};
       }
 
-      if (response.ok && payload.ok) {
+      if (response.ok && payload.success) {
         showToast('로그인되었습니다.', 'success');
         const nextPath = resolveNextPath(searchParams.get('next'));
         startTransition(() => {
@@ -71,7 +73,7 @@ export function LoginPageClient() {
         return;
       }
 
-      const message = payload.message ?? '로그인에 실패했습니다.';
+      const message = payload.error?.message ?? '로그인에 실패했습니다.';
       setErrorMessage(message);
       showToast(message, 'error');
     } catch {
