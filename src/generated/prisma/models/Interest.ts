@@ -42,7 +42,6 @@ export type InterestMinAggregateOutputType = {
   id: number | null
   from_user_id: number | null
   to_user_id: number | null
-  source_type: string | null
   status: $Enums.interest_status | null
   matched_at: Date | null
   declined_at: Date | null
@@ -54,7 +53,6 @@ export type InterestMaxAggregateOutputType = {
   id: number | null
   from_user_id: number | null
   to_user_id: number | null
-  source_type: string | null
   status: $Enums.interest_status | null
   matched_at: Date | null
   declined_at: Date | null
@@ -66,7 +64,6 @@ export type InterestCountAggregateOutputType = {
   id: number
   from_user_id: number
   to_user_id: number
-  source_type: number
   status: number
   matched_at: number
   declined_at: number
@@ -92,7 +89,6 @@ export type InterestMinAggregateInputType = {
   id?: true
   from_user_id?: true
   to_user_id?: true
-  source_type?: true
   status?: true
   matched_at?: true
   declined_at?: true
@@ -104,7 +100,6 @@ export type InterestMaxAggregateInputType = {
   id?: true
   from_user_id?: true
   to_user_id?: true
-  source_type?: true
   status?: true
   matched_at?: true
   declined_at?: true
@@ -116,7 +111,6 @@ export type InterestCountAggregateInputType = {
   id?: true
   from_user_id?: true
   to_user_id?: true
-  source_type?: true
   status?: true
   matched_at?: true
   declined_at?: true
@@ -215,7 +209,6 @@ export type InterestGroupByOutputType = {
   id: number
   from_user_id: number
   to_user_id: number
-  source_type: string
   status: $Enums.interest_status
   matched_at: Date | null
   declined_at: Date | null
@@ -250,7 +243,6 @@ export type InterestWhereInput = {
   id?: Prisma.IntFilter<"Interest"> | number
   from_user_id?: Prisma.IntFilter<"Interest"> | number
   to_user_id?: Prisma.IntFilter<"Interest"> | number
-  source_type?: Prisma.StringFilter<"Interest"> | string
   status?: Prisma.Enuminterest_statusFilter<"Interest"> | $Enums.interest_status
   matched_at?: Prisma.DateTimeNullableFilter<"Interest"> | Date | string | null
   declined_at?: Prisma.DateTimeNullableFilter<"Interest"> | Date | string | null
@@ -265,7 +257,6 @@ export type InterestOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   from_user_id?: Prisma.SortOrder
   to_user_id?: Prisma.SortOrder
-  source_type?: Prisma.SortOrder
   status?: Prisma.SortOrder
   matched_at?: Prisma.SortOrderInput | Prisma.SortOrder
   declined_at?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -283,7 +274,6 @@ export type InterestWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.InterestWhereInput | Prisma.InterestWhereInput[]
   from_user_id?: Prisma.IntFilter<"Interest"> | number
   to_user_id?: Prisma.IntFilter<"Interest"> | number
-  source_type?: Prisma.StringFilter<"Interest"> | string
   status?: Prisma.Enuminterest_statusFilter<"Interest"> | $Enums.interest_status
   matched_at?: Prisma.DateTimeNullableFilter<"Interest"> | Date | string | null
   declined_at?: Prisma.DateTimeNullableFilter<"Interest"> | Date | string | null
@@ -298,7 +288,6 @@ export type InterestOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   from_user_id?: Prisma.SortOrder
   to_user_id?: Prisma.SortOrder
-  source_type?: Prisma.SortOrder
   status?: Prisma.SortOrder
   matched_at?: Prisma.SortOrderInput | Prisma.SortOrder
   declined_at?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -318,7 +307,6 @@ export type InterestScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"Interest"> | number
   from_user_id?: Prisma.IntWithAggregatesFilter<"Interest"> | number
   to_user_id?: Prisma.IntWithAggregatesFilter<"Interest"> | number
-  source_type?: Prisma.StringWithAggregatesFilter<"Interest"> | string
   status?: Prisma.Enuminterest_statusWithAggregatesFilter<"Interest"> | $Enums.interest_status
   matched_at?: Prisma.DateTimeNullableWithAggregatesFilter<"Interest"> | Date | string | null
   declined_at?: Prisma.DateTimeNullableWithAggregatesFilter<"Interest"> | Date | string | null
@@ -327,7 +315,6 @@ export type InterestScalarWhereWithAggregatesInput = {
 }
 
 export type InterestCreateInput = {
-  source_type: string
   status?: $Enums.interest_status
   matched_at?: Date | string | null
   declined_at?: Date | string | null
@@ -342,7 +329,6 @@ export type InterestUncheckedCreateInput = {
   id?: number
   from_user_id: number
   to_user_id: number
-  source_type: string
   status?: $Enums.interest_status
   matched_at?: Date | string | null
   declined_at?: Date | string | null
@@ -352,7 +338,6 @@ export type InterestUncheckedCreateInput = {
 }
 
 export type InterestUpdateInput = {
-  source_type?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.Enuminterest_statusFieldUpdateOperationsInput | $Enums.interest_status
   matched_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   declined_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -367,7 +352,6 @@ export type InterestUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   from_user_id?: Prisma.IntFieldUpdateOperationsInput | number
   to_user_id?: Prisma.IntFieldUpdateOperationsInput | number
-  source_type?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.Enuminterest_statusFieldUpdateOperationsInput | $Enums.interest_status
   matched_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   declined_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -380,7 +364,6 @@ export type InterestCreateManyInput = {
   id?: number
   from_user_id: number
   to_user_id: number
-  source_type: string
   status?: $Enums.interest_status
   matched_at?: Date | string | null
   declined_at?: Date | string | null
@@ -389,7 +372,6 @@ export type InterestCreateManyInput = {
 }
 
 export type InterestUpdateManyMutationInput = {
-  source_type?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.Enuminterest_statusFieldUpdateOperationsInput | $Enums.interest_status
   matched_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   declined_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -401,7 +383,6 @@ export type InterestUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   from_user_id?: Prisma.IntFieldUpdateOperationsInput | number
   to_user_id?: Prisma.IntFieldUpdateOperationsInput | number
-  source_type?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.Enuminterest_statusFieldUpdateOperationsInput | $Enums.interest_status
   matched_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   declined_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -423,7 +404,6 @@ export type InterestCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   from_user_id?: Prisma.SortOrder
   to_user_id?: Prisma.SortOrder
-  source_type?: Prisma.SortOrder
   status?: Prisma.SortOrder
   matched_at?: Prisma.SortOrder
   declined_at?: Prisma.SortOrder
@@ -441,7 +421,6 @@ export type InterestMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   from_user_id?: Prisma.SortOrder
   to_user_id?: Prisma.SortOrder
-  source_type?: Prisma.SortOrder
   status?: Prisma.SortOrder
   matched_at?: Prisma.SortOrder
   declined_at?: Prisma.SortOrder
@@ -453,7 +432,6 @@ export type InterestMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   from_user_id?: Prisma.SortOrder
   to_user_id?: Prisma.SortOrder
-  source_type?: Prisma.SortOrder
   status?: Prisma.SortOrder
   matched_at?: Prisma.SortOrder
   declined_at?: Prisma.SortOrder
@@ -577,7 +555,6 @@ export type InterestUpdateOneWithoutSourceChatRoomsNestedInput = {
 }
 
 export type InterestCreateWithoutFrom_userInput = {
-  source_type: string
   status?: $Enums.interest_status
   matched_at?: Date | string | null
   declined_at?: Date | string | null
@@ -590,7 +567,6 @@ export type InterestCreateWithoutFrom_userInput = {
 export type InterestUncheckedCreateWithoutFrom_userInput = {
   id?: number
   to_user_id: number
-  source_type: string
   status?: $Enums.interest_status
   matched_at?: Date | string | null
   declined_at?: Date | string | null
@@ -610,7 +586,6 @@ export type InterestCreateManyFrom_userInputEnvelope = {
 }
 
 export type InterestCreateWithoutTo_userInput = {
-  source_type: string
   status?: $Enums.interest_status
   matched_at?: Date | string | null
   declined_at?: Date | string | null
@@ -623,7 +598,6 @@ export type InterestCreateWithoutTo_userInput = {
 export type InterestUncheckedCreateWithoutTo_userInput = {
   id?: number
   from_user_id: number
-  source_type: string
   status?: $Enums.interest_status
   matched_at?: Date | string | null
   declined_at?: Date | string | null
@@ -665,7 +639,6 @@ export type InterestScalarWhereInput = {
   id?: Prisma.IntFilter<"Interest"> | number
   from_user_id?: Prisma.IntFilter<"Interest"> | number
   to_user_id?: Prisma.IntFilter<"Interest"> | number
-  source_type?: Prisma.StringFilter<"Interest"> | string
   status?: Prisma.Enuminterest_statusFilter<"Interest"> | $Enums.interest_status
   matched_at?: Prisma.DateTimeNullableFilter<"Interest"> | Date | string | null
   declined_at?: Prisma.DateTimeNullableFilter<"Interest"> | Date | string | null
@@ -690,7 +663,6 @@ export type InterestUpdateManyWithWhereWithoutTo_userInput = {
 }
 
 export type InterestCreateWithoutSourceChatRoomsInput = {
-  source_type: string
   status?: $Enums.interest_status
   matched_at?: Date | string | null
   declined_at?: Date | string | null
@@ -704,7 +676,6 @@ export type InterestUncheckedCreateWithoutSourceChatRoomsInput = {
   id?: number
   from_user_id: number
   to_user_id: number
-  source_type: string
   status?: $Enums.interest_status
   matched_at?: Date | string | null
   declined_at?: Date | string | null
@@ -729,7 +700,6 @@ export type InterestUpdateToOneWithWhereWithoutSourceChatRoomsInput = {
 }
 
 export type InterestUpdateWithoutSourceChatRoomsInput = {
-  source_type?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.Enuminterest_statusFieldUpdateOperationsInput | $Enums.interest_status
   matched_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   declined_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -743,7 +713,6 @@ export type InterestUncheckedUpdateWithoutSourceChatRoomsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   from_user_id?: Prisma.IntFieldUpdateOperationsInput | number
   to_user_id?: Prisma.IntFieldUpdateOperationsInput | number
-  source_type?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.Enuminterest_statusFieldUpdateOperationsInput | $Enums.interest_status
   matched_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   declined_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -754,7 +723,6 @@ export type InterestUncheckedUpdateWithoutSourceChatRoomsInput = {
 export type InterestCreateManyFrom_userInput = {
   id?: number
   to_user_id: number
-  source_type: string
   status?: $Enums.interest_status
   matched_at?: Date | string | null
   declined_at?: Date | string | null
@@ -765,7 +733,6 @@ export type InterestCreateManyFrom_userInput = {
 export type InterestCreateManyTo_userInput = {
   id?: number
   from_user_id: number
-  source_type: string
   status?: $Enums.interest_status
   matched_at?: Date | string | null
   declined_at?: Date | string | null
@@ -774,7 +741,6 @@ export type InterestCreateManyTo_userInput = {
 }
 
 export type InterestUpdateWithoutFrom_userInput = {
-  source_type?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.Enuminterest_statusFieldUpdateOperationsInput | $Enums.interest_status
   matched_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   declined_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -787,7 +753,6 @@ export type InterestUpdateWithoutFrom_userInput = {
 export type InterestUncheckedUpdateWithoutFrom_userInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   to_user_id?: Prisma.IntFieldUpdateOperationsInput | number
-  source_type?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.Enuminterest_statusFieldUpdateOperationsInput | $Enums.interest_status
   matched_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   declined_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -799,7 +764,6 @@ export type InterestUncheckedUpdateWithoutFrom_userInput = {
 export type InterestUncheckedUpdateManyWithoutFrom_userInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   to_user_id?: Prisma.IntFieldUpdateOperationsInput | number
-  source_type?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.Enuminterest_statusFieldUpdateOperationsInput | $Enums.interest_status
   matched_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   declined_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -808,7 +772,6 @@ export type InterestUncheckedUpdateManyWithoutFrom_userInput = {
 }
 
 export type InterestUpdateWithoutTo_userInput = {
-  source_type?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.Enuminterest_statusFieldUpdateOperationsInput | $Enums.interest_status
   matched_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   declined_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -821,7 +784,6 @@ export type InterestUpdateWithoutTo_userInput = {
 export type InterestUncheckedUpdateWithoutTo_userInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   from_user_id?: Prisma.IntFieldUpdateOperationsInput | number
-  source_type?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.Enuminterest_statusFieldUpdateOperationsInput | $Enums.interest_status
   matched_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   declined_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -833,7 +795,6 @@ export type InterestUncheckedUpdateWithoutTo_userInput = {
 export type InterestUncheckedUpdateManyWithoutTo_userInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   from_user_id?: Prisma.IntFieldUpdateOperationsInput | number
-  source_type?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.Enuminterest_statusFieldUpdateOperationsInput | $Enums.interest_status
   matched_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   declined_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -876,7 +837,6 @@ export type InterestSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   id?: boolean
   from_user_id?: boolean
   to_user_id?: boolean
-  source_type?: boolean
   status?: boolean
   matched_at?: boolean
   declined_at?: boolean
@@ -892,7 +852,6 @@ export type InterestSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   from_user_id?: boolean
   to_user_id?: boolean
-  source_type?: boolean
   status?: boolean
   matched_at?: boolean
   declined_at?: boolean
@@ -906,7 +865,6 @@ export type InterestSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   from_user_id?: boolean
   to_user_id?: boolean
-  source_type?: boolean
   status?: boolean
   matched_at?: boolean
   declined_at?: boolean
@@ -920,7 +878,6 @@ export type InterestSelectScalar = {
   id?: boolean
   from_user_id?: boolean
   to_user_id?: boolean
-  source_type?: boolean
   status?: boolean
   matched_at?: boolean
   declined_at?: boolean
@@ -928,7 +885,7 @@ export type InterestSelectScalar = {
   expires_at?: boolean
 }
 
-export type InterestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "from_user_id" | "to_user_id" | "source_type" | "status" | "matched_at" | "declined_at" | "created_at" | "expires_at", ExtArgs["result"]["interest"]>
+export type InterestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "from_user_id" | "to_user_id" | "status" | "matched_at" | "declined_at" | "created_at" | "expires_at", ExtArgs["result"]["interest"]>
 export type InterestInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   from_user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   to_user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -955,7 +912,6 @@ export type $InterestPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     id: number
     from_user_id: number
     to_user_id: number
-    source_type: string
     status: $Enums.interest_status
     matched_at: Date | null
     declined_at: Date | null
@@ -1390,7 +1346,6 @@ export interface InterestFieldRefs {
   readonly id: Prisma.FieldRef<"Interest", 'Int'>
   readonly from_user_id: Prisma.FieldRef<"Interest", 'Int'>
   readonly to_user_id: Prisma.FieldRef<"Interest", 'Int'>
-  readonly source_type: Prisma.FieldRef<"Interest", 'String'>
   readonly status: Prisma.FieldRef<"Interest", 'interest_status'>
   readonly matched_at: Prisma.FieldRef<"Interest", 'DateTime'>
   readonly declined_at: Prisma.FieldRef<"Interest", 'DateTime'>

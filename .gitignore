@@ -8,4 +8,6 @@ dist
 .env*
 !.env.example
 .vscode
+.ai-rules
+AGENTS.md
 test-session.ts

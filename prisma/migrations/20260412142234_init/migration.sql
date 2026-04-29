@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "user_status" AS ENUM ('active', 'inactive', 'suspended', 'withdrawn');
+CREATE TYPE "user_status" AS ENUM ('active', 'inactive', 'banned', 'withdrawn');
 
 -- CreateEnum
 CREATE TYPE "email_verification_status" AS ENUM ('pending', 'verified', 'expired');
@@ -157,7 +157,6 @@ CREATE TABLE "interests" (
     "id" SERIAL NOT NULL,
     "from_user_id" INTEGER NOT NULL,
     "to_user_id" INTEGER NOT NULL,
-    "source_type" VARCHAR(50) NOT NULL,
     "status" "interest_status" NOT NULL DEFAULT 'pending',
     "matched_at" TIMESTAMPTZ(6),
     "declined_at" TIMESTAMPTZ(6),
