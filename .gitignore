@@ -10,3 +10,4 @@ dist
 .vscode
 .ai-rules
 AGENTS.md
+test-session.ts
