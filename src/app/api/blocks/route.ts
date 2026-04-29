@@ -83,6 +83,7 @@ export const POST = withAuth(async (request: NextRequest, auth) => {
   });
 
   let block;
+  let status = 201;
   if (!existing) {
     block = await prisma.block.create({
       data: {
@@ -92,7 +93,8 @@ export const POST = withAuth(async (request: NextRequest, auth) => {
       },
     });
   } else if (existing.unblocked_at === null) {
-    throw apiErrors.conflict('이미 차단한 사용자입니다.');
+    block = existing;
+    status = 200;
   } else {
     block = await prisma.block.update({
       where: { id: existing.id },
@@ -111,7 +113,7 @@ export const POST = withAuth(async (request: NextRequest, auth) => {
       reason: block.reason,
       createdAt: block.created_at.toISOString(),
     },
-  }, { status: 201 });
+  }, { status });
 });
 
 export const DELETE = withAuth(async (request: NextRequest, auth) => {
