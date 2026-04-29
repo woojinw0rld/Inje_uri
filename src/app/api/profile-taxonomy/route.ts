@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { NextRequest } from 'next/server';
 import { ok } from '@/lib/server/api/response';
 import { withAuth } from '@/lib/server/auth/middleware';
 import { prisma } from '@/lib/server/prisma';
 
 export const runtime = 'nodejs';
 
-export const GET = withAuth(async (_request: NextRequest) => {
+export const GET = withAuth(async () => {
   const categories = await prisma.category.findMany({
     orderBy: { category_id: 'asc' },
     include: {

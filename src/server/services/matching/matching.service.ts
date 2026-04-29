@@ -4,7 +4,6 @@ import prisma from "@/server/db/prisma";
 import {
   findReversePendingInterest,
   confirmMatch,
-  rollbackMatch,
 } from "@/server/repositories/interest.repository";
 
 export interface MatchResult {

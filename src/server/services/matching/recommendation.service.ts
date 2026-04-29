@@ -9,9 +9,6 @@ import {
   findTodayRecommendation,
   findCandidatesWithProfile,
   findItemInTodayRecommendation,
-  updateRecommendationSelection,
-  passOtherItems,
-  passItem,
   getRecentlyRecommendedUserIds,
   createDailyRecommendation,
 } from "@/server/repositories/recommendation.repository";

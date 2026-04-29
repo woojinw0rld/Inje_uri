@@ -21,9 +21,9 @@ export async function GET() {
         securitySchemes: {
           UserAuth: {
             type: "apiKey",
-            in: "header",
-            name: "x-user-id",
-            description: "테스트용 유저 ID (예: 1)",
+            in: "cookie",
+            name: "injeuri_session",
+            description: "로그인 성공 시 설정되는 세션 쿠키",
           },
         },
         schemas: {
@@ -552,7 +552,7 @@ export async function GET() {
             summary: "일별 추천 배치 실행",
             description: [
               "매일 09:00 KST 기준으로 전체 활성 유저의 추천을 생성합니다.",
-              "x-user-id 인증 불필요. x-batch-secret 헤더 인증 필요.",
+              "세션 쿠키 인증 불필요. x-batch-secret 헤더 인증 필요.",
               "이미 오늘 추천이 생성된 유저는 건너뜁니다.",
             ].join("\n"),
             security: [],
