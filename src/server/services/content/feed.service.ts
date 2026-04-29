@@ -1,5 +1,5 @@
 import type { Prisma } from "@/generated/prisma/client";
-import prisma from "@/server/db/prisma";
+import { prisma } from "@/server/db/prisma";
 import { AppError } from "@/server/lib/app-error";
 import { FeedRepository } from "@/server/repositories/feed/feed.repository";
 import type { FeedDetailRow, FeedListRow } from "@/server/repositories/feed/feed.repository";

@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { AppError } from "@/server/lib/app-error";
 import { ok, fail } from "@/server/lib/response";
+import { getAuthUser } from "@/server/lib/auth";
 import { blockUser, listBlocks, unblockUser } from "@/server/services/content/safety.service";
 
 /**
@@ -29,10 +30,11 @@ import { blockUser, listBlocks, unblockUser } from "@/server/services/content/sa
  *
  * @see blocks, users 테이블 (prisma/schema.prisma)
  */
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
-    const currentUserId = 1; // 현재는 고정값 1 사용 (테스트용)
+    const user = await getAuthUser(request);
+    if (!user) return fail("UNAUTHORIZED", "인증이 필요합니다.");
+    const currentUserId = user.id;
     const data = await listBlocks(currentUserId);
 
     return ok(data);
@@ -78,6 +80,9 @@ export async function GET(_request: NextRequest) {
  */
 export async function POST(request: NextRequest) { // HTTP POST 메서드로 사용자 차단 관계를 생성하는 API
   try {
+    const user = await getAuthUser(request);
+    if (!user) return fail("UNAUTHORIZED", "인증이 필요합니다.");
+
     const body = await request.json(); // 요청 바디에서 JSON 파싱
     const { blockedUserId, reason } = body as { blockedUserId: unknown; reason: unknown }; // 차단 대상 ID + 사유 추출
 
@@ -89,8 +94,7 @@ export async function POST(request: NextRequest) { // HTTP POST 메서드로 사
       return fail("INVALID_REASON", "차단 사유가 string이 아닙니다.");
     }
 
-    // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
-    const blockerUserId = 1; // 현재는 고정값 1 사용 (테스트용)
+    const blockerUserId = user.id;
 
     const data = await blockUser(blockerUserId, blockedUserId, (reason as string | undefined) ?? null);
 
@@ -134,6 +138,9 @@ export async function POST(request: NextRequest) { // HTTP POST 메서드로 사
  */
 export async function DELETE(request: NextRequest) {
   try {
+    const user = await getAuthUser(request);
+    if (!user) return fail("UNAUTHORIZED", "인증이 필요합니다.");
+
     const body = await request.json();
     const { blockId } = body as { blockId: unknown };
 
@@ -141,8 +148,7 @@ export async function DELETE(request: NextRequest) {
       return fail("INVALID_BLOCK_ID", "차단 ID가 유효하지 않습니다.");
     }
 
-    // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
-    const currentUserId = 1; // 현재는 고정값 1 사용 (테스트용)
+    const currentUserId = user.id;
 
     const data = await unblockUser(currentUserId, blockId);
 

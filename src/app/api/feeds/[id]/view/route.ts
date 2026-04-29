@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { ok, fail } from "@/server/lib/response";
 import { AppError } from "@/server/lib/app-error";
+import { getAuthUser } from "@/server/lib/auth";
 import { recordFeedView } from "@/server/services/content/feed.service";
 
 /**
@@ -43,8 +44,9 @@ export async function POST( // HTTP POST(쓰기) 메서드로 조회 기록을 D
       return fail("INVALID_FEED_ID", "유효하지 않은 피드 ID입니다.");
     }
 
-    // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
-    const viewerUserId = 1; // const viewerUserId = request.userId; // 현재는 고정값 1 사용 (테스트용) → 실제로는 인증된 사용자 ID를 사용해야 함
+    const user = await getAuthUser(request);
+    if (!user) return fail("UNAUTHORIZED", "인증이 필요합니다.");
+    const viewerUserId = user.id;
 
     const data = await recordFeedView(feedId, viewerUserId);
     return ok(data);

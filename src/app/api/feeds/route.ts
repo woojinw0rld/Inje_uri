@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { ok, fail } from "@/server/lib/response";
 import { AppError } from "@/server/lib/app-error";
+import { getAuthUser } from "@/server/lib/auth";
 import { listFeeds, createFeed } from "@/server/services/content/feed.service";
 
 /**
@@ -37,7 +38,9 @@ import { listFeeds, createFeed } from "@/server/services/content/feed.service";
  */
 export async function GET(request: NextRequest) {
   try {
-    const currentUserId = 1; // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
+    const user = await getAuthUser(request);
+    if (!user) return fail("UNAUTHORIZED", "인증이 필요합니다.");
+    const currentUserId = user.id;
 
     const { searchParams } = new URL(request.url);
     const keyword = searchParams.get("keyword");
@@ -88,6 +91,9 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    const user = await getAuthUser(request);
+    if (!user) return fail("UNAUTHORIZED", "인증이 필요합니다.");
+
     const body = await request.json();
     const { text, feedKeywordIds } = body as { text: unknown; feedKeywordIds: unknown };
 
@@ -104,7 +110,7 @@ export async function POST(request: NextRequest) {
       return fail("INVALID_KEYWORD_ID", "피드 키워드 ID는 모두 정수여야 합니다.");
     }
 
-    const authorUserId = 1; // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
+    const authorUserId = user.id;
 
     const data = await createFeed(authorUserId, text, feedKeywordIds as number[]);
     return ok(data);

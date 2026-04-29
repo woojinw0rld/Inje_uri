@@ -1,6 +1,8 @@
-import prisma from "@/server/db/prisma";
 import { AppError } from "@/server/lib/app-error";
+import { prisma } from "@/server/db/prisma";
 import { CommentRepository } from "@/server/repositories/feed/comment.repository";
+import * as chatRoomService from "@/server/services/conversation/chatRoom.service";
+import { ERROR } from "@/server/lib/errors";
 import type {
   CommentListDto,
   CommentListItemDto,
@@ -162,15 +164,26 @@ export async function selectChat(
     throw new AppError("CHAT_ROOM_ALREADY_EXISTS", "이미 이 댓글로 생성된 채팅방이 있습니다.");
   }
 
-  const expiresAt = new Date(Date.now() + 2 * 60 * 60 * 1000);
-  const chatRoom = await prisma.$transaction(async (tx) => {
-    return repo.createChatRoom(tx, {
-      createdByUserId: currentUserId,
-      commentId,
-      expiresAt,
-      participantUserIds: [currentUserId, comment.commenter_user_id],
-    });
+  const chatRoom = await chatRoomService.createChatRoom({
+    requestUserId: currentUserId,
+    targetUserId: comment.commenter_user_id,
+    sourceType: "comment",
+    sourceCommentId: commentId,
   });
 
-  return { chatRoomId: chatRoom.id };
+  if ("error" in chatRoom) {
+    const error = chatRoom.error ?? ERROR.INTERNAL_SERVER_ERROR;
+
+    if (error === ERROR.DUPLICATE_ACTIVE_ROOM) {
+      throw new AppError("CHAT_ROOM_ALREADY_EXISTS", "이미 활성화된 채팅방이 존재합니다.");
+    }
+
+    if (error === ERROR.REMATCH_TOO_SOON) {
+      throw new AppError("REMATCH_TOO_SOON", "마지막 대화 종료 후 7일이 지나지 않았습니다.");
+    }
+
+    throw new AppError(error, "채팅방 생성에 실패했습니다.");
+  }
+
+  return { chatRoomId: chatRoom.chatRoomId };
 }

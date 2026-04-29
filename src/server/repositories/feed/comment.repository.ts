@@ -177,28 +177,4 @@ export class CommentRepository {
       select: { id: true },
     });
   }
-
-  async createChatRoom(
-    tx: Prisma.TransactionClient,
-    data: { createdByUserId: number; commentId: number; expiresAt: Date; participantUserIds: number[] },
-  ) {
-    const room = await tx.chatRoom.create({
-      data: {
-        source_type: "comment",
-        created_by_user_id: data.createdByUserId,
-        source_comment_id: data.commentId,
-        expires_at: data.expiresAt,
-      },
-      select: { id: true },
-    });
-
-    await tx.chatRoomParticipant.createMany({
-      data: data.participantUserIds.map((userId) => ({
-        chat_room_id: room.id,
-        user_id: userId,
-      })),
-    });
-
-    return room;
-  }
 }

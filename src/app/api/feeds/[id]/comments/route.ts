@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { ok, fail } from "@/server/lib/response";
 import { AppError } from "@/server/lib/app-error";
+import { getAuthUser } from "@/server/lib/auth";
 import { createComment, listComments } from "@/server/services/content/comment.service";
 
 /**
@@ -50,8 +51,9 @@ export async function POST(
       return fail("INVALID_CONTENT", "댓글 본문은 빈 값이 아닌 문자열이어야 합니다.");
     }
 
-    // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
-    const currentUserId = 1; // 현재는 고정값 1 사용 (테스트용)
+    const user = await getAuthUser(request);
+    if (!user) return fail("UNAUTHORIZED", "인증이 필요합니다.");
+    const currentUserId = user.id;
     const data = await createComment(currentUserId, feedId, content);
     return ok(data);
   } catch (error) {
@@ -92,7 +94,7 @@ export async function POST(
  * @see Analysis/d-part-detail_v2.md - D-05 상세 스펙
  */
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
@@ -102,8 +104,9 @@ export async function GET(
       return fail("INVALID_FEED_ID", "유효하지 않은 피드 ID입니다.");
     }
 
-    // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
-    const currentUserId = 1; // 현재는 고정값 1 사용 (테스트용)
+    const user = await getAuthUser(request);
+    if (!user) return fail("UNAUTHORIZED", "인증이 필요합니다.");
+    const currentUserId = user.id;
     const data = await listComments(currentUserId, feedId);
     return ok(data);
   } catch (error) {

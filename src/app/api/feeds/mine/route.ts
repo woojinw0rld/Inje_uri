@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
-import prisma from "@/server/db/prisma";
+import { prisma } from "@/server/db/prisma";
 import { ok, fail } from "@/server/lib/response";
+import { getAuthUser } from "@/server/lib/auth";
 
 /**
  * D-15: 내 피드 조회 API
@@ -30,8 +31,9 @@ import { ok, fail } from "@/server/lib/response";
  */
 export async function GET(request: NextRequest) {
   try {
-    // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
-    const currentUserId = 1; // 현재는 고정값 1 사용 (테스트용)
+    const user = await getAuthUser(request);
+    if (!user) return fail("UNAUTHORIZED", "인증이 필요합니다.");
+    const currentUserId = user.id;
 
     const now = new Date();
 

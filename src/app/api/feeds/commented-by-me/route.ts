@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { ok, fail } from "@/server/lib/response";
 import { AppError } from "@/server/lib/app-error";
+import { getAuthUser } from "@/server/lib/auth";
 import { listMyCommentedFeeds } from "@/server/services/content/comment.service";
 
 /**
@@ -34,10 +35,11 @@ import { listMyCommentedFeeds } from "@/server/services/content/comment.service"
  * @see feed_comments, self_date_feeds, blocks, users 테이블 (prisma/schema.prisma)
  * @see Analysis/d-part-detail_v2.md - D-07 상세 스펙
  */
-export async function GET(_request: NextRequest) { // 내가 댓글 단 피드 목록을 조회하는 API
+export async function GET(request: NextRequest) { // 내가 댓글 단 피드 목록을 조회하는 API
   try {
-    // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
-    const currentUserId = 1; // 현재는 고정값 1 사용 (테스트용)
+    const user = await getAuthUser(request);
+    if (!user) return fail("UNAUTHORIZED", "인증이 필요합니다.");
+    const currentUserId = user.id;
 
     const data = await listMyCommentedFeeds(currentUserId);
     return ok(data); // 성공 응답

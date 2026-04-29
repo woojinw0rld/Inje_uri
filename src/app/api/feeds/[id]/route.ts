@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { ok, fail } from "@/server/lib/response";
 import { AppError } from "@/server/lib/app-error";
+import { getAuthUser } from "@/server/lib/auth";
 import { deleteFeed, getFeedDetail, updateFeed } from "@/server/services/content/feed.service";
 
 /**
@@ -48,8 +49,9 @@ export async function GET(
       return fail("INVALID_FEED_ID", "유효하지 않은 피드 ID입니다.");
     }
 
-    // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
-    const currentUserId = 1; // 현재는 고정값 1 사용 (테스트용)
+    const user = await getAuthUser(request);
+    if (!user) return fail("UNAUTHORIZED", "인증이 필요합니다.");
+    const currentUserId = user.id;
 
     const data = await getFeedDetail(currentUserId, feedId);
     return ok(data);
@@ -128,8 +130,9 @@ export async function PATCH(
       }
     }
 
-    // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
-    const currentUserId = 1; // 현재는 고정값 1 사용 (테스트용)
+    const user = await getAuthUser(request);
+    if (!user) return fail("UNAUTHORIZED", "인증이 필요합니다.");
+    const currentUserId = user.id;
 
     const data = await updateFeed(
       currentUserId,
@@ -183,8 +186,9 @@ export async function DELETE(
       return fail("INVALID_FEED_ID", "유효하지 않은 피드 ID입니다.");
     }
 
-    // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
-    const currentUserId = 1; // 현재는 고정값 1 사용 (테스트용)
+    const user = await getAuthUser(request);
+    if (!user) return fail("UNAUTHORIZED", "인증이 필요합니다.");
+    const currentUserId = user.id;
 
     const data = await deleteFeed(currentUserId, feedId);
     return ok(data);

@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { AppError } from "@/server/lib/app-error";
 import { ok, fail } from "@/server/lib/response";
+import { getAuthUser } from "@/server/lib/auth";
 import { createReport } from "@/server/services/content/safety.service";
 
 /**
@@ -41,6 +42,9 @@ type TargetType = (typeof VALID_TARGET_TYPES)[number];
 
 export async function POST(request: NextRequest) { // HTTP POST 메서드로 신고를 생성하는 API
   try {
+    const user = await getAuthUser(request);
+    if (!user) return fail("UNAUTHORIZED", "인증이 필요합니다.");
+
     const body = await request.json(); // 요청 바디에서 JSON 파싱
     const { targetType, targetId, reasonType, description, alsoBlock } = body as {
       targetType: unknown;
@@ -66,8 +70,7 @@ export async function POST(request: NextRequest) { // HTTP POST 메서드로 신
       return fail("INVALID_DESCRIPTION", "상세 설명은 문자열이어야 합니다.");
     }
 
-    // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
-    const reporterUserId = 1; // 현재는 고정값 1 사용 (테스트용)
+    const reporterUserId = user.id;
 
     const validatedType = targetType as TargetType; // 위에서 검증 완료된 targetType을 타입 단언
     const data = await createReport(reporterUserId, {

@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { AppError } from "@/server/lib/app-error";
 import { ok, fail } from "@/server/lib/response";
+import { getAuthUser } from "@/server/lib/auth";
 import { blockPhone } from "@/server/services/content/safety.service";
 
 /**
@@ -33,6 +34,9 @@ import { blockPhone } from "@/server/services/content/safety.service";
  */
 export async function POST(request: NextRequest) { // HTTP POST(쓰기) 메서드로 전화번호 차단을 생성하는 API
   try {
+    const user = await getAuthUser(request);
+    if (!user) return fail("UNAUTHORIZED", "인증이 필요합니다.");
+
     const body = await request.json(); // 요청 바디에서 JSON 파싱
     const { phoneNumberE164 } = body as { phoneNumberE164: unknown }; // 전화번호 추출
 
@@ -45,8 +49,7 @@ export async function POST(request: NextRequest) { // HTTP POST(쓰기) 메서�
       return fail("INVALID_PHONE_FORMAT", "전화번호는 E.164 형식이어야 합니다. (예: +821012345678)");
     }
 
-    // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
-    const userId = 1; // 현재는 고정값 1 사용 (테스트용)
+    const userId = user.id;
 
     const data = await blockPhone(userId, phoneNumberE164);
 

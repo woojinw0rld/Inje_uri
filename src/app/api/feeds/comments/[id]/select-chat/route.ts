@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { ok, fail } from "@/server/lib/response";
 import { AppError } from "@/server/lib/app-error";
+import { getAuthUser } from "@/server/lib/auth";
 import { selectChat } from "@/server/services/content/comment.service";
 
 /**
@@ -32,19 +33,20 @@ import { selectChat } from "@/server/services/content/comment.service";
  * @see Analysis/d-part-detail_v2.md - D-08 상세 스펙
  */
 export async function POST(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const user = await getAuthUser(request);
+    if (!user) return fail("UNAUTHORIZED", "인증이 필요합니다.");
+
     const { id } = await params;
     const commentId = Number(id);
     if (Number.isNaN(commentId) || !Number.isInteger(commentId)) {
       return fail("INVALID_COMMENT_ID", "유효하지 않은 댓글 ID입니다.");
     }
 
-    // TODO: 인증 미들웨어 완성 후 실제 로그인 사용자 ID로 교체
-    const currentUserId = 1; // 현재는 고정값 1 사용 (테스트용)
-    const data = await selectChat(currentUserId, commentId);
+    const data = await selectChat(user.id, commentId);
     return ok(data);
   } catch (error) {
     if (error instanceof AppError) return fail(error.code, error.message, error.status);

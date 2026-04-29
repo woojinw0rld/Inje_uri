@@ -1,5 +1,5 @@
 import { createHash } from "crypto";
-import prisma from "@/server/db/prisma";
+import { prisma } from "@/server/db/prisma";
 import { AppError } from "@/server/lib/app-error";
 import { SafetyRepository } from "@/server/repositories/safety/safety.repository";
 import type { ActiveBlockListRow } from "@/server/repositories/safety/safety.repository";

@@ -22,7 +22,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const result = await messageService.markAsRead(roomId, user.id, Number(lastReadMessageId));
 
     if ("error" in result) {
-        return fail(result.error!, "접근 권한이 없습니다.", 403);
+        return fail(result.error!, "접근 권한이 없습니다.", 400);
     }
 
     return ok(result);

@@ -3,7 +3,7 @@
     info: {                                                                                       
       title: "인제우리 API",
       version: "1.0.0",
-      description: "인제우리 채팅 API 문서",
+      description: "인제우리 C파트(채팅) + D파트(피드/댓글/신고/차단) API 문서",
     },
     servers: [
       { url: "http://localhost:3000", description: "로컬 개발 서버" },
@@ -11,6 +11,10 @@
     tags: [
       { name: "채팅방", description: "채팅방 생성, 조회, 상태 전이" },
       { name: "메시지", description: "메시지 전송, 조회, 읽음 처리" },
+      { name: "피드", description: "셀프데이트 피드 조회, 작성, 수정, 삭제" },
+      { name: "댓글", description: "피드 댓글 조회, 작성, 댓글 선택 채팅 생성" },
+      { name: "차단", description: "사용자 차단, 전화번호 차단, 차단 목록/해제" },
+      { name: "신고", description: "사용자/피드/댓글/채팅방/메시지 신고" },
     ],
     paths: {
       "/api/chat-room": {
@@ -68,29 +72,6 @@
               },
             },
             "400": { $ref: "#/components/responses/BadRequest" },
-            "401": { $ref: "#/components/responses/Unauthorized" },
-            "409": {
-              description: "중복 채팅방 또는 재매칭 제한",
-              content: {
-                "application/json": {
-                  schema: { $ref: "#/components/schemas/ErrorResponse" },
-                  examples: {
-                    duplicate: {
-                      value: {
-                        success: false,
-                        error: { code: "DUPLICATE_ACTIVE_ROOM", message: "이미 활성화된 채팅방이  존재합니다." },
-                      },
-                    },
-                    rematch: {
-                      value: {
-                        success: false,
-                        error: { code: "REMATCH_TOO_SOON", message: "마지막 대화 종료 후 7일이  지나지 않았습니다." },
-                      },
-                    },
-                  },
-                },
-              },
-            },
           },
         },
         get: {
@@ -127,7 +108,7 @@
                 },
               },
             },
-            "401": { $ref: "#/components/responses/Unauthorized" },
+            "400": { $ref: "#/components/responses/BadRequest" },
           },
         },
       },
@@ -157,9 +138,7 @@
                 },
               },
             },
-            "401": { $ref: "#/components/responses/Unauthorized" },
-            "403": { $ref: "#/components/responses/Forbidden" },
-            "404": { $ref: "#/components/responses/NotFound" },
+            "400": { $ref: "#/components/responses/BadRequest" },
           },
         },
       },
@@ -207,8 +186,7 @@
                 },
               },
             },
-            "401": { $ref: "#/components/responses/Unauthorized" },
-            "403": { $ref: "#/components/responses/Forbidden" },
+            "400": { $ref: "#/components/responses/BadRequest" },
           },
         },
         post: {
@@ -250,27 +228,6 @@
               },
             },
             "400": { $ref: "#/components/responses/BadRequest" },
-            "401": { $ref: "#/components/responses/Unauthorized" },
-            "403": {
-              description: "접근 불가 (만료/차단/나간 방)",
-              content: {
-                "application/json": {
-                  schema: { $ref: "#/components/schemas/ErrorResponse" },
-                  examples: {
-                    expired: {
-                      value: { success: false, error: { code: "ROOM_EXPIRED", message: "만료된  채팅방입니다." } },
-                    },
-                    notActive: {
-                      value: { success: false, error: { code: "ROOM_NOT_ACTIVE", message:
-  "비활성화된 채팅방입니다." } },
-                    },
-                    forbidden: {
-                      value: { success: false, error: { code: "FORBIDDEN", message: "접근 권한이  없습니다." } },
-                    },
-                  },
-                },
-              },
-            },
           },
         },
       },
@@ -316,8 +273,6 @@
               },
             },
             "400": { $ref: "#/components/responses/BadRequest" },
-            "401": { $ref: "#/components/responses/Unauthorized" },
-            "403": { $ref: "#/components/responses/Forbidden" },
           },
         },
       },
@@ -348,9 +303,7 @@
                 },
               },
             },
-            "401": { $ref: "#/components/responses/Unauthorized" },
-            "403": { $ref: "#/components/responses/Forbidden" },
-            "404": { $ref: "#/components/responses/NotFound" },
+            "400": { $ref: "#/components/responses/BadRequest" },
           },
         },
       },
@@ -396,8 +349,254 @@
               },
             },
             "400": { $ref: "#/components/responses/BadRequest" },
-            "401": { $ref: "#/components/responses/Unauthorized" },
-            "404": { $ref: "#/components/responses/NotFound" },
+          },
+        },
+      },
+
+      "/api/feeds": {
+        get: {
+          tags: ["피드"],
+          summary: "피드 목록 조회",
+          description: "활성 + 미만료 피드를 차단 관계와 banned 사용자를 제외하고 cursor 기반으로 조회",
+          parameters: [
+            { name: "keyword", in: "query", schema: { type: "string" }, description: "피드 키워드 이름 필터" },
+            { name: "cursor", in: "query", schema: { type: "integer" }, description: "다음 페이지 기준 피드 ID" },
+          ],
+          responses: {
+            "200": { description: "피드 목록", content: { "application/json": { schema: { $ref: "#/components/schemas/FeedListResponse" } } } },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+        post: {
+          tags: ["피드"],
+          summary: "피드 작성",
+          description: "1인 1활성피드 검증 후 피드와 키워드를 생성",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["text", "feedKeywordIds"],
+                  properties: {
+                    text: { type: "string", example: "오늘 같이 산책할 사람!" },
+                    feedKeywordIds: { type: "array", items: { type: "integer" }, example: [1, 2] },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            "200": { description: "피드 작성 성공", content: { "application/json": { schema: { $ref: "#/components/schemas/CreateFeedResponse" } } } },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
+      "/api/feeds/{id}": {
+        get: {
+          tags: ["피드"],
+          summary: "피드 상세 조회",
+          parameters: [{ $ref: "#/components/parameters/FeedId" }],
+          responses: {
+            "200": { description: "피드 상세", content: { "application/json": { schema: { $ref: "#/components/schemas/FeedDetailResponse" } } } },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+        patch: {
+          tags: ["피드"],
+          summary: "피드 수정",
+          description: "본인 피드의 본문 또는 키워드를 수정",
+          parameters: [{ $ref: "#/components/parameters/FeedId" }],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    text: { type: "string", example: "수정된 피드 본문" },
+                    feedKeywordIds: { type: "array", items: { type: "integer" }, example: [1, 3] },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            "200": { description: "피드 수정 성공", content: { "application/json": { schema: { $ref: "#/components/schemas/UpdatedResponse" } } } },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+        delete: {
+          tags: ["피드"],
+          summary: "피드 삭제",
+          description: "본인 피드를 soft delete 처리",
+          parameters: [{ $ref: "#/components/parameters/FeedId" }],
+          responses: {
+            "200": { description: "피드 삭제 성공", content: { "application/json": { schema: { $ref: "#/components/schemas/DeletedResponse" } } } },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
+      "/api/feeds/{id}/comments": {
+        get: {
+          tags: ["댓글"],
+          summary: "피드 댓글 목록 조회",
+          parameters: [{ $ref: "#/components/parameters/FeedId" }],
+          responses: {
+            "200": { description: "댓글 목록", content: { "application/json": { schema: { $ref: "#/components/schemas/CommentListResponse" } } } },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+        post: {
+          tags: ["댓글"],
+          summary: "댓글 작성",
+          parameters: [{ $ref: "#/components/parameters/FeedId" }],
+          requestBody: {
+            required: true,
+            content: { "application/json": { schema: { type: "object", required: ["content"], properties: { content: { type: "string", example: "댓글 남깁니다" } } } } },
+          },
+          responses: {
+            "200": { description: "댓글 작성 성공", content: { "application/json": { schema: { $ref: "#/components/schemas/CreateCommentResponse" } } } },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
+      "/api/feeds/{id}/view": {
+        post: {
+          tags: ["피드"],
+          summary: "피드 조회 기록",
+          parameters: [{ $ref: "#/components/parameters/FeedId" }],
+          responses: {
+            "200": { description: "조회 기록 저장", content: { "application/json": { schema: { $ref: "#/components/schemas/RecordedResponse" } } } },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
+      "/api/feeds/keywords": {
+        get: {
+          tags: ["피드"],
+          summary: "피드 키워드 목록",
+          responses: {
+            "200": { description: "피드 키워드 목록", content: { "application/json": { schema: { $ref: "#/components/schemas/KeywordListResponse" } } } },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
+      "/api/feeds/mine": {
+        get: {
+          tags: ["피드"],
+          summary: "내 활성 피드 조회",
+          responses: {
+            "200": { description: "내 활성 피드", content: { "application/json": { schema: { $ref: "#/components/schemas/MyFeedResponse" } } } },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
+      "/api/feeds/commented-by-me": {
+        get: {
+          tags: ["댓글"],
+          summary: "내가 댓글 단 피드 목록",
+          responses: {
+            "200": { description: "내 댓글 피드 목록", content: { "application/json": { schema: { $ref: "#/components/schemas/MyCommentedFeedListResponse" } } } },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
+      "/api/feeds/comments/{id}/select-chat": {
+        post: {
+          tags: ["댓글"],
+          summary: "댓글 선택 후 채팅방 생성",
+          description: "피드 작성자가 댓글을 선택해 C파트 채팅방 생성 로직으로 채팅방 생성",
+          parameters: [{ $ref: "#/components/parameters/CommentId" }],
+          responses: {
+            "200": { description: "채팅방 생성 성공", content: { "application/json": { schema: { $ref: "#/components/schemas/SelectChatResponse" } } } },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
+      "/api/blocks": {
+        get: {
+          tags: ["차단"],
+          summary: "차단 목록 조회",
+          responses: {
+            "200": { description: "차단 목록", content: { "application/json": { schema: { $ref: "#/components/schemas/BlockListResponse" } } } },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+        post: {
+          tags: ["차단"],
+          summary: "사용자 차단",
+          requestBody: {
+            required: true,
+            content: { "application/json": { schema: { type: "object", required: ["blockedUserId"], properties: { blockedUserId: { type: "integer", example: 3 }, reason: { type: "string", nullable: true, example: "불편한 사용자" } } } } },
+          },
+          responses: {
+            "200": { description: "차단 성공", content: { "application/json": { schema: { $ref: "#/components/schemas/BlockUserResponse" } } } },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+        delete: {
+          tags: ["차단"],
+          summary: "차단 해제",
+          requestBody: {
+            required: true,
+            content: { "application/json": { schema: { type: "object", required: ["blockId"], properties: { blockId: { type: "integer", example: 1 } } } } },
+          },
+          responses: {
+            "200": { description: "차단 해제 성공", content: { "application/json": { schema: { $ref: "#/components/schemas/UnblockResponse" } } } },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
+      "/api/blocks/phone": {
+        post: {
+          tags: ["차단"],
+          summary: "전화번호 차단",
+          requestBody: {
+            required: true,
+            content: { "application/json": { schema: { type: "object", required: ["phoneNumberE164"], properties: { phoneNumberE164: { type: "string", example: "+821012345678" } } } } },
+          },
+          responses: {
+            "200": { description: "전화번호 차단 성공", content: { "application/json": { schema: { $ref: "#/components/schemas/PhoneBlockResponse" } } } },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
+      "/api/reports": {
+        post: {
+          tags: ["신고"],
+          summary: "신고 생성",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["targetType", "targetId", "reasonType"],
+                  properties: {
+                    targetType: { type: "string", enum: ["user", "feed", "feed_comment", "chat_room", "message"], example: "feed" },
+                    targetId: { type: "integer", example: 2 },
+                    reasonType: { type: "string", example: "spam" },
+                    description: { type: "string", nullable: true, example: "스팸성 내용입니다" },
+                    alsoBlock: { type: "boolean", example: false },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            "200": { description: "신고 성공", content: { "application/json": { schema: { $ref: "#/components/schemas/CreateReportResponse" } } } },
+            "400": { $ref: "#/components/responses/BadRequest" },
           },
         },
       },
@@ -411,6 +610,20 @@
           required: true,
           schema: { type: "integer" },
           description: "채팅방 ID",
+        },
+        FeedId: {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "integer" },
+          description: "피드 ID",
+        },
+        CommentId: {
+          name: "id",
+          in: "path",
+          required: true,
+          schema: { type: "integer" },
+          description: "댓글 ID",
         },
       },
       schemas: {
@@ -517,6 +730,165 @@
               items: { $ref: "#/components/schemas/Participant" },
             },
           },
+        },
+        FeedAuthor: {
+          type: "object",
+          properties: {
+            userId: { type: "integer", example: 1 },
+            nickname: { type: "string", example: "테스트A" },
+            profileImage: { type: "string", nullable: true, example: null },
+          },
+        },
+        FeedKeyword: {
+          type: "object",
+          properties: {
+            feedKeywordId: { type: "integer", example: 1 },
+            name: { type: "string", example: "산책" },
+          },
+        },
+        FeedListItem: {
+          type: "object",
+          properties: {
+            feedId: { type: "integer", example: 10 },
+            text: { type: "string", example: "오늘 같이 산책할 사람!" },
+            status: { type: "string", example: "active" },
+            createdAt: { type: "string", format: "date-time" },
+            expiresAt: { type: "string", format: "date-time" },
+            author: { $ref: "#/components/schemas/FeedAuthor" },
+            keywords: { type: "array", items: { $ref: "#/components/schemas/FeedKeyword" } },
+            primaryImage: { type: "string", nullable: true, example: null },
+            commentCount: { type: "integer", example: 2 },
+          },
+        },
+        FeedListResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: {
+              type: "object",
+              properties: {
+                items: { type: "array", items: { $ref: "#/components/schemas/FeedListItem" } },
+                nextCursor: { type: "integer", nullable: true, example: null },
+              },
+            },
+          },
+        },
+        CreateFeedResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: { type: "object", properties: { feedId: { type: "integer", example: 1 }, expiresAt: { type: "string", format: "date-time" } } },
+          },
+        },
+        FeedDetailResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: {
+              type: "object",
+              properties: {
+                feed: {
+                  allOf: [
+                    { $ref: "#/components/schemas/FeedListItem" },
+                    {
+                      type: "object",
+                      properties: {
+                        updatedAt: { type: "string", format: "date-time" },
+                        boostScore: { type: "integer", example: 0 },
+                        images: { type: "array", items: { type: "object", properties: { imageId: { type: "integer" }, imageUrl: { type: "string" }, sortOrder: { type: "integer" } } } },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        },
+        KeywordListResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: { type: "object", properties: { items: { type: "array", items: { type: "object", properties: { feedKeywordId: { type: "integer" }, name: { type: "string" }, sortOrder: { type: "integer" } } } } } },
+          },
+        },
+        MyFeedResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: { type: "object", properties: { feed: { nullable: true, $ref: "#/components/schemas/FeedListItem" } } },
+          },
+        },
+        CommentItem: {
+          type: "object",
+          properties: {
+            commentId: { type: "integer", example: 1 },
+            content: { type: "string", example: "댓글입니다" },
+            createdAt: { type: "string", format: "date-time" },
+            commenter: { $ref: "#/components/schemas/FeedAuthor" },
+          },
+        },
+        CommentListResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: { type: "object", properties: { items: { type: "array", items: { $ref: "#/components/schemas/CommentItem" } } } },
+          },
+        },
+        CreateCommentResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: { type: "object", properties: { commentId: { type: "integer", example: 1 } } },
+          },
+        },
+        MyCommentedFeedListResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: { type: "object", properties: { items: { type: "array", items: { type: "object", properties: { comment: { type: "object", properties: { commentId: { type: "integer" }, content: { type: "string" }, createdAt: { type: "string", format: "date-time" } } }, feed: { $ref: "#/components/schemas/FeedListItem" } } } } } },
+          },
+        },
+        SelectChatResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: { type: "object", properties: { chatRoomId: { type: "integer", example: 1 } } },
+          },
+        },
+        UpdatedResponse: {
+          type: "object",
+          properties: { success: { type: "boolean", example: true }, data: { type: "object", properties: { updated: { type: "boolean", example: true } } } },
+        },
+        DeletedResponse: {
+          type: "object",
+          properties: { success: { type: "boolean", example: true }, data: { type: "object", properties: { deleted: { type: "boolean", example: true } } } },
+        },
+        RecordedResponse: {
+          type: "object",
+          properties: { success: { type: "boolean", example: true }, data: { type: "object", properties: { recorded: { type: "boolean", example: true } } } },
+        },
+        BlockListResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: { type: "object", properties: { items: { type: "array", items: { type: "object", properties: { blockId: { type: "integer" }, blockedUser: { $ref: "#/components/schemas/FeedAuthor" }, reason: { type: "string", nullable: true }, createdAt: { type: "string", format: "date-time" } } } } } },
+          },
+        },
+        BlockUserResponse: {
+          type: "object",
+          properties: { success: { type: "boolean", example: true }, data: { type: "object", properties: { blockId: { type: "integer", example: 1 } } } },
+        },
+        UnblockResponse: {
+          type: "object",
+          properties: { success: { type: "boolean", example: true }, data: { type: "object", properties: { unblocked: { type: "boolean", example: true } } } },
+        },
+        PhoneBlockResponse: {
+          type: "object",
+          properties: { success: { type: "boolean", example: true }, data: { type: "object", properties: { phoneBlockId: { type: "integer", example: 1 } } } },
+        },
+        CreateReportResponse: {
+          type: "object",
+          properties: { success: { type: "boolean", example: true }, data: { type: "object", properties: { reportId: { type: "integer", example: 1 } } } },
         },
       },
       responses: {
