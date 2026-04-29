@@ -1,9 +1,26 @@
+export class ApiError extends Error {
+  constructor(public code: string, public override message: string) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
 export const ERROR = {
   // ── 공통 ──
   UNAUTHORIZED: "UNAUTHORIZED",
   FORBIDDEN: "FORBIDDEN",
   NOT_FOUND: "NOT_FOUND",
-  INTERNAL_SERVER_ERROR: "INTERNAL_SERVER_ERROR",
+  INTERNAL_ERROR: "INTERNAL_ERROR",
+
+  // ── B파트 (추천/호감) ──
+  ALREADY_SELECTED: "ALREADY_SELECTED",
+  INVALID_ITEM: "INVALID_ITEM",
+  DUPLICATE_INTEREST: "DUPLICATE_INTEREST",
+  REC_NOT_GENERATED: "REC_NOT_GENERATED",
+  INVALID_INTEREST: "INVALID_INTEREST",
+  ALREADY_PROCESSED: "ALREADY_PROCESSED",
+  ALREADY_PASSED: "ALREADY_PASSED",
+  INVALID_INPUT: "INVALID_INPUT",
 
   // ── C파트 (채팅) ──
   BLOCKED_RELATION: "BLOCKED_RELATION",
@@ -61,6 +78,7 @@ export const ERROR = {
   INVALID_DESCRIPTION: "INVALID_DESCRIPTION",
   TARGET_NOT_FOUND: "TARGET_NOT_FOUND",
   CANNOT_REPORT_SELF: "CANNOT_REPORT_SELF",
+
 } as const;
 
 export type ErrorCode = (typeof ERROR)[keyof typeof ERROR];

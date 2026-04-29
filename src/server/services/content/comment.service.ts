@@ -172,7 +172,7 @@ export async function selectChat(
   });
 
   if ("error" in chatRoom) {
-    const error = chatRoom.error ?? ERROR.INTERNAL_SERVER_ERROR;
+    const error = chatRoom.error ?? ERROR.INTERNAL_ERROR;
 
     if (error === ERROR.DUPLICATE_ACTIVE_ROOM) {
       throw new AppError("CHAT_ROOM_ALREADY_EXISTS", "이미 활성화된 채팅방이 존재합니다.");

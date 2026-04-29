@@ -3,12 +3,15 @@
     info: {                                                                                       
       title: "인제우리 API",
       version: "1.0.0",
-      description: "인제우리 C파트(채팅) + D파트(피드/댓글/신고/차단) API 문서",
+      description: "인제우리 B파트(추천/호감) + C파트(채팅) + D파트(피드/댓글/신고/차단) API 문서",
     },
     servers: [
       { url: "http://localhost:3000", description: "로컬 개발 서버" },
     ],
     tags: [
+      { name: "추천", description: "오늘의 추천 후보 조회/선택/dismiss" },
+      { name: "추천 설정", description: "추천 필터(같은 학과 제외, 같은 학번 감소, 선호 연령) 조회/수정" },
+      { name: "호감", description: "호감 보내기/받은 목록/수락/거절" },
       { name: "채팅방", description: "채팅방 생성, 조회, 상태 전이" },
       { name: "메시지", description: "메시지 전송, 조회, 읽음 처리" },
       { name: "피드", description: "셀프데이트 피드 조회, 작성, 수정, 삭제" },
@@ -17,6 +20,219 @@
       { name: "신고", description: "사용자/피드/댓글/채팅방/메시지 신고" },
     ],
     paths: {
+      "/api/recommendations/today": {
+        get: {
+          tags: ["추천"],
+          summary: "오늘의 추천 목록 조회",
+          description: "KST 오늘 날짜 기준 사용자의 추천 후보 목록 반환. 매칭/dismiss/passed 처리된 항목은 제외.",
+          responses: {
+            "200": {
+              description: "오늘 추천 목록 반환",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/TodayRecommendationsResponse" },
+                },
+              },
+            },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
+      "/api/recommendations/select": {
+        post: {
+          tags: ["추천"],
+          summary: "추천 후보 선택 (호감 발송)",
+          description: "추천 항목을 선택하여 호감 전송. 쌍방 호감인 경우 매칭 성사 + 채팅방 자동 생성.",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["recommendation_item_id"],
+                  properties: {
+                    recommendation_item_id: { type: "integer", example: 12 },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            "200": {
+              description: "선택 처리 결과 (매칭 여부 포함)",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/SelectRecommendationResponse" },
+                },
+              },
+            },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
+      "/api/recommendations/{itemId}/dismiss": {
+        post: {
+          tags: ["추천"],
+          summary: "추천 후보 dismiss",
+          description: "추천 항목을 오늘 목록에서 제거 (dismissed 처리)",
+          parameters: [{ $ref: "#/components/parameters/RecommendationItemId" }],
+          responses: {
+            "200": {
+              description: "dismiss 성공",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/DismissRecommendationResponse" },
+                },
+              },
+            },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
+      "/api/recommendation-settings": {
+        get: {
+          tags: ["추천 설정"],
+          summary: "추천 설정 조회",
+          responses: {
+            "200": {
+              description: "추천 설정 반환",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/RecommendationSettingResponse" },
+                },
+              },
+            },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+        patch: {
+          tags: ["추천 설정"],
+          summary: "추천 설정 부분 업데이트 (UPSERT)",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    exclude_same_department: { type: "boolean", example: true },
+                    reduce_same_year: { type: "boolean", example: false },
+                    preferred_age_min: { type: "integer", example: 20 },
+                    preferred_age_max: { type: "integer", example: 28 },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            "200": {
+              description: "업데이트 성공",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/RecommendationSettingResponse" },
+                },
+              },
+            },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
+      "/api/interests/send": {
+        post: {
+          tags: ["호감"],
+          summary: "호감 직접 발송 (deprecated)",
+          description: "추천 흐름 외 직접 호감 발송. B파트 명세서 v1.2 기준 필수 API 아님.",
+          deprecated: true,
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["to_user_id"],
+                  properties: {
+                    to_user_id: { type: "integer", example: 5 },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            "200": {
+              description: "호감 발송 결과",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/SendInterestResponse" },
+                },
+              },
+            },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
+      "/api/interests/received": {
+        get: {
+          tags: ["호감"],
+          summary: "받은 호감 목록 조회",
+          description: "pending 상태의 받은 호감 목록 반환",
+          responses: {
+            "200": {
+              description: "받은 호감 목록 반환",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/ReceivedInterestsResponse" },
+                },
+              },
+            },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
+      "/api/interests/{interestId}/accept": {
+        post: {
+          tags: ["호감"],
+          summary: "받은 호감 수락 (매칭 성사)",
+          description: "수락 시 쌍방 호감 → 매칭 성사 + C파트 채팅방 자동 생성",
+          parameters: [{ $ref: "#/components/parameters/InterestId" }],
+          responses: {
+            "200": {
+              description: "수락 처리 결과 (매칭 + 채팅방 ID)",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/AcceptInterestResponse" },
+                },
+              },
+            },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
+      "/api/interests/{interestId}/decline": {
+        post: {
+          tags: ["호감"],
+          summary: "받은 호감 거절",
+          parameters: [{ $ref: "#/components/parameters/InterestId" }],
+          responses: {
+            "200": {
+              description: "거절 처리 성공",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/DeclineInterestResponse" },
+                },
+              },
+            },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
       "/api/chat-room": {
         post: {
           tags: ["채팅방"],
@@ -625,8 +841,138 @@
           schema: { type: "integer" },
           description: "댓글 ID",
         },
+        RecommendationItemId: {
+          name: "itemId",
+          in: "path",
+          required: true,
+          schema: { type: "integer" },
+          description: "추천 항목 ID",
+        },
+        InterestId: {
+          name: "interestId",
+          in: "path",
+          required: true,
+          schema: { type: "integer" },
+          description: "호감 ID",
+        },
       },
       schemas: {
+        RecommendationCandidate: {
+          type: "object",
+          properties: {
+            recommendation_item_id: { type: "integer", example: 12 },
+            user_id: { type: "integer", example: 5 },
+            nickname: { type: "string", example: "테스트B" },
+            profile_image: { type: "string", nullable: true, example: null },
+          },
+        },
+        TodayRecommendationsResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: {
+              type: "object",
+              properties: {
+                items: {
+                  type: "array",
+                  items: { $ref: "#/components/schemas/RecommendationCandidate" },
+                },
+              },
+            },
+          },
+        },
+        SelectRecommendationResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: {
+              type: "object",
+              properties: {
+                matched: { type: "boolean", example: true, description: "쌍방 호감으로 매칭 성사 여부" },
+                chat_room_id: { type: "integer", nullable: true, example: 3, description: "매칭 시 생성된 채팅방 ID" },
+              },
+            },
+          },
+        },
+        DismissRecommendationResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: { type: "object", properties: { dismissed: { type: "boolean", example: true } } },
+          },
+        },
+        RecommendationSettingResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: {
+              type: "object",
+              properties: {
+                user_id: { type: "integer", example: 1 },
+                exclude_same_department: { type: "boolean", example: false },
+                reduce_same_year: { type: "boolean", example: false },
+                preferred_age_min: { type: "integer", nullable: true, example: 20 },
+                preferred_age_max: { type: "integer", nullable: true, example: 28 },
+              },
+            },
+          },
+        },
+        InterestItem: {
+          type: "object",
+          properties: {
+            interest_id: { type: "integer", example: 7 },
+            from_user_id: { type: "integer", example: 5 },
+            nickname: { type: "string", example: "테스트B" },
+            profile_image: { type: "string", nullable: true, example: null },
+            created_at: { type: "string", format: "date-time" },
+          },
+        },
+        ReceivedInterestsResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: {
+              type: "object",
+              properties: {
+                items: { type: "array", items: { $ref: "#/components/schemas/InterestItem" } },
+              },
+            },
+          },
+        },
+        SendInterestResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: {
+              type: "object",
+              properties: {
+                interest_id: { type: "integer", example: 7 },
+                matched: { type: "boolean", example: false },
+                chat_room_id: { type: "integer", nullable: true, example: null },
+              },
+            },
+          },
+        },
+        AcceptInterestResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: {
+              type: "object",
+              properties: {
+                matched: { type: "boolean", example: true },
+                chat_room_id: { type: "integer", nullable: true, example: 3 },
+              },
+            },
+          },
+        },
+        DeclineInterestResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: { type: "object", properties: { declined: { type: "boolean", example: true } } },
+          },
+        },
         ErrorResponse: {
           type: "object",
           properties: {
