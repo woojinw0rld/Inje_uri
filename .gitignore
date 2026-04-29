@@ -8,3 +8,4 @@ dist
 .env*
 !.env.example
 .vscode
+test-session.ts
