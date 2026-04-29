@@ -1,6 +1,6 @@
-export const openApiSpec = {
-    openapi: "3.0.3",
-    info: {
+  export const openApiSpec = {                                                                    
+    openapi: "3.0.3",                                                                             
+    info: {                                                                                       
       title: "인제우리 API",
       version: "1.0.0",
       description: "인제우리 채팅 API 문서",
@@ -55,7 +55,13 @@ export const openApiSpec = {
                   schema: {
                     type: "object",
                     properties: {
-                      chatRoomId: { type: "integer", example: 3 },
+                      success: { type: "boolean", example: true },
+                      data: {
+                        type: "object",
+                        properties: {
+                          chatRoomId: { type: "integer", example: 3 },
+                        },
+                      },
                     },
                   },
                 },
@@ -69,8 +75,18 @@ export const openApiSpec = {
                 "application/json": {
                   schema: { $ref: "#/components/schemas/ErrorResponse" },
                   examples: {
-                    duplicate: { value: { error: "DUPLICATE_ACTIVE_ROOM" } },
-                    rematch: { value: { error: "REMATCH_TOO_SOON" } },
+                    duplicate: {
+                      value: {
+                        success: false,
+                        error: { code: "DUPLICATE_ACTIVE_ROOM", message: "이미 활성화된 채팅방이  존재합니다." },
+                      },
+                    },
+                    rematch: {
+                      value: {
+                        success: false,
+                        error: { code: "REMATCH_TOO_SOON", message: "마지막 대화 종료 후 7일이  지나지 않았습니다." },
+                      },
+                    },
                   },
                 },
               },
@@ -84,11 +100,7 @@ export const openApiSpec = {
             {
               name: "tab",
               in: "query",
-              schema: {
-                type: "string",
-                enum: ["all", "unread"],
-                default: "all",
-              },
+              schema: { type: "string", enum: ["all", "unread"], default: "all" },
               description: "all: 전체, unread: 안 읽은 방만",
             },
           ],
@@ -100,9 +112,15 @@ export const openApiSpec = {
                   schema: {
                     type: "object",
                     properties: {
-                      rooms: {
-                        type: "array",
-                        items: { $ref: "#/components/schemas/ChatRoomSummary" },
+                      success: { type: "boolean", example: true },
+                      data: {
+                        type: "object",
+                        properties: {
+                          rooms: {
+                            type: "array",
+                            items: { $ref: "#/components/schemas/ChatRoomSummary" },
+                          },
+                        },
                       },
                     },
                   },
@@ -127,7 +145,13 @@ export const openApiSpec = {
                   schema: {
                     type: "object",
                     properties: {
-                      room: { $ref: "#/components/schemas/ChatRoomDetail" },
+                      success: { type: "boolean", example: true },
+                      data: {
+                        type: "object",
+                        properties: {
+                          room: { $ref: "#/components/schemas/ChatRoomDetail" },
+                        },
+                      },
                     },
                   },
                 },
@@ -144,8 +168,7 @@ export const openApiSpec = {
         get: {
           tags: ["메시지"],
           summary: "메시지 목록 조회",
-          description:
-            "cursor 기반 페이지네이션. cursor 없으면 최신 limit건. 조회 시 자동으로 읽음 처리됨.",
+          description: "cursor 기반 페이지네이션. cursor 없으면 최신 limit건. 조회 시 자동으로  읽음 처리됨.",
           parameters: [
             { $ref: "#/components/parameters/ChatRoomId" },
             {
@@ -169,9 +192,15 @@ export const openApiSpec = {
                   schema: {
                     type: "object",
                     properties: {
-                      messages: {
-                        type: "array",
-                        items: { $ref: "#/components/schemas/Message" },
+                      success: { type: "boolean", example: true },
+                      data: {
+                        type: "object",
+                        properties: {
+                          messages: {
+                            type: "array",
+                            items: { $ref: "#/components/schemas/Message" },
+                          },
+                        },
                       },
                     },
                   },
@@ -208,7 +237,13 @@ export const openApiSpec = {
                   schema: {
                     type: "object",
                     properties: {
-                      message: { $ref: "#/components/schemas/MessageFull" },
+                      success: { type: "boolean", example: true },
+                      data: {
+                        type: "object",
+                        properties: {
+                          message: { $ref: "#/components/schemas/MessageFull" },
+                        },
+                      },
                     },
                   },
                 },
@@ -222,9 +257,16 @@ export const openApiSpec = {
                 "application/json": {
                   schema: { $ref: "#/components/schemas/ErrorResponse" },
                   examples: {
-                    expired: { value: { error: "ROOM_EXPIRED" } },
-                    notActive: { value: { error: "ROOM_NOT_ACTIVE" } },
-                    forbidden: { value: { error: "FORBIDDEN" } },
+                    expired: {
+                      value: { success: false, error: { code: "ROOM_EXPIRED", message: "만료된  채팅방입니다." } },
+                    },
+                    notActive: {
+                      value: { success: false, error: { code: "ROOM_NOT_ACTIVE", message:
+  "비활성화된 채팅방입니다." } },
+                    },
+                    forbidden: {
+                      value: { success: false, error: { code: "FORBIDDEN", message: "접근 권한이  없습니다." } },
+                    },
                   },
                 },
               },
@@ -237,8 +279,7 @@ export const openApiSpec = {
         post: {
           tags: ["메시지"],
           summary: "읽음 처리",
-          description:
-            "클라이언트가 화면에서 본 마지막 메시지 id 전달 → last_read_message_id 갱신",
+          description: "클라이언트가 화면에서 본 마지막 메시지 id 전달 → last_read_message_id  갱신",
           parameters: [{ $ref: "#/components/parameters/ChatRoomId" }],
           requestBody: {
             required: true,
@@ -263,6 +304,12 @@ export const openApiSpec = {
                     type: "object",
                     properties: {
                       success: { type: "boolean", example: true },
+                      data: {
+                        type: "object",
+                        properties: {
+                          success: { type: "boolean", example: true },
+                        },
+                      },
                     },
                   },
                 },
@@ -290,6 +337,12 @@ export const openApiSpec = {
                     type: "object",
                     properties: {
                       success: { type: "boolean", example: true },
+                      data: {
+                        type: "object",
+                        properties: {
+                          success: { type: "boolean", example: true },
+                        },
+                      },
                     },
                   },
                 },
@@ -330,7 +383,13 @@ export const openApiSpec = {
                   schema: {
                     type: "object",
                     properties: {
-                      roomStatus: { type: "string", example: "blocked" },
+                      success: { type: "boolean", example: true },
+                      data: {
+                        type: "object",
+                        properties: {
+                          roomStatus: { type: "string", example: "blocked" },
+                        },
+                      },
                     },
                   },
                 },
@@ -358,7 +417,14 @@ export const openApiSpec = {
         ErrorResponse: {
           type: "object",
           properties: {
-            error: { type: "string", example: "UNAUTHORIZED" },
+            success: { type: "boolean", example: false },
+            error: {
+              type: "object",
+              properties: {
+                code: { type: "string", example: "UNAUTHORIZED" },
+                message: { type: "string", example: "인증이 필요합니다." },
+              },
+            },
           },
         },
         UserSummary: {
@@ -418,10 +484,7 @@ export const openApiSpec = {
           properties: {
             id: { type: "integer" },
             source_type: { type: "string", enum: ["interest", "comment"] },
-            status: {
-              type: "string",
-              enum: ["active", "expired", "blocked", "closed"],
-            },
+            status: { type: "string", enum: ["active", "expired", "blocked", "closed"] },
             created_at: { type: "string", format: "date-time" },
             expires_at: { type: "string", format: "date-time" },
             participants: {
@@ -441,10 +504,7 @@ export const openApiSpec = {
           properties: {
             id: { type: "integer" },
             source_type: { type: "string", enum: ["interest", "comment"] },
-            status: {
-              type: "string",
-              enum: ["active", "expired", "blocked", "closed"],
-            },
+            status: { type: "string", enum: ["active", "expired", "blocked", "closed"] },
             created_by_user_id: { type: "integer" },
             source_interest_id: { type: "integer", nullable: true },
             source_comment_id: { type: "integer", nullable: true },
@@ -473,7 +533,10 @@ export const openApiSpec = {
           content: {
             "application/json": {
               schema: { $ref: "#/components/schemas/ErrorResponse" },
-              example: { error: "UNAUTHORIZED" },
+              example: {
+                success: false,
+                error: { code: "UNAUTHORIZED", message: "인증이 필요합니다." },
+              },
             },
           },
         },
@@ -482,16 +545,22 @@ export const openApiSpec = {
           content: {
             "application/json": {
               schema: { $ref: "#/components/schemas/ErrorResponse" },
-              example: { error: "FORBIDDEN" },
+              example: {
+                success: false,
+                error: { code: "FORBIDDEN", message: "접근 권한이 없습니다." },
+              },
             },
           },
         },
         NotFound: {
-          description: "리소스를 찾을 수 없음",
+          description: "리소스를 찾을 수 없습니다.",
           content: {
             "application/json": {
               schema: { $ref: "#/components/schemas/ErrorResponse" },
-              example: { error: "NOT_FOUND" },
+              example: {
+                success: false,
+                error: { code: "NOT_FOUND", message: "채팅방을 찾을 수 없습니다." },
+              },
             },
           },
         },
