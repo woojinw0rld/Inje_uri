@@ -3,12 +3,16 @@
     info: {                                                                                       
       title: "인제우리 API",
       version: "1.0.0",
-      description: "인제우리 B파트(추천/호감) + C파트(채팅) + D파트(피드/댓글/신고/차단) API 문서",
+      description: "인제우리 A파트(인증/유저) + B파트(추천/호감) + C파트(채팅) + D파트(피드/댓글/신고/차단) API 문서",
     },
     servers: [
       { url: "http://localhost:3000", description: "로컬 개발 서버" },
     ],
     tags: [
+      { name: "인증", description: "인제 학생 인증, 회원가입, 로그인, 세션 조회/로그아웃" },
+      { name: "사용자", description: "내 프로필 조회/수정, 프로필 이미지 관리" },
+      { name: "이메일 인증", description: "학교 이메일 인증 코드 요청/확인" },
+      { name: "프로필", description: "프로필 카테고리/키워드 taxonomy 조회" },
       { name: "추천", description: "오늘의 추천 후보 조회/선택/dismiss" },
       { name: "추천 설정", description: "추천 필터(같은 학과 제외, 같은 학번 감소, 선호 연령) 조회/수정" },
       { name: "호감", description: "호감 보내기/받은 목록/수락/거절" },
@@ -20,6 +24,199 @@
       { name: "신고", description: "사용자/피드/댓글/채팅방/메시지 신고" },
     ],
     paths: {
+      "/api/auth/inje-check": {
+        post: {
+          tags: ["인증"],
+          summary: "인제 학생 인증",
+          description: "학번과 생년월일 6자리로 인제 학생 여부를 확인하고, 회원가입 전용 pre-signup 쿠키를 발급합니다.",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/InjeCheckRequest" },
+              },
+            },
+          },
+          responses: {
+            "200": { description: "인증 성공", content: { "application/json": { schema: { $ref: "#/components/schemas/InjeCheckResponse" } } } },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
+      "/api/auth/register": {
+        post: {
+          tags: ["인증"],
+          summary: "회원가입",
+          description: "인제 학생 인증 후 발급된 pre-signup 쿠키를 사용해 회원가입합니다.",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/RegisterRequest" },
+              },
+            },
+          },
+          responses: {
+            "200": { description: "회원가입 성공", content: { "application/json": { schema: { $ref: "#/components/schemas/RegisterResponse" } } } },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
+      "/api/auth/login": {
+        post: {
+          tags: ["인증"],
+          summary: "로그인",
+          description: "아이디와 비밀번호로 로그인하고 세션 쿠키를 발급합니다. studentId는 loginId 호환 필드입니다.",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/LoginRequest" },
+              },
+            },
+          },
+          responses: {
+            "200": { description: "로그인 성공", content: { "application/json": { schema: { $ref: "#/components/schemas/AuthSessionResponse" } } } },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
+      "/api/auth/me": {
+        get: {
+          tags: ["인증"],
+          summary: "현재 세션 조회",
+          responses: {
+            "200": { description: "현재 인증 정보 반환", content: { "application/json": { schema: { $ref: "#/components/schemas/AuthSessionResponse" } } } },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
+      "/api/auth/logout": {
+        post: {
+          tags: ["인증"],
+          summary: "로그아웃",
+          description: "현재 세션을 삭제하고 인증 관련 쿠키를 제거합니다.",
+          responses: {
+            "200": { description: "로그아웃 성공", content: { "application/json": { schema: { $ref: "#/components/schemas/LogoutResponse" } } } },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
+      "/api/users/me": {
+        get: {
+          tags: ["사용자"],
+          summary: "내 프로필 조회",
+          responses: {
+            "200": { description: "내 프로필 반환", content: { "application/json": { schema: { $ref: "#/components/schemas/UserProfileResponse" } } } },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+        patch: {
+          tags: ["사용자"],
+          summary: "내 프로필 수정",
+          description: "프로필 필드와 키워드 선택을 부분 업데이트합니다.",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/UserProfilePatchRequest" },
+              },
+            },
+          },
+          responses: {
+            "200": { description: "수정된 내 프로필 반환", content: { "application/json": { schema: { $ref: "#/components/schemas/UserProfileResponse" } } } },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
+      "/api/users/me/images": {
+        post: {
+          tags: ["사용자"],
+          summary: "프로필 이미지 업로드",
+          description: "multipart/form-data로 이미지 파일 또는 imageUrl을 전달해 프로필 이미지를 추가합니다.",
+          requestBody: {
+            required: true,
+            content: {
+              "multipart/form-data": {
+                schema: { $ref: "#/components/schemas/ProfileImageUploadRequest" },
+              },
+            },
+          },
+          responses: {
+            "201": { description: "프로필 이미지 생성", content: { "application/json": { schema: { $ref: "#/components/schemas/ProfileImageUploadResponse" } } } },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
+      "/api/users/me/images/{imageId}": {
+        delete: {
+          tags: ["사용자"],
+          summary: "프로필 이미지 삭제",
+          parameters: [{ $ref: "#/components/parameters/ProfileImageId" }],
+          responses: {
+            "200": { description: "프로필 이미지 삭제 성공", content: { "application/json": { schema: { $ref: "#/components/schemas/ProfileImageDeleteResponse" } } } },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
+      "/api/email-verifications/request": {
+        post: {
+          tags: ["이메일 인증"],
+          summary: "학교 이메일 인증 코드 요청",
+          description: "학교 이메일로 인증 코드를 발급합니다. 개발 환경에서는 debugCode가 응답에 포함될 수 있습니다.",
+          requestBody: {
+            required: false,
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/EmailVerificationRequest" },
+              },
+            },
+          },
+          responses: {
+            "200": { description: "인증 코드 요청 성공", content: { "application/json": { schema: { $ref: "#/components/schemas/EmailVerificationRequestResponse" } } } },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
+      "/api/email-verifications/confirm": {
+        post: {
+          tags: ["이메일 인증"],
+          summary: "학교 이메일 인증 코드 확인",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/EmailVerificationConfirmRequest" },
+              },
+            },
+          },
+          responses: {
+            "200": { description: "이메일 인증 성공", content: { "application/json": { schema: { $ref: "#/components/schemas/EmailVerificationConfirmResponse" } } } },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
+      "/api/profile-taxonomy": {
+        get: {
+          tags: ["프로필"],
+          summary: "프로필 카테고리/키워드 목록 조회",
+          responses: {
+            "200": { description: "프로필 taxonomy 반환", content: { "application/json": { schema: { $ref: "#/components/schemas/ProfileTaxonomyResponse" } } } },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
       "/api/recommendations/today": {
         get: {
           tags: ["추천"],
@@ -855,8 +1052,315 @@
           schema: { type: "integer" },
           description: "호감 ID",
         },
+        ProfileImageId: {
+          name: "imageId",
+          in: "path",
+          required: true,
+          schema: { type: "integer" },
+          description: "프로필 이미지 ID",
+        },
       },
       schemas: {
+        AuthUser: {
+          type: "object",
+          properties: {
+            id: { type: "integer", example: 1 },
+            nickname: { type: "string", example: "인제곰" },
+            status: { type: "string", enum: ["active", "inactive", "banned", "withdrawn"], example: "active" },
+            onboardingCompleted: { type: "boolean", example: false },
+          },
+        },
+        InjeCheckRequest: {
+          type: "object",
+          required: ["studentNumber", "birth"],
+          properties: {
+            studentNumber: { type: "string", example: "20201234" },
+            birth: { type: "string", pattern: "^\\d{6}$", example: "990101" },
+          },
+        },
+        InjeCheckResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: {
+              type: "object",
+              properties: {
+                verified: { type: "boolean", example: true },
+                nextStep: { type: "string", enum: ["login", "register"], example: "register" },
+              },
+            },
+          },
+        },
+        RegisterRequest: {
+          type: "object",
+          required: ["loginId", "password", "nickname", "birth", "age", "studentYear", "department", "gender", "realName", "email", "university"],
+          properties: {
+            loginId: { type: "string", minLength: 4, maxLength: 100, example: "inje2024" },
+            password: { type: "string", minLength: 8, format: "password", example: "password123!" },
+            nickname: { type: "string", example: "인제곰" },
+            birth: { type: "string", pattern: "^\\d{6}$", example: "990101" },
+            age: { type: "integer", minimum: 1, maximum: 100, example: 24 },
+            studentYear: { type: "integer", minimum: 1, maximum: 8, example: 3 },
+            department: { type: "string", example: "컴퓨터공학과" },
+            gender: { type: "string", enum: ["male", "female", "m", "f", "남", "남성", "여", "여성"], example: "male" },
+            realName: { type: "string", example: "김인제" },
+            email: { type: "string", format: "email", example: "student@inje.ac.kr" },
+            university: { type: "string", example: "인제대학교" },
+          },
+        },
+        RegisterResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: {
+              type: "object",
+              properties: {
+                registered: { type: "boolean", example: true },
+                nextPath: { type: "string", example: "/login" },
+              },
+            },
+          },
+        },
+        LoginRequest: {
+          type: "object",
+          required: ["loginId", "password"],
+          properties: {
+            loginId: { type: "string", example: "inje2024" },
+            studentId: { type: "string", deprecated: true, example: "20201234" },
+            password: { type: "string", format: "password", example: "password123!" },
+          },
+        },
+        AuthSessionResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: {
+              type: "object",
+              properties: {
+                user: { $ref: "#/components/schemas/AuthUser" },
+                sessionExpiresAt: { type: "string", format: "date-time" },
+              },
+            },
+          },
+        },
+        LogoutResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: {
+              type: "object",
+              properties: {
+                loggedOut: { type: "boolean", example: true },
+              },
+            },
+          },
+        },
+        UserProfileImage: {
+          type: "object",
+          properties: {
+            id: { type: "integer", example: 10 },
+            imageUrl: { type: "string", example: "/uploads/profiles/1/example.jpg" },
+            sortOrder: { type: "integer", example: 1 },
+            isPrimary: { type: "boolean", example: true },
+          },
+        },
+        UserKeywordSelectionGroup: {
+          type: "object",
+          properties: {
+            categoryId: { type: "integer", example: 1 },
+            categoryCode: { type: "string", example: "mbti" },
+            categoryName: { type: "string", example: "MBTI" },
+            selectionType: { type: "string", enum: ["single", "multi"], example: "single" },
+            maxSelectCount: { type: "integer", example: 1 },
+            keywords: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  id: { type: "integer", example: 1 },
+                  code: { type: "string", example: "intj" },
+                  label: { type: "string", example: "INTJ" },
+                  sortOrder: { type: "integer", example: 1 },
+                },
+              },
+            },
+          },
+        },
+        UserProfileResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: {
+              type: "object",
+              properties: {
+                user: {
+                  type: "object",
+                  properties: {
+                    id: { type: "integer", example: 1 },
+                    realName: { type: "string", example: "김인제" },
+                    email: { type: "string", format: "email", example: "student@inje.ac.kr" },
+                    nickname: { type: "string", example: "인제곰" },
+                    gender: { type: "string", example: "male" },
+                    age: { type: "integer", nullable: true, example: 24 },
+                    phoneNumber: { type: "string", nullable: true, example: "01012345678" },
+                    nationality: { type: "string", example: "KR" },
+                    university: { type: "string", example: "인제대학교" },
+                    department: { type: "string", example: "컴퓨터공학과" },
+                    studentYear: { type: "integer", example: 3 },
+                    studentNumber: { type: "string", nullable: true, example: "20201234" },
+                    bio: { type: "string", nullable: true, example: "안녕하세요" },
+                    onboardingCompleted: { type: "boolean", example: false },
+                    status: { type: "string", example: "active" },
+                    createdAt: { type: "string", format: "date-time" },
+                    lastActiveAt: { type: "string", format: "date-time", nullable: true },
+                  },
+                },
+                profileImages: { type: "array", items: { $ref: "#/components/schemas/UserProfileImage" } },
+                keywordSelections: { type: "array", items: { $ref: "#/components/schemas/UserKeywordSelectionGroup" } },
+              },
+            },
+          },
+        },
+        UserProfilePatchRequest: {
+          type: "object",
+          properties: {
+            profile: {
+              type: "object",
+              properties: {
+                nickname: { type: "string", example: "새닉네임" },
+                bio: { type: "string", nullable: true, maxLength: 500, example: "프로필 소개" },
+                age: { type: "integer", nullable: true, minimum: 18, maximum: 100, example: 24 },
+                gender: { type: "string", example: "male" },
+                nationality: { type: "string", example: "KR" },
+                university: { type: "string", example: "인제대학교" },
+                department: { type: "string", example: "컴퓨터공학과" },
+                studentYear: { type: "integer", minimum: 1, maximum: 8, example: 3 },
+                onboardingCompleted: { type: "boolean", example: true },
+              },
+            },
+            keywordSelections: {
+              type: "array",
+              items: {
+                type: "object",
+                required: ["categoryId", "keywordIds"],
+                properties: {
+                  categoryId: { type: "integer", example: 1 },
+                  keywordIds: { type: "array", items: { type: "integer" }, example: [1] },
+                },
+              },
+            },
+          },
+        },
+        ProfileImageUploadRequest: {
+          type: "object",
+          properties: {
+            image: { type: "string", format: "binary", description: "업로드할 이미지 파일" },
+            imageUrl: { type: "string", description: "외부/기존 이미지 URL. image 파일이 없을 때 사용" },
+            isPrimary: { type: "boolean", example: false },
+          },
+        },
+        ProfileImageUploadResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: {
+              type: "object",
+              properties: {
+                image: { $ref: "#/components/schemas/UserProfileImage" },
+              },
+            },
+          },
+        },
+        ProfileImageDeleteResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: {
+              type: "object",
+              properties: {
+                deletedImageId: { type: "integer", example: 10 },
+              },
+            },
+          },
+        },
+        EmailVerificationRequest: {
+          type: "object",
+          properties: {
+            schoolEmail: { type: "string", format: "email", example: "student@inje.ac.kr" },
+          },
+        },
+        EmailVerificationRequestResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: {
+              type: "object",
+              properties: {
+                schoolEmail: { type: "string", format: "email", example: "student@inje.ac.kr" },
+                expiresAt: { type: "string", format: "date-time" },
+                debugCode: { type: "string", nullable: true, example: "123456" },
+              },
+            },
+          },
+        },
+        EmailVerificationConfirmRequest: {
+          type: "object",
+          required: ["schoolEmail", "code"],
+          properties: {
+            schoolEmail: { type: "string", format: "email", example: "student@inje.ac.kr" },
+            code: { type: "string", pattern: "^\\d{6}$", example: "123456" },
+          },
+        },
+        EmailVerificationConfirmResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: {
+              type: "object",
+              properties: {
+                verified: { type: "boolean", example: true },
+                schoolEmail: { type: "string", format: "email", example: "student@inje.ac.kr" },
+                verifiedAt: { type: "string", format: "date-time" },
+              },
+            },
+          },
+        },
+        ProfileTaxonomyResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: {
+              type: "object",
+              properties: {
+                categories: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      id: { type: "integer", example: 1 },
+                      code: { type: "string", example: "mbti" },
+                      name: { type: "string", example: "MBTI" },
+                      selectionType: { type: "string", enum: ["single", "multi"], example: "single" },
+                      maxSelectCount: { type: "integer", example: 1 },
+                      keywords: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                          properties: {
+                            id: { type: "integer", example: 1 },
+                            code: { type: "string", example: "intj" },
+                            label: { type: "string", example: "INTJ" },
+                            sortOrder: { type: "integer", example: 1 },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
         RecommendationCandidate: {
           type: "object",
           properties: {
