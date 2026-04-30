@@ -272,12 +272,45 @@ async function seedTestInterests() {
   }
 }
 
+async function seedTestFeedAndComment() {
+  const userB = await prisma.user.findUnique({ where: { email: "test_b@inje.ac.kr" } });
+  const userA = await prisma.user.findUnique({ where: { email: "test_a@inje.ac.kr" } });
+  if (!userA || !userB) return;
+
+  const existingFeed = await prisma.selfDateFeed.findFirst({
+    where: { author_user_id: userB.id },
+  });
+
+  const feed = existingFeed ?? await prisma.selfDateFeed.create({
+    data: {
+      author_user_id: userB.id,
+      text: "테스트 피드입니다",
+      expires_at: new Date(Date.now() + 1000 * 60 * 60 * 24),
+    },
+  });
+
+  const existingComment = await prisma.feedComment.findFirst({
+    where: { feed_id: feed.id, commenter_user_id: userA.id },
+  });
+
+  if (!existingComment) {
+    await prisma.feedComment.create({
+      data: {
+        feed_id: feed.id,
+        commenter_user_id: userA.id,
+        content: "테스트 댓글입니다",
+      },
+    });
+  }
+}
+
 async function main() {
   await seedCategories();
   await seedFeedKeywords();
   await seedPlaceCategories();
   await seedTestUsers();
   await seedTestInterests();
+  await seedTestFeedAndComment();
 
   console.log("Seed baseline data has been prepared.");
 }
