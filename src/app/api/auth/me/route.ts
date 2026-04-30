@@ -1,7 +1,9 @@
 import type { NextRequest } from 'next/server';
-import { ok } from '@/lib/server/api/response';
-import { withAuth } from '@/lib/server/auth/middleware';
-import { toAuthUserSummary } from '@/lib/server/auth/payload';
+import {
+  toAuthUserSummary,
+  withAuth,
+} from '@/server/lib/auth';
+import { ok } from '@/server/lib/response';
 
 export const runtime = 'nodejs';
 
@@ -11,4 +13,3 @@ export const GET = withAuth(async (_request: NextRequest, auth) => {
     sessionExpiresAt: auth.session.expires_at.toISOString(),
   });
 });
-

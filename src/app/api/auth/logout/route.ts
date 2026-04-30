@@ -1,23 +1,18 @@
 import type { NextRequest } from 'next/server';
-import { ok } from '@/lib/server/api/response';
-import { clearAppAccessCookie } from '@/lib/server/auth/app-access-cookie';
-import { clearPreSignupCookie } from '@/lib/server/auth/pre-signup';
-import { withAuth } from '@/lib/server/auth/middleware';
-import { clearSessionCookie } from '@/lib/server/auth/session';
-import { prisma } from '@/lib/server/prisma';
+import {
+  clearAppAccessCookie,
+  clearPreSignupCookie,
+  clearSessionCookie,
+  withAuth,
+} from '@/server/lib/auth';
+import { ok } from '@/server/lib/response';
+import { logout } from '@/server/services/auth/auth.service';
 
 export const runtime = 'nodejs';
 
 export const POST = withAuth(async (_request: NextRequest, auth) => {
-  try {
-    await prisma.authSession.delete({
-      where: { id: auth.session.id },
-    });
-  } catch {
-    // Ignore missing session rows to keep logout idempotent.
-  }
-
-  const response = ok({ loggedOut: true });
+  const data = await logout(auth.session.id);
+  const response = ok(data);
   clearSessionCookie(response);
   clearAppAccessCookie(response);
   clearPreSignupCookie(response);

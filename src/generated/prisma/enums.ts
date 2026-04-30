@@ -10,10 +10,9 @@
 */
 
 export const user_status = {
-  active: 'active',
-  inactive: 'inactive',
-  banned: 'banned',
-  withdrawn: 'withdrawn'
+  ACTIVE: 'ACTIVE',
+  SUSPENDED: 'SUSPENDED',
+  WITHDRAWN: 'WITHDRAWN'
 } as const
 
 export type user_status = (typeof user_status)[keyof typeof user_status]

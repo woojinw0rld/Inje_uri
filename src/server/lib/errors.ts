@@ -1,84 +1,56 @@
+export type ApiErrorCode =
+  | 'UNAUTHORIZED'
+  | 'FORBIDDEN'
+  | 'VALIDATION_ERROR'
+  | 'NOT_FOUND'
+  | 'CONFLICT'
+  | 'INTERNAL_ERROR'
+  | 'INVALID_CREDENTIALS'
+  | 'ACCOUNT_SUSPENDED'
+  | 'ACCOUNT_WITHDRAWN'
+  | 'NICKNAME_ALREADY_EXISTS';
+
 export class ApiError extends Error {
-  constructor(public code: string, public override message: string) {
+  readonly code: ApiErrorCode;
+  readonly status: number;
+
+  constructor(code: ApiErrorCode, message: string, status: number) {
     super(message);
-    this.name = "ApiError";
+    this.name = 'ApiError';
+    this.code = code;
+    this.status = status;
   }
 }
 
-export const ERROR = {
-  // ── 공통 ──
-  UNAUTHORIZED: "UNAUTHORIZED",
-  FORBIDDEN: "FORBIDDEN",
-  NOT_FOUND: "NOT_FOUND",
-  INTERNAL_SERVER_ERROR: "INTERNAL_SERVER_ERROR",
-
-  // ── B파트 (추천/호감) ──
-  ALREADY_SELECTED: "ALREADY_SELECTED",
-  INVALID_ITEM: "INVALID_ITEM",
-  DUPLICATE_INTEREST: "DUPLICATE_INTEREST",
-  REC_NOT_GENERATED: "REC_NOT_GENERATED",
-  INVALID_INTEREST: "INVALID_INTEREST",
-  ALREADY_PROCESSED: "ALREADY_PROCESSED",
-  ALREADY_PASSED: "ALREADY_PASSED",
-  INVALID_INPUT: "INVALID_INPUT",
-
-  // ── C파트 (채팅) ──
-  BLOCKED_RELATION: "BLOCKED_RELATION",
-  ROOM_EXPIRED: "ROOM_EXPIRED",
-  ROOM_NOT_ACTIVE: "ROOM_NOT_ACTIVE",
-  DUPLICATE_ACTIVE_ROOM: "DUPLICATE_ACTIVE_ROOM",
-  REMATCH_TOO_SOON: "REMATCH_TOO_SOON",
-  INVALID_SOURCE: "INVALID_SOURCE",
-
-  // ── D파트 (피드) ──
-  INVALID_FEED_ID: "INVALID_FEED_ID",
-  FEED_NOT_FOUND: "FEED_NOT_FOUND",
-  FEED_NOT_ACTIVE: "FEED_NOT_ACTIVE",
-  FEED_NOT_AVAILABLE: "FEED_NOT_AVAILABLE",
-  FEED_ALREADY_ACTIVE: "FEED_ALREADY_ACTIVE",
-  FEED_ALREADY_DELETED: "FEED_ALREADY_DELETED",
-  FEED_NOT_OWNER: "FEED_NOT_OWNER",
-  NO_UPDATE_FIELDS: "NO_UPDATE_FIELDS",
-  INVALID_TEXT: "INVALID_TEXT",
-  INVALID_KEYWORDS: "INVALID_KEYWORDS",
-  INVALID_KEYWORD_ID: "INVALID_KEYWORD_ID",
-  INVALID_CURSOR: "INVALID_CURSOR",
-
-  // ── D파트 (댓글) ──
-  INVALID_CONTENT: "INVALID_CONTENT",
-  INVALID_COMMENT_ID: "INVALID_COMMENT_ID",
-  CANNOT_COMMENT_OWN_FEED: "CANNOT_COMMENT_OWN_FEED",
-  COMMENT_ALREADY_EXISTS: "COMMENT_ALREADY_EXISTS",
-  COMMENT_NOT_FOUND: "COMMENT_NOT_FOUND",
-  COMMENT_DELETED: "COMMENT_DELETED",
-  NOT_FEED_AUTHOR: "NOT_FEED_AUTHOR",
-  COMMENTER_BANNED: "COMMENTER_BANNED",
-  BLOCKED_RELATIONSHIP: "BLOCKED_RELATIONSHIP",
-  CHAT_ROOM_ALREADY_EXISTS: "CHAT_ROOM_ALREADY_EXISTS",
-
-  // ── D파트 (차단) ──
-  INVALID_BLOCKED_USER_ID: "INVALID_BLOCKED_USER_ID",
-  INVALID_REASON: "INVALID_REASON",
-  CANNOT_BLOCK_SELF: "CANNOT_BLOCK_SELF",
-  USER_NOT_FOUND: "USER_NOT_FOUND",
-  ALREADY_BLOCKED: "ALREADY_BLOCKED",
-  INVALID_BLOCK_ID: "INVALID_BLOCK_ID",
-  BLOCK_NOT_FOUND: "BLOCK_NOT_FOUND",
-  BLOCK_NOT_OWNER: "BLOCK_NOT_OWNER",
-  ALREADY_UNBLOCKED: "ALREADY_UNBLOCKED",
-
-  // ── D파트 (전화번호 차단) ──
-  INVALID_PHONE_NUMBER: "INVALID_PHONE_NUMBER",
-  INVALID_PHONE_FORMAT: "INVALID_PHONE_FORMAT",
-
-  // ── D파트 (신고) ──
-  INVALID_TARGET_TYPE: "INVALID_TARGET_TYPE",
-  INVALID_TARGET_ID: "INVALID_TARGET_ID",
-  INVALID_REASON_TYPE: "INVALID_REASON_TYPE",
-  INVALID_DESCRIPTION: "INVALID_DESCRIPTION",
-  TARGET_NOT_FOUND: "TARGET_NOT_FOUND",
-  CANNOT_REPORT_SELF: "CANNOT_REPORT_SELF",
-
-} as const;
-
-export type ErrorCode = (typeof ERROR)[keyof typeof ERROR];
+export const apiErrors = {
+  unauthorized(message = '인증이 필요합니다.'): ApiError {
+    return new ApiError('UNAUTHORIZED', message, 401);
+  },
+  forbidden(message = '접근 권한이 없습니다.'): ApiError {
+    return new ApiError('FORBIDDEN', message, 403);
+  },
+  validation(message = '요청 값을 확인해주세요.'): ApiError {
+    return new ApiError('VALIDATION_ERROR', message, 400);
+  },
+  notFound(message = '대상을 찾을 수 없습니다.'): ApiError {
+    return new ApiError('NOT_FOUND', message, 404);
+  },
+  conflict(message = '이미 처리된 요청입니다.'): ApiError {
+    return new ApiError('CONFLICT', message, 409);
+  },
+  internal(message = '서버 내부 오류가 발생했습니다.'): ApiError {
+    return new ApiError('INTERNAL_ERROR', message, 500);
+  },
+  invalidCredentials(message = '아이디 또는 비밀번호가 올바르지 않습니다.'): ApiError {
+    return new ApiError('INVALID_CREDENTIALS', message, 401);
+  },
+  accountSuspended(message = '제재된 계정은 로그인할 수 없습니다.'): ApiError {
+    return new ApiError('ACCOUNT_SUSPENDED', message, 403);
+  },
+  accountWithdrawn(message = '탈퇴한 계정은 로그인할 수 없습니다.'): ApiError {
+    return new ApiError('ACCOUNT_WITHDRAWN', message, 403);
+  },
+  nicknameAlreadyExists(message = '이미 사용 중인 닉네임입니다.'): ApiError {
+    return new ApiError('NICKNAME_ALREADY_EXISTS', message, 409);
+  },
+};

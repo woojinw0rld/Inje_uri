@@ -10,3 +10,7 @@ dist
 .vscode
 .ai-rules
 AGENTS.md
+*.md
+*.cloud
+.cloud
+.cloud/
