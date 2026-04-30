@@ -1,4 +1,4 @@
-import { prisma } from '@/server/db';
+import { prisma } from '@/server/db/prisma';
 
 export async function findAllCategoriesWithKeywords() {
   return prisma.category.findMany({

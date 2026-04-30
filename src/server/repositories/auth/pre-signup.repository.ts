@@ -1,4 +1,4 @@
-import { prisma } from '@/server/db';
+import { prisma } from '@/server/db/prisma';
 
 export async function prunePreSignupVerifications(studentNumber: string) {
   return prisma.preSignupVerification.deleteMany({

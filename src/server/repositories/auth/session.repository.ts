@@ -1,5 +1,5 @@
 import type { AuthSession, User } from '@/generated/prisma/client';
-import { prisma } from '@/server/db';
+import { prisma } from '@/server/db/prisma';
 
 type SessionWithUser = AuthSession & { user: User };
 

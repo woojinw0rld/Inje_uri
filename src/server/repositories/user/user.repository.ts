@@ -1,5 +1,5 @@
 import type { Prisma } from '@/generated/prisma/client';
-import { prisma } from '@/server/db';
+import { prisma } from '@/server/db/prisma';
 
 export type UserUpdateData = Partial<{
   nickname: string;

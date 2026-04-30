@@ -1,4 +1,4 @@
-import { prisma } from '@/server/db';
+import { prisma } from '@/server/db/prisma';
 
 export async function findProfileImagesByUserId(userId: number) {
   return prisma.userProfileImage.findMany({
