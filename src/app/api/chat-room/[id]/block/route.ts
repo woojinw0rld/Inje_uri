@@ -4,24 +4,19 @@ import { ok, fail } from "@/server/lib/response";
 import { ERROR } from "@/server/lib/errors";
 import * as chatRoomService from "@/server/services/conversation/chatRoom.service";
 
-export async function PATCH(req: NextRequest,{ params }: { params: Promise<{ id: string }> }) {
-    const user = await getAuthUser(req);
-    if (!user) return fail(ERROR.UNAUTHORIZED, "인증이 필요합니다.");
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+      const user = await getAuthUser(req);
+      if (!user) return fail(ERROR.UNAUTHORIZED, "인증이 필요합니다.");
 
-    const { id } = await params;
-    const roomId = Number(id);
-    if (isNaN(roomId)) return fail(ERROR.NOT_FOUND, "채팅방을 찾을 수 없습니다.");
+      const { id } = await params;
+      const roomId = Number(id);
+      if (isNaN(roomId)) return fail(ERROR.NOT_FOUND, "채팅방을 찾을 수 없습니다.");
 
-    const body = await req.json();
-    const { blockedByUserId } = body;
+      const result = await chatRoomService.blockChatRoom(roomId, user.id);
 
-    if (!blockedByUserId) return fail(ERROR.FORBIDDEN, "접근 권한이 없습니다.");
+      if ("error" in result) {
+          return fail(result.error!, "채팅방을 찾을 수 없습니다.");
+      }
 
-    const result = await chatRoomService.blockChatRoom(roomId, Number(blockedByUserId));
-
-    if ("error" in result) {
-        return fail(result.error!, "채팅방을 찾을 수 없습니다.");
-    }
-
-    return ok(result);
-}
+      return ok(result);
+  }

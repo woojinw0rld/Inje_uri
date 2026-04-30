@@ -179,6 +179,9 @@
 
     return { room };
   }
+  
+
+
 
   // ─────────────────────────────────────────────
   // 나가기
@@ -232,13 +235,20 @@
    * 차단 상태 전이 — D가 차단 완료 후 호출.
    * chat_rooms.status = blocked + blocked_by_user_id 기록.
    */
-  export async function blockChatRoom(roomId: number,
-  blockedByUserId: number) {
+  export async function blockChatRoom(roomId: number, blockedByUserId: number) {
     const room = await chatRoomRepo.findRoomById(roomId);
     if (!room) return { error: ERROR.NOT_FOUND } as const;
 
-    await chatRoomRepo.updateRoomStatus(roomId, "blocked",
-  blockedByUserId);
+    // 요청자가 참여자인지 확인
+    const isParticipant = room.participants.some(p => p.user_id === blockedByUserId);
+    if (!isParticipant) return { error: ERROR.FORBIDDEN } as const;
+
+    // 이미 종료/차단된 방인지 확인
+    if (room.status === "blocked" || room.status === "closed") {
+      return { error: ERROR.ROOM_NOT_ACTIVE } as const;
+    }
+
+    await chatRoomRepo.updateRoomStatus(roomId, "blocked", blockedByUserId);
 
     return { roomStatus: "blocked" };
   }
