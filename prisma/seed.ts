@@ -109,18 +109,18 @@ const categorySeeds = [
 ];
 
 const feedKeywordSeeds = [
-  "산책",
-  "카페",
-  "맛집",
-  "공부",
-  "영화",
-  "드라이브",
-  "운동",
-  "전시",
-  "술",
-  "독서",
-  "수다",
-  "취미",
+  { code: "walk", name: "산책" },
+  { code: "cafe", name: "카페" },
+  { code: "restaurant", name: "맛집" },
+  { code: "study", name: "공부" },
+  { code: "movie", name: "영화" },
+  { code: "drive", name: "드라이브" },
+  { code: "exercise", name: "운동" },
+  { code: "exhibition", name: "전시" },
+  { code: "drink", name: "술" },
+  { code: "reading", name: "독서" },
+  { code: "chat", name: "수다" },
+  { code: "hobby", name: "취미" },
 ];
 
 const placeCategorySeeds = [
@@ -180,15 +180,17 @@ async function seedCategories() {
 }
 
 async function seedFeedKeywords() {
-  for (const [index, name] of feedKeywordSeeds.entries()) {
+  for (const [index, keyword] of feedKeywordSeeds.entries()) {
     await prisma.feedKeyword.upsert({
-      where: { name },
+      where: { code: keyword.code },
       update: {
+        name: keyword.name,
         sort_order: index + 1,
         is_active: true,
       },
       create: {
-        name,
+        code: keyword.code,
+        name: keyword.name,
         sort_order: index + 1,
         is_active: true,
       },

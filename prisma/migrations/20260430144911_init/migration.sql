@@ -28,10 +28,13 @@ CREATE TYPE "chat_room_source_type" AS ENUM ('interest', 'comment');
 -- CreateTable
 CREATE TABLE "users" (
     "id" SERIAL NOT NULL,
+    "login_id" VARCHAR(100),
     "real_name" VARCHAR(255) NOT NULL,
     "age" INTEGER,
     "email" VARCHAR(255) NOT NULL,
     "password_hash" VARCHAR(255) NOT NULL,
+    "birth" VARCHAR(6),
+    "birth_hash" VARCHAR(255),
     "nickname" VARCHAR(50) NOT NULL,
     "gender" VARCHAR(50) NOT NULL,
     "phone_number" VARCHAR(30),
@@ -59,6 +62,17 @@ CREATE TABLE "auth_sessions" (
     "last_seen_at" TIMESTAMPTZ(6),
 
     CONSTRAINT "auth_sessions_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "pre_signup_verifications" (
+    "token_hash" VARCHAR(255) NOT NULL,
+    "student_number" VARCHAR(30) NOT NULL,
+    "birth_hash" VARCHAR(255) NOT NULL,
+    "expires_at" TIMESTAMPTZ(6) NOT NULL,
+    "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "pre_signup_verifications_pkey" PRIMARY KEY ("token_hash")
 );
 
 -- CreateTable
@@ -247,6 +261,7 @@ CREATE TABLE "self_date_feed_images" (
 -- CreateTable
 CREATE TABLE "feed_keywords" (
     "feed_keyword_id" SERIAL NOT NULL,
+    "code" VARCHAR(100) NOT NULL,
     "name" VARCHAR(100) NOT NULL,
     "sort_order" INTEGER NOT NULL,
     "is_active" BOOLEAN NOT NULL DEFAULT true,
@@ -359,6 +374,7 @@ CREATE TABLE "places" (
     "category_id" INTEGER NOT NULL,
     "name" VARCHAR(255) NOT NULL,
     "address" VARCHAR(255) NOT NULL,
+    "image_url" VARCHAR(2048),
     "description" TEXT,
     "is_active" BOOLEAN NOT NULL DEFAULT true,
 
@@ -401,6 +417,9 @@ CREATE TABLE "user_contacts" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "users_login_id_key" ON "users"("login_id");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
 -- CreateIndex
@@ -411,6 +430,9 @@ CREATE UNIQUE INDEX "users_phone_number_key" ON "users"("phone_number");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "auth_sessions_token_hash_key" ON "auth_sessions"("token_hash");
+
+-- CreateIndex
+CREATE INDEX "pre_signup_verifications_expires_at_idx" ON "pre_signup_verifications"("expires_at");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "user_profile_images_user_id_sort_order_key" ON "user_profile_images"("user_id", "sort_order");
@@ -470,7 +492,7 @@ CREATE INDEX "self_date_feeds_expires_at_idx" ON "self_date_feeds"("expires_at")
 CREATE UNIQUE INDEX "self_date_feed_images_feed_id_sort_order_key" ON "self_date_feed_images"("feed_id", "sort_order");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "feed_keywords_name_key" ON "feed_keywords"("name");
+CREATE UNIQUE INDEX "feed_keywords_code_key" ON "feed_keywords"("code");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "self_date_feed_keywords_feed_id_feed_keyword_id_key" ON "self_date_feed_keywords"("feed_id", "feed_keyword_id");

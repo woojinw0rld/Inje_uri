@@ -28,6 +28,11 @@ export type User = Prisma.UserModel
  */
 export type AuthSession = Prisma.AuthSessionModel
 /**
+ * Model PreSignupVerification
+ * 
+ */
+export type PreSignupVerification = Prisma.PreSignupVerificationModel
+/**
  * Model EmailVerification
  * 
  */

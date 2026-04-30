@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     return ok(data);
   } catch (error) {
     if (error instanceof AppError) {
-      return fail(error.code, error.message, error.status);
+      return fail(error.code, error.message);
     }
 
     console.error("[GET /api/blocks]", error);
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) { // HTTP POST 메서드로 사
     return ok(data); // 성공 응답
   } catch (error) {
     if (error instanceof AppError) {
-      return fail(error.code, error.message, error.status);
+      return fail(error.code, error.message);
     }
 
     console.error("[POST /api/blocks]", error); // 서버 에러 로그
@@ -155,7 +155,7 @@ export async function DELETE(request: NextRequest) {
     return ok(data);
   } catch (error) {
     if (error instanceof AppError) {
-      return fail(error.code, error.message, error.status);
+      return fail(error.code, error.message);
     }
 
     console.error("[DELETE /api/blocks]", error);

@@ -386,6 +386,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   User: 'User',
   AuthSession: 'AuthSession',
+  PreSignupVerification: 'PreSignupVerification',
   EmailVerification: 'EmailVerification',
   UserProfileImage: 'UserProfileImage',
   Category: 'Category',
@@ -430,7 +431,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "authSession" | "emailVerification" | "userProfileImage" | "category" | "keyword" | "userKeywordSelection" | "recommendationSetting" | "dailyRecommendation" | "dailyRecommendationItem" | "interest" | "recommendationDismiss" | "chatRoom" | "chatRoomParticipant" | "message" | "selfDateFeed" | "selfDateFeedImage" | "feedKeyword" | "selfDateFeedKeyword" | "feedComment" | "feedView" | "block" | "report" | "phoneBlock" | "internalJobRun" | "appSetting" | "placeCategory" | "place" | "placeTag" | "chatRoomPlaceSuggestion" | "userContact"
+    modelProps: "user" | "authSession" | "preSignupVerification" | "emailVerification" | "userProfileImage" | "category" | "keyword" | "userKeywordSelection" | "recommendationSetting" | "dailyRecommendation" | "dailyRecommendationItem" | "interest" | "recommendationDismiss" | "chatRoom" | "chatRoomParticipant" | "message" | "selfDateFeed" | "selfDateFeedImage" | "feedKeyword" | "selfDateFeedKeyword" | "feedComment" | "feedView" | "block" | "report" | "phoneBlock" | "internalJobRun" | "appSetting" | "placeCategory" | "place" | "placeTag" | "chatRoomPlaceSuggestion" | "userContact"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -579,6 +580,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.AuthSessionCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.AuthSessionCountAggregateOutputType> | number
+        }
+      }
+    }
+    PreSignupVerification: {
+      payload: Prisma.$PreSignupVerificationPayload<ExtArgs>
+      fields: Prisma.PreSignupVerificationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PreSignupVerificationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreSignupVerificationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PreSignupVerificationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreSignupVerificationPayload>
+        }
+        findFirst: {
+          args: Prisma.PreSignupVerificationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreSignupVerificationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PreSignupVerificationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreSignupVerificationPayload>
+        }
+        findMany: {
+          args: Prisma.PreSignupVerificationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreSignupVerificationPayload>[]
+        }
+        create: {
+          args: Prisma.PreSignupVerificationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreSignupVerificationPayload>
+        }
+        createMany: {
+          args: Prisma.PreSignupVerificationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PreSignupVerificationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreSignupVerificationPayload>[]
+        }
+        delete: {
+          args: Prisma.PreSignupVerificationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreSignupVerificationPayload>
+        }
+        update: {
+          args: Prisma.PreSignupVerificationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreSignupVerificationPayload>
+        }
+        deleteMany: {
+          args: Prisma.PreSignupVerificationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PreSignupVerificationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PreSignupVerificationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreSignupVerificationPayload>[]
+        }
+        upsert: {
+          args: Prisma.PreSignupVerificationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PreSignupVerificationPayload>
+        }
+        aggregate: {
+          args: Prisma.PreSignupVerificationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePreSignupVerification>
+        }
+        groupBy: {
+          args: Prisma.PreSignupVerificationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreSignupVerificationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PreSignupVerificationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PreSignupVerificationCountAggregateOutputType> | number
         }
       }
     }
@@ -2769,10 +2844,13 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 
 export const UserScalarFieldEnum = {
   id: 'id',
+  login_id: 'login_id',
   real_name: 'real_name',
   age: 'age',
   email: 'email',
   password_hash: 'password_hash',
+  birth: 'birth',
+  birth_hash: 'birth_hash',
   nickname: 'nickname',
   gender: 'gender',
   phone_number: 'phone_number',
@@ -2801,6 +2879,17 @@ export const AuthSessionScalarFieldEnum = {
 } as const
 
 export type AuthSessionScalarFieldEnum = (typeof AuthSessionScalarFieldEnum)[keyof typeof AuthSessionScalarFieldEnum]
+
+
+export const PreSignupVerificationScalarFieldEnum = {
+  token_hash: 'token_hash',
+  student_number: 'student_number',
+  birth_hash: 'birth_hash',
+  expires_at: 'expires_at',
+  created_at: 'created_at'
+} as const
+
+export type PreSignupVerificationScalarFieldEnum = (typeof PreSignupVerificationScalarFieldEnum)[keyof typeof PreSignupVerificationScalarFieldEnum]
 
 
 export const EmailVerificationScalarFieldEnum = {
@@ -2988,6 +3077,7 @@ export type SelfDateFeedImageScalarFieldEnum = (typeof SelfDateFeedImageScalarFi
 
 export const FeedKeywordScalarFieldEnum = {
   feed_keyword_id: 'feed_keyword_id',
+  code: 'code',
   name: 'name',
   sort_order: 'sort_order',
   is_active: 'is_active'
@@ -3100,6 +3190,7 @@ export const PlaceScalarFieldEnum = {
   category_id: 'category_id',
   name: 'name',
   address: 'address',
+  image_url: 'image_url',
   description: 'description',
   is_active: 'is_active'
 } as const
@@ -3441,6 +3532,7 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   authSession?: Prisma.AuthSessionOmit
+  preSignupVerification?: Prisma.PreSignupVerificationOmit
   emailVerification?: Prisma.EmailVerificationOmit
   userProfileImage?: Prisma.UserProfileImageOmit
   category?: Prisma.CategoryOmit

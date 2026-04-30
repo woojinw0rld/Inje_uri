@@ -53,6 +53,7 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   User: 'User',
   AuthSession: 'AuthSession',
+  PreSignupVerification: 'PreSignupVerification',
   EmailVerification: 'EmailVerification',
   UserProfileImage: 'UserProfileImage',
   Category: 'Category',
@@ -102,10 +103,13 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 
 export const UserScalarFieldEnum = {
   id: 'id',
+  login_id: 'login_id',
   real_name: 'real_name',
   age: 'age',
   email: 'email',
   password_hash: 'password_hash',
+  birth: 'birth',
+  birth_hash: 'birth_hash',
   nickname: 'nickname',
   gender: 'gender',
   phone_number: 'phone_number',
@@ -134,6 +138,17 @@ export const AuthSessionScalarFieldEnum = {
 } as const
 
 export type AuthSessionScalarFieldEnum = (typeof AuthSessionScalarFieldEnum)[keyof typeof AuthSessionScalarFieldEnum]
+
+
+export const PreSignupVerificationScalarFieldEnum = {
+  token_hash: 'token_hash',
+  student_number: 'student_number',
+  birth_hash: 'birth_hash',
+  expires_at: 'expires_at',
+  created_at: 'created_at'
+} as const
+
+export type PreSignupVerificationScalarFieldEnum = (typeof PreSignupVerificationScalarFieldEnum)[keyof typeof PreSignupVerificationScalarFieldEnum]
 
 
 export const EmailVerificationScalarFieldEnum = {
@@ -321,6 +336,7 @@ export type SelfDateFeedImageScalarFieldEnum = (typeof SelfDateFeedImageScalarFi
 
 export const FeedKeywordScalarFieldEnum = {
   feed_keyword_id: 'feed_keyword_id',
+  code: 'code',
   name: 'name',
   sort_order: 'sort_order',
   is_active: 'is_active'
@@ -433,6 +449,7 @@ export const PlaceScalarFieldEnum = {
   category_id: 'category_id',
   name: 'name',
   address: 'address',
+  image_url: 'image_url',
   description: 'description',
   is_active: 'is_active'
 } as const

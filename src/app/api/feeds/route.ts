@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
     const data = await listFeeds(currentUserId, keyword, cursor);
     return ok(data);
   } catch (error) {
-    if (error instanceof AppError) return fail(error.code, error.message, error.status);
+    if (error instanceof AppError) return fail(error.code, error.message);
     console.error("[GET /api/feeds]", error);
     return fail("INTERNAL_SERVER_ERROR", "피드 목록을 불러오는 중 오류가 발생했습니다.");
   }
@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
     const data = await createFeed(authorUserId, text, feedKeywordIds as number[]);
     return ok(data);
   } catch (error) {
-    if (error instanceof AppError) return fail(error.code, error.message, error.status);
+    if (error instanceof AppError) return fail(error.code, error.message);
     console.error("[POST /api/feeds]", error);
     return fail("INTERNAL_SERVER_ERROR", "피드 작성 중 오류가 발생했습니다.");
   }

@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) { // 내가 댓글 단 피드 �
     const data = await listMyCommentedFeeds(currentUserId);
     return ok(data); // 성공 응답
   } catch (error) {
-    if (error instanceof AppError) return fail(error.code, error.message, error.status);
+    if (error instanceof AppError) return fail(error.code, error.message);
     console.error("[GET /api/feeds/commented-by-me]", error); // 서버 에러 로그
     return fail("INTERNAL_SERVER_ERROR", "내 댓글 목록을 불러오는 중 오류가 발생했습니다."); // 실패 응답
   }

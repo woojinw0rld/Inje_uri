@@ -57,7 +57,7 @@ export async function POST(
     const data = await createComment(currentUserId, feedId, content);
     return ok(data);
   } catch (error) {
-    if (error instanceof AppError) return fail(error.code, error.message, error.status);
+    if (error instanceof AppError) return fail(error.code, error.message);
     console.error("[POST /api/feeds/:id/comments]", error);
     return fail("INTERNAL_SERVER_ERROR", "댓글 작성 중 오류가 발생했습니다.");
   }
@@ -110,7 +110,7 @@ export async function GET(
     const data = await listComments(currentUserId, feedId);
     return ok(data);
   } catch (error) {
-    if (error instanceof AppError) return fail(error.code, error.message, error.status);
+    if (error instanceof AppError) return fail(error.code, error.message);
     console.error("[GET /api/feeds/:id/comments]", error);
     return fail("INTERNAL_SERVER_ERROR", "댓글 목록을 불러오는 중 오류가 발생했습니다.");
   }

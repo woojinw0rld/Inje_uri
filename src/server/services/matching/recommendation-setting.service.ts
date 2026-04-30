@@ -5,7 +5,7 @@ import { ERROR } from "@/server/lib/errors";
 import {
   findSettingByUserId,
   upsertSetting,
-} from "@/server/repositories/recommendation-setting.repository";
+} from "@/server/repositories/recommendation/recommendation-setting.repository";
 import type { RecommendationSettingsResponse } from "@/server/types/recommendation.types";
 
 interface UpdateSettingInput {

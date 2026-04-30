@@ -38,6 +38,7 @@ export type FeedKeywordSumAggregateOutputType = {
 
 export type FeedKeywordMinAggregateOutputType = {
   feed_keyword_id: number | null
+  code: string | null
   name: string | null
   sort_order: number | null
   is_active: boolean | null
@@ -45,6 +46,7 @@ export type FeedKeywordMinAggregateOutputType = {
 
 export type FeedKeywordMaxAggregateOutputType = {
   feed_keyword_id: number | null
+  code: string | null
   name: string | null
   sort_order: number | null
   is_active: boolean | null
@@ -52,6 +54,7 @@ export type FeedKeywordMaxAggregateOutputType = {
 
 export type FeedKeywordCountAggregateOutputType = {
   feed_keyword_id: number
+  code: number
   name: number
   sort_order: number
   is_active: number
@@ -71,6 +74,7 @@ export type FeedKeywordSumAggregateInputType = {
 
 export type FeedKeywordMinAggregateInputType = {
   feed_keyword_id?: true
+  code?: true
   name?: true
   sort_order?: true
   is_active?: true
@@ -78,6 +82,7 @@ export type FeedKeywordMinAggregateInputType = {
 
 export type FeedKeywordMaxAggregateInputType = {
   feed_keyword_id?: true
+  code?: true
   name?: true
   sort_order?: true
   is_active?: true
@@ -85,6 +90,7 @@ export type FeedKeywordMaxAggregateInputType = {
 
 export type FeedKeywordCountAggregateInputType = {
   feed_keyword_id?: true
+  code?: true
   name?: true
   sort_order?: true
   is_active?: true
@@ -179,6 +185,7 @@ export type FeedKeywordGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inte
 
 export type FeedKeywordGroupByOutputType = {
   feed_keyword_id: number
+  code: string
   name: string
   sort_order: number
   is_active: boolean
@@ -209,6 +216,7 @@ export type FeedKeywordWhereInput = {
   OR?: Prisma.FeedKeywordWhereInput[]
   NOT?: Prisma.FeedKeywordWhereInput | Prisma.FeedKeywordWhereInput[]
   feed_keyword_id?: Prisma.IntFilter<"FeedKeyword"> | number
+  code?: Prisma.StringFilter<"FeedKeyword"> | string
   name?: Prisma.StringFilter<"FeedKeyword"> | string
   sort_order?: Prisma.IntFilter<"FeedKeyword"> | number
   is_active?: Prisma.BoolFilter<"FeedKeyword"> | boolean
@@ -217,6 +225,7 @@ export type FeedKeywordWhereInput = {
 
 export type FeedKeywordOrderByWithRelationInput = {
   feed_keyword_id?: Prisma.SortOrder
+  code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   sort_order?: Prisma.SortOrder
   is_active?: Prisma.SortOrder
@@ -225,17 +234,19 @@ export type FeedKeywordOrderByWithRelationInput = {
 
 export type FeedKeywordWhereUniqueInput = Prisma.AtLeast<{
   feed_keyword_id?: number
-  name?: string
+  code?: string
   AND?: Prisma.FeedKeywordWhereInput | Prisma.FeedKeywordWhereInput[]
   OR?: Prisma.FeedKeywordWhereInput[]
   NOT?: Prisma.FeedKeywordWhereInput | Prisma.FeedKeywordWhereInput[]
+  name?: Prisma.StringFilter<"FeedKeyword"> | string
   sort_order?: Prisma.IntFilter<"FeedKeyword"> | number
   is_active?: Prisma.BoolFilter<"FeedKeyword"> | boolean
   self_date_feed_links?: Prisma.SelfDateFeedKeywordListRelationFilter
-}, "feed_keyword_id" | "name">
+}, "feed_keyword_id" | "code">
 
 export type FeedKeywordOrderByWithAggregationInput = {
   feed_keyword_id?: Prisma.SortOrder
+  code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   sort_order?: Prisma.SortOrder
   is_active?: Prisma.SortOrder
@@ -251,12 +262,14 @@ export type FeedKeywordScalarWhereWithAggregatesInput = {
   OR?: Prisma.FeedKeywordScalarWhereWithAggregatesInput[]
   NOT?: Prisma.FeedKeywordScalarWhereWithAggregatesInput | Prisma.FeedKeywordScalarWhereWithAggregatesInput[]
   feed_keyword_id?: Prisma.IntWithAggregatesFilter<"FeedKeyword"> | number
+  code?: Prisma.StringWithAggregatesFilter<"FeedKeyword"> | string
   name?: Prisma.StringWithAggregatesFilter<"FeedKeyword"> | string
   sort_order?: Prisma.IntWithAggregatesFilter<"FeedKeyword"> | number
   is_active?: Prisma.BoolWithAggregatesFilter<"FeedKeyword"> | boolean
 }
 
 export type FeedKeywordCreateInput = {
+  code: string
   name: string
   sort_order: number
   is_active?: boolean
@@ -265,6 +278,7 @@ export type FeedKeywordCreateInput = {
 
 export type FeedKeywordUncheckedCreateInput = {
   feed_keyword_id?: number
+  code: string
   name: string
   sort_order: number
   is_active?: boolean
@@ -272,6 +286,7 @@ export type FeedKeywordUncheckedCreateInput = {
 }
 
 export type FeedKeywordUpdateInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   sort_order?: Prisma.IntFieldUpdateOperationsInput | number
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -280,6 +295,7 @@ export type FeedKeywordUpdateInput = {
 
 export type FeedKeywordUncheckedUpdateInput = {
   feed_keyword_id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   sort_order?: Prisma.IntFieldUpdateOperationsInput | number
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -288,12 +304,14 @@ export type FeedKeywordUncheckedUpdateInput = {
 
 export type FeedKeywordCreateManyInput = {
   feed_keyword_id?: number
+  code: string
   name: string
   sort_order: number
   is_active?: boolean
 }
 
 export type FeedKeywordUpdateManyMutationInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   sort_order?: Prisma.IntFieldUpdateOperationsInput | number
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -301,6 +319,7 @@ export type FeedKeywordUpdateManyMutationInput = {
 
 export type FeedKeywordUncheckedUpdateManyInput = {
   feed_keyword_id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   sort_order?: Prisma.IntFieldUpdateOperationsInput | number
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -308,6 +327,7 @@ export type FeedKeywordUncheckedUpdateManyInput = {
 
 export type FeedKeywordCountOrderByAggregateInput = {
   feed_keyword_id?: Prisma.SortOrder
+  code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   sort_order?: Prisma.SortOrder
   is_active?: Prisma.SortOrder
@@ -320,6 +340,7 @@ export type FeedKeywordAvgOrderByAggregateInput = {
 
 export type FeedKeywordMaxOrderByAggregateInput = {
   feed_keyword_id?: Prisma.SortOrder
+  code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   sort_order?: Prisma.SortOrder
   is_active?: Prisma.SortOrder
@@ -327,6 +348,7 @@ export type FeedKeywordMaxOrderByAggregateInput = {
 
 export type FeedKeywordMinOrderByAggregateInput = {
   feed_keyword_id?: Prisma.SortOrder
+  code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   sort_order?: Prisma.SortOrder
   is_active?: Prisma.SortOrder
@@ -357,6 +379,7 @@ export type FeedKeywordUpdateOneRequiredWithoutSelf_date_feed_linksNestedInput =
 }
 
 export type FeedKeywordCreateWithoutSelf_date_feed_linksInput = {
+  code: string
   name: string
   sort_order: number
   is_active?: boolean
@@ -364,6 +387,7 @@ export type FeedKeywordCreateWithoutSelf_date_feed_linksInput = {
 
 export type FeedKeywordUncheckedCreateWithoutSelf_date_feed_linksInput = {
   feed_keyword_id?: number
+  code: string
   name: string
   sort_order: number
   is_active?: boolean
@@ -386,6 +410,7 @@ export type FeedKeywordUpdateToOneWithWhereWithoutSelf_date_feed_linksInput = {
 }
 
 export type FeedKeywordUpdateWithoutSelf_date_feed_linksInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   sort_order?: Prisma.IntFieldUpdateOperationsInput | number
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -393,6 +418,7 @@ export type FeedKeywordUpdateWithoutSelf_date_feed_linksInput = {
 
 export type FeedKeywordUncheckedUpdateWithoutSelf_date_feed_linksInput = {
   feed_keyword_id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   sort_order?: Prisma.IntFieldUpdateOperationsInput | number
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -431,6 +457,7 @@ export type FeedKeywordCountOutputTypeCountSelf_date_feed_linksArgs<ExtArgs exte
 
 export type FeedKeywordSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   feed_keyword_id?: boolean
+  code?: boolean
   name?: boolean
   sort_order?: boolean
   is_active?: boolean
@@ -440,6 +467,7 @@ export type FeedKeywordSelect<ExtArgs extends runtime.Types.Extensions.InternalA
 
 export type FeedKeywordSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   feed_keyword_id?: boolean
+  code?: boolean
   name?: boolean
   sort_order?: boolean
   is_active?: boolean
@@ -447,6 +475,7 @@ export type FeedKeywordSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
 
 export type FeedKeywordSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   feed_keyword_id?: boolean
+  code?: boolean
   name?: boolean
   sort_order?: boolean
   is_active?: boolean
@@ -454,12 +483,13 @@ export type FeedKeywordSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
 
 export type FeedKeywordSelectScalar = {
   feed_keyword_id?: boolean
+  code?: boolean
   name?: boolean
   sort_order?: boolean
   is_active?: boolean
 }
 
-export type FeedKeywordOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"feed_keyword_id" | "name" | "sort_order" | "is_active", ExtArgs["result"]["feedKeyword"]>
+export type FeedKeywordOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"feed_keyword_id" | "code" | "name" | "sort_order" | "is_active", ExtArgs["result"]["feedKeyword"]>
 export type FeedKeywordInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   self_date_feed_links?: boolean | Prisma.FeedKeyword$self_date_feed_linksArgs<ExtArgs>
   _count?: boolean | Prisma.FeedKeywordCountOutputTypeDefaultArgs<ExtArgs>
@@ -474,6 +504,7 @@ export type $FeedKeywordPayload<ExtArgs extends runtime.Types.Extensions.Interna
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     feed_keyword_id: number
+    code: string
     name: string
     sort_order: number
     is_active: boolean
@@ -902,6 +933,7 @@ export interface Prisma__FeedKeywordClient<T, Null = never, ExtArgs extends runt
  */
 export interface FeedKeywordFieldRefs {
   readonly feed_keyword_id: Prisma.FieldRef<"FeedKeyword", 'Int'>
+  readonly code: Prisma.FieldRef<"FeedKeyword", 'String'>
   readonly name: Prisma.FieldRef<"FeedKeyword", 'String'>
   readonly sort_order: Prisma.FieldRef<"FeedKeyword", 'Int'>
   readonly is_active: Prisma.FieldRef<"FeedKeyword", 'Boolean'>

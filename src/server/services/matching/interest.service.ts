@@ -2,15 +2,15 @@
 
 import { ApiError } from "@/server/lib/errors";
 import { ERROR } from "@/server/lib/errors";
-import { hasBlockRelation } from "@/server/repositories/block.repository";
-import { getBlockedUserIds } from "@/server/repositories/block.repository";
+import { hasBlockRelation } from "@/server/repositories/safety/block.repository";
+import { getBlockedUserIds } from "@/server/repositories/safety/block.repository";
 import {
   findPendingInterest,
   findInterestById,
   findReceivedInterestsWithProfile,
   insertInterest,
   declineInterestById,
-} from "@/server/repositories/interest.repository";
+} from "@/server/repositories/interest/interest.repository";
 import { checkAndCreateMatch } from "@/server/services/matching/matching.service";
 import type {
   ReceivedInterestsResponse,
@@ -69,7 +69,7 @@ export async function acceptInterest(
 
   const hasBlock = await hasBlockRelation(userId, fromUserId);
   if (hasBlock) {
-    throw new ApiError(ERROR.BLOCKED_RELATION, "차단 관계로 호감을 보낼 수 없습니다.");
+    throw new ApiError(ERROR.BLOCKED_RELATIONSHIP, "차단 관계로 호감을 보낼 수 없습니다.");
   }
 
   const existing = await findPendingInterest(userId, fromUserId);
@@ -134,7 +134,7 @@ export async function sendInterest(
 
   const hasBlock = await hasBlockRelation(userId, toUserId);
   if (hasBlock) {
-    throw new ApiError(ERROR.BLOCKED_RELATION, "차단 관계로 호감을 보낼 수 없습니다.");
+    throw new ApiError(ERROR.BLOCKED_RELATIONSHIP, "차단 관계로 호감을 보낼 수 없습니다.");
   }
 
   const existing = await findPendingInterest(userId, toUserId);

@@ -49,7 +49,7 @@ export async function POST(
     const data = await selectChat(user.id, commentId);
     return ok(data);
   } catch (error) {
-    if (error instanceof AppError) return fail(error.code, error.message, error.status);
+    if (error instanceof AppError) return fail(error.code, error.message);
     console.error("[POST /api/feed-comments/:id/select-chat]", error); // 서버 에러 로그
     return fail("INTERNAL_SERVER_ERROR", "댓글 선택 처리 중 오류가 발생했습니다."); // 실패 응답
   }

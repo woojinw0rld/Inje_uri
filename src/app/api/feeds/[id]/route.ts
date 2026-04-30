@@ -56,7 +56,7 @@ export async function GET(
     const data = await getFeedDetail(currentUserId, feedId);
     return ok(data);
   } catch (error) {
-    if (error instanceof AppError) return fail(error.code, error.message, error.status);
+    if (error instanceof AppError) return fail(error.code, error.message);
     console.error("[GET /api/feeds/:id]", error);
     return fail("INTERNAL_SERVER_ERROR", "피드 상세를 불러오는 중 오류가 발생했습니다.");
   }
@@ -142,7 +142,7 @@ export async function PATCH(
     );
     return ok(data);
   } catch (error) {
-    if (error instanceof AppError) return fail(error.code, error.message, error.status);
+    if (error instanceof AppError) return fail(error.code, error.message);
     console.error("[PATCH /api/feeds/:id]", error);
     return fail("INTERNAL_SERVER_ERROR", "피드 수정 중 오류가 발생했습니다.");
   }
@@ -193,7 +193,7 @@ export async function DELETE(
     const data = await deleteFeed(currentUserId, feedId);
     return ok(data);
   } catch (error) {
-    if (error instanceof AppError) return fail(error.code, error.message, error.status);
+    if (error instanceof AppError) return fail(error.code, error.message);
     console.error("[DELETE /api/feeds/:id]", error);
     return fail("INTERNAL_SERVER_ERROR", "피드 삭제 중 오류가 발생했습니다.");
   }

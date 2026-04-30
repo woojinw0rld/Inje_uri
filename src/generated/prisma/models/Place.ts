@@ -41,6 +41,7 @@ export type PlaceMinAggregateOutputType = {
   category_id: number | null
   name: string | null
   address: string | null
+  image_url: string | null
   description: string | null
   is_active: boolean | null
 }
@@ -50,6 +51,7 @@ export type PlaceMaxAggregateOutputType = {
   category_id: number | null
   name: string | null
   address: string | null
+  image_url: string | null
   description: string | null
   is_active: boolean | null
 }
@@ -59,6 +61,7 @@ export type PlaceCountAggregateOutputType = {
   category_id: number
   name: number
   address: number
+  image_url: number
   description: number
   is_active: number
   _all: number
@@ -80,6 +83,7 @@ export type PlaceMinAggregateInputType = {
   category_id?: true
   name?: true
   address?: true
+  image_url?: true
   description?: true
   is_active?: true
 }
@@ -89,6 +93,7 @@ export type PlaceMaxAggregateInputType = {
   category_id?: true
   name?: true
   address?: true
+  image_url?: true
   description?: true
   is_active?: true
 }
@@ -98,6 +103,7 @@ export type PlaceCountAggregateInputType = {
   category_id?: true
   name?: true
   address?: true
+  image_url?: true
   description?: true
   is_active?: true
   _all?: true
@@ -194,6 +200,7 @@ export type PlaceGroupByOutputType = {
   category_id: number
   name: string
   address: string
+  image_url: string | null
   description: string | null
   is_active: boolean
   _count: PlaceCountAggregateOutputType | null
@@ -226,6 +233,7 @@ export type PlaceWhereInput = {
   category_id?: Prisma.IntFilter<"Place"> | number
   name?: Prisma.StringFilter<"Place"> | string
   address?: Prisma.StringFilter<"Place"> | string
+  image_url?: Prisma.StringNullableFilter<"Place"> | string | null
   description?: Prisma.StringNullableFilter<"Place"> | string | null
   is_active?: Prisma.BoolFilter<"Place"> | boolean
   category?: Prisma.XOR<Prisma.PlaceCategoryScalarRelationFilter, Prisma.PlaceCategoryWhereInput>
@@ -238,6 +246,7 @@ export type PlaceOrderByWithRelationInput = {
   category_id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   address?: Prisma.SortOrder
+  image_url?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   is_active?: Prisma.SortOrder
   category?: Prisma.PlaceCategoryOrderByWithRelationInput
@@ -253,6 +262,7 @@ export type PlaceWhereUniqueInput = Prisma.AtLeast<{
   category_id?: Prisma.IntFilter<"Place"> | number
   name?: Prisma.StringFilter<"Place"> | string
   address?: Prisma.StringFilter<"Place"> | string
+  image_url?: Prisma.StringNullableFilter<"Place"> | string | null
   description?: Prisma.StringNullableFilter<"Place"> | string | null
   is_active?: Prisma.BoolFilter<"Place"> | boolean
   category?: Prisma.XOR<Prisma.PlaceCategoryScalarRelationFilter, Prisma.PlaceCategoryWhereInput>
@@ -265,6 +275,7 @@ export type PlaceOrderByWithAggregationInput = {
   category_id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   address?: Prisma.SortOrder
+  image_url?: Prisma.SortOrderInput | Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   is_active?: Prisma.SortOrder
   _count?: Prisma.PlaceCountOrderByAggregateInput
@@ -282,6 +293,7 @@ export type PlaceScalarWhereWithAggregatesInput = {
   category_id?: Prisma.IntWithAggregatesFilter<"Place"> | number
   name?: Prisma.StringWithAggregatesFilter<"Place"> | string
   address?: Prisma.StringWithAggregatesFilter<"Place"> | string
+  image_url?: Prisma.StringNullableWithAggregatesFilter<"Place"> | string | null
   description?: Prisma.StringNullableWithAggregatesFilter<"Place"> | string | null
   is_active?: Prisma.BoolWithAggregatesFilter<"Place"> | boolean
 }
@@ -289,6 +301,7 @@ export type PlaceScalarWhereWithAggregatesInput = {
 export type PlaceCreateInput = {
   name: string
   address: string
+  image_url?: string | null
   description?: string | null
   is_active?: boolean
   category: Prisma.PlaceCategoryCreateNestedOneWithoutPlacesInput
@@ -301,6 +314,7 @@ export type PlaceUncheckedCreateInput = {
   category_id: number
   name: string
   address: string
+  image_url?: string | null
   description?: string | null
   is_active?: boolean
   tags?: Prisma.PlaceTagUncheckedCreateNestedManyWithoutPlaceInput
@@ -310,6 +324,7 @@ export type PlaceUncheckedCreateInput = {
 export type PlaceUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   category?: Prisma.PlaceCategoryUpdateOneRequiredWithoutPlacesNestedInput
@@ -322,6 +337,7 @@ export type PlaceUncheckedUpdateInput = {
   category_id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tags?: Prisma.PlaceTagUncheckedUpdateManyWithoutPlaceNestedInput
@@ -333,6 +349,7 @@ export type PlaceCreateManyInput = {
   category_id: number
   name: string
   address: string
+  image_url?: string | null
   description?: string | null
   is_active?: boolean
 }
@@ -340,6 +357,7 @@ export type PlaceCreateManyInput = {
 export type PlaceUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
@@ -349,6 +367,7 @@ export type PlaceUncheckedUpdateManyInput = {
   category_id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
@@ -368,6 +387,7 @@ export type PlaceCountOrderByAggregateInput = {
   category_id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   address?: Prisma.SortOrder
+  image_url?: Prisma.SortOrder
   description?: Prisma.SortOrder
   is_active?: Prisma.SortOrder
 }
@@ -382,6 +402,7 @@ export type PlaceMaxOrderByAggregateInput = {
   category_id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   address?: Prisma.SortOrder
+  image_url?: Prisma.SortOrder
   description?: Prisma.SortOrder
   is_active?: Prisma.SortOrder
 }
@@ -391,6 +412,7 @@ export type PlaceMinOrderByAggregateInput = {
   category_id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   address?: Prisma.SortOrder
+  image_url?: Prisma.SortOrder
   description?: Prisma.SortOrder
   is_active?: Prisma.SortOrder
 }
@@ -478,6 +500,7 @@ export type PlaceUpdateOneRequiredWithoutChat_room_place_suggestionsNestedInput 
 export type PlaceCreateWithoutCategoryInput = {
   name: string
   address: string
+  image_url?: string | null
   description?: string | null
   is_active?: boolean
   tags?: Prisma.PlaceTagCreateNestedManyWithoutPlaceInput
@@ -488,6 +511,7 @@ export type PlaceUncheckedCreateWithoutCategoryInput = {
   id?: number
   name: string
   address: string
+  image_url?: string | null
   description?: string | null
   is_active?: boolean
   tags?: Prisma.PlaceTagUncheckedCreateNestedManyWithoutPlaceInput
@@ -528,6 +552,7 @@ export type PlaceScalarWhereInput = {
   category_id?: Prisma.IntFilter<"Place"> | number
   name?: Prisma.StringFilter<"Place"> | string
   address?: Prisma.StringFilter<"Place"> | string
+  image_url?: Prisma.StringNullableFilter<"Place"> | string | null
   description?: Prisma.StringNullableFilter<"Place"> | string | null
   is_active?: Prisma.BoolFilter<"Place"> | boolean
 }
@@ -535,6 +560,7 @@ export type PlaceScalarWhereInput = {
 export type PlaceCreateWithoutTagsInput = {
   name: string
   address: string
+  image_url?: string | null
   description?: string | null
   is_active?: boolean
   category: Prisma.PlaceCategoryCreateNestedOneWithoutPlacesInput
@@ -546,6 +572,7 @@ export type PlaceUncheckedCreateWithoutTagsInput = {
   category_id: number
   name: string
   address: string
+  image_url?: string | null
   description?: string | null
   is_active?: boolean
   chat_room_place_suggestions?: Prisma.ChatRoomPlaceSuggestionUncheckedCreateNestedManyWithoutPlaceInput
@@ -570,6 +597,7 @@ export type PlaceUpdateToOneWithWhereWithoutTagsInput = {
 export type PlaceUpdateWithoutTagsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   category?: Prisma.PlaceCategoryUpdateOneRequiredWithoutPlacesNestedInput
@@ -581,6 +609,7 @@ export type PlaceUncheckedUpdateWithoutTagsInput = {
   category_id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   chat_room_place_suggestions?: Prisma.ChatRoomPlaceSuggestionUncheckedUpdateManyWithoutPlaceNestedInput
@@ -589,6 +618,7 @@ export type PlaceUncheckedUpdateWithoutTagsInput = {
 export type PlaceCreateWithoutChat_room_place_suggestionsInput = {
   name: string
   address: string
+  image_url?: string | null
   description?: string | null
   is_active?: boolean
   category: Prisma.PlaceCategoryCreateNestedOneWithoutPlacesInput
@@ -600,6 +630,7 @@ export type PlaceUncheckedCreateWithoutChat_room_place_suggestionsInput = {
   category_id: number
   name: string
   address: string
+  image_url?: string | null
   description?: string | null
   is_active?: boolean
   tags?: Prisma.PlaceTagUncheckedCreateNestedManyWithoutPlaceInput
@@ -624,6 +655,7 @@ export type PlaceUpdateToOneWithWhereWithoutChat_room_place_suggestionsInput = {
 export type PlaceUpdateWithoutChat_room_place_suggestionsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   category?: Prisma.PlaceCategoryUpdateOneRequiredWithoutPlacesNestedInput
@@ -635,6 +667,7 @@ export type PlaceUncheckedUpdateWithoutChat_room_place_suggestionsInput = {
   category_id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tags?: Prisma.PlaceTagUncheckedUpdateManyWithoutPlaceNestedInput
@@ -644,6 +677,7 @@ export type PlaceCreateManyCategoryInput = {
   id?: number
   name: string
   address: string
+  image_url?: string | null
   description?: string | null
   is_active?: boolean
 }
@@ -651,6 +685,7 @@ export type PlaceCreateManyCategoryInput = {
 export type PlaceUpdateWithoutCategoryInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tags?: Prisma.PlaceTagUpdateManyWithoutPlaceNestedInput
@@ -661,6 +696,7 @@ export type PlaceUncheckedUpdateWithoutCategoryInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tags?: Prisma.PlaceTagUncheckedUpdateManyWithoutPlaceNestedInput
@@ -671,6 +707,7 @@ export type PlaceUncheckedUpdateManyWithoutCategoryInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   address?: Prisma.StringFieldUpdateOperationsInput | string
+  image_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
@@ -720,6 +757,7 @@ export type PlaceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   category_id?: boolean
   name?: boolean
   address?: boolean
+  image_url?: boolean
   description?: boolean
   is_active?: boolean
   category?: boolean | Prisma.PlaceCategoryDefaultArgs<ExtArgs>
@@ -733,6 +771,7 @@ export type PlaceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   category_id?: boolean
   name?: boolean
   address?: boolean
+  image_url?: boolean
   description?: boolean
   is_active?: boolean
   category?: boolean | Prisma.PlaceCategoryDefaultArgs<ExtArgs>
@@ -743,6 +782,7 @@ export type PlaceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   category_id?: boolean
   name?: boolean
   address?: boolean
+  image_url?: boolean
   description?: boolean
   is_active?: boolean
   category?: boolean | Prisma.PlaceCategoryDefaultArgs<ExtArgs>
@@ -753,11 +793,12 @@ export type PlaceSelectScalar = {
   category_id?: boolean
   name?: boolean
   address?: boolean
+  image_url?: boolean
   description?: boolean
   is_active?: boolean
 }
 
-export type PlaceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "category_id" | "name" | "address" | "description" | "is_active", ExtArgs["result"]["place"]>
+export type PlaceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "category_id" | "name" | "address" | "image_url" | "description" | "is_active", ExtArgs["result"]["place"]>
 export type PlaceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.PlaceCategoryDefaultArgs<ExtArgs>
   tags?: boolean | Prisma.Place$tagsArgs<ExtArgs>
@@ -783,6 +824,7 @@ export type $PlacePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     category_id: number
     name: string
     address: string
+    image_url: string | null
     description: string | null
     is_active: boolean
   }, ExtArgs["result"]["place"]>
@@ -1215,6 +1257,7 @@ export interface PlaceFieldRefs {
   readonly category_id: Prisma.FieldRef<"Place", 'Int'>
   readonly name: Prisma.FieldRef<"Place", 'String'>
   readonly address: Prisma.FieldRef<"Place", 'String'>
+  readonly image_url: Prisma.FieldRef<"Place", 'String'>
   readonly description: Prisma.FieldRef<"Place", 'String'>
   readonly is_active: Prisma.FieldRef<"Place", 'Boolean'>
 }

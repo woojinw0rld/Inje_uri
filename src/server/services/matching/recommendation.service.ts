@@ -4,7 +4,7 @@ import { prisma } from "@/server/db/prisma";
 import { Prisma } from "@/generated/prisma/client";
 import { ApiError } from "@/server/lib/errors";
 import { ERROR } from "@/server/lib/errors";
-import { getBlockedUserIds, hasBlockRelation } from "@/server/repositories/block.repository";
+import { getBlockedUserIds, hasBlockRelation } from "@/server/repositories/safety/block.repository";
 import {
   findTodayRecommendation,
   findCandidatesWithProfile,
@@ -12,9 +12,9 @@ import {
   passItemInTx,
   getRecentlyRecommendedUserIds,
   createDailyRecommendation,
-} from "@/server/repositories/recommendation.repository";
-import { findPendingInterest } from "@/server/repositories/interest.repository";
-import { upsertDismissInTx, getDismissId } from "@/server/repositories/dismiss.repository";
+} from "@/server/repositories/recommendation/recommendation.repository";
+import { findPendingInterest } from "@/server/repositories/interest/interest.repository";
+import { upsertDismissInTx, getDismissId } from "@/server/repositories/interest/dismiss.repository";
 import type {
   TodayRecommendationResponse,
   SelectCandidateResponse,
@@ -121,10 +121,10 @@ export async function selectCandidate(
     throw new ApiError(ERROR.INVALID_ITEM, "유효하지 않은 추천 항목입니다.");
   }
 
-  // 3. BLOCKED_RELATION: 차단 관계 확인
+  // 3. BLOCKED_RELATIONSHIP: 차단 관계 확인
   const hasBlock = await hasBlockRelation(userId, item.candidate_user_id);
   if (hasBlock) {
-    throw new ApiError(ERROR.BLOCKED_RELATION, "차단 관계로 호감을 보낼 수 없습니다.");
+    throw new ApiError(ERROR.BLOCKED_RELATIONSHIP, "차단 관계로 호감을 보낼 수 없습니다.");
   }
 
   // 4. DUPLICATE_INTEREST: 중복 pending 호감 확인

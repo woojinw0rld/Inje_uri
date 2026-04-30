@@ -7,13 +7,13 @@ import { chat_room_source_type } from "@/generated/prisma/client";
 
 export async function POST(req: NextRequest) {
     const user = await getAuthUser(req);
-    if (!user) return fail(ERROR.UNAUTHORIZED, "인증이 필요합니다", 400);
+    if (!user) return fail(ERROR.UNAUTHORIZED, "인증이 필요합니다");
 
     const body = await req.json();
     const { targetUserId, sourceType, sourceInterestId, sourceCommentId } = body;
 
     if (!targetUserId || !sourceType) {
-        return fail(ERROR.INVALID_SOURCE, "sourceType 또는 targetUserId가 유효하지 않습니다.", 400);
+        return fail(ERROR.INVALID_SOURCE, "sourceType 또는 targetUserId가 유효하지 않습니다.");
     }
 
     const result = await chatRoomService.createChatRoom({
@@ -27,16 +27,16 @@ export async function POST(req: NextRequest) {
     if ("error" in result) {                                                                    
         const err = result.error!;                                                              
         if (err === ERROR.DUPLICATE_ACTIVE_ROOM || err === ERROR.REMATCH_TOO_SOON) {
-            return fail(err, "이미 활성화된 채팅방이 존재합니다.", 400);
+            return fail(err, "이미 활성화된 채팅방이 존재합니다.");
         }
-        return fail(err, "마지막 대화 종료 후 7일이 지나지 않았습니다.", 400);
+        return fail(err, "마지막 대화 종료 후 7일이 지나지 않았습니다.");
     }
     return ok(result, 201);
 }
 
 export async function GET(req: NextRequest) {
     const user = await getAuthUser(req);
-    if (!user) return fail(ERROR.UNAUTHORIZED,  "인증이 필요합니다.", 400);
+    if (!user) return fail(ERROR.UNAUTHORIZED, "인증이 필요합니다.");
 
     const { searchParams } = new URL(req.url);
     const tab = searchParams.get("tab") === "unread" ? "unread" : "all";

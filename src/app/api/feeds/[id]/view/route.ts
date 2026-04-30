@@ -51,7 +51,7 @@ export async function POST( // HTTP POST(쓰기) 메서드로 조회 기록을 D
     const data = await recordFeedView(feedId, viewerUserId);
     return ok(data);
   } catch (error) {
-    if (error instanceof AppError) return fail(error.code, error.message, error.status);
+    if (error instanceof AppError) return fail(error.code, error.message);
     console.error("[POST /api/feeds/:id/view]", error);
     return fail("INTERNAL_SERVER_ERROR", "조회 기록 저장 중 오류가 발생했습니다.");
   }

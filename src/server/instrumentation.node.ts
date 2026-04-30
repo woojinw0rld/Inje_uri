@@ -16,3 +16,4 @@ process.on("uncaughtException", (err: NodeJS.ErrnoException) => {
     console.error("[instrumentation.node]", err);
   }
 })();
+export {};

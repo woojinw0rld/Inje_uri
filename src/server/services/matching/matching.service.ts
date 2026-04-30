@@ -4,8 +4,8 @@ import { prisma } from "@/server/db/prisma";
 import {
   findReversePendingInterest,
   confirmMatch,
-} from "@/server/repositories/interest.repository";
-import { passMatchedCandidateItem } from "@/server/repositories/recommendation.repository";
+} from "@/server/repositories/interest/interest.repository";
+import { passMatchedCandidateItem } from "@/server/repositories/recommendation/recommendation.repository";
 import * as chatRoomService from "@/server/services/conversation/chatRoom.service";
 
 export interface MatchResult {
