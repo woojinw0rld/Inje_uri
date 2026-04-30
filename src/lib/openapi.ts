@@ -416,8 +416,8 @@
                 schema: {
                   type: "object",
                   required: ["content"],
-                  properties: {
-                    content: { type: "string", example: "안녕하세요!", minLength: 1 },
+                  properties: { 
+                    content: { type: "string", example: "안녕하세요!", minLength: 1, maxLength: 1000 },                   
                   },
                 },
               },
@@ -529,21 +529,7 @@
           tags: ["채팅방"],
           summary: "채팅방 차단 상태 전이",
           description: "D 파트가 차단 완료 후 호출. status=blocked + blocked_by_user_id 기록.",
-          parameters: [{ $ref: "#/components/parameters/ChatRoomId" }],
-          requestBody: {
-            required: true,
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  required: ["blockedByUserId"],
-                  properties: {
-                    blockedByUserId: { type: "integer", example: 1 },
-                  },
-                },
-              },
-            },
-          },
+          parameters: [{ $ref: "#/components/parameters/ChatRoomId" }],          
           responses: {
             "200": {
               description: "차단 전이 성공",
