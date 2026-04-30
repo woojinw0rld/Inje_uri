@@ -156,8 +156,8 @@ export async function selectCandidate(
     `;
 
     const [interest] = await tx.$queryRaw<{ id: number }[]>`
-      INSERT INTO interests (from_user_id, to_user_id, source_type, status, created_at)
-      VALUES (${userId}, ${item.candidate_user_id}, 'recommendation', 'pending', NOW())
+      INSERT INTO interests (from_user_id, to_user_id, status, created_at)
+      VALUES (${userId}, ${item.candidate_user_id}, 'pending', NOW())
       RETURNING id
     `;
 

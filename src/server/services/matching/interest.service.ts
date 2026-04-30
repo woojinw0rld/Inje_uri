@@ -32,7 +32,6 @@ export async function getReceivedInterests(
     interests: interests.map((i) => ({
       interest_id: i.id,
       from_user_id: i.from_user_id,
-      source_type: i.source_type,
       created_at: i.created_at.toISOString(),
       profile: {
         nickname: i.nickname,
@@ -77,7 +76,7 @@ export async function acceptInterest(
     throw new ApiError(ERROR.DUPLICATE_INTEREST, "이미 호감을 보낸 상대입니다.");
   }
 
-  const newInterest = await insertInterest(userId, fromUserId, "direct");
+  const newInterest = await insertInterest(userId, fromUserId);
 
   const matchResult = await checkAndCreateMatch(userId, fromUserId, newInterest.id);
 
@@ -142,7 +141,7 @@ export async function sendInterest(
     throw new ApiError(ERROR.DUPLICATE_INTEREST, "이미 호감을 보낸 상대입니다.");
   }
 
-  const newInterest = await insertInterest(userId, toUserId, "direct");
+  const newInterest = await insertInterest(userId, toUserId);
 
   const matchResult = await checkAndCreateMatch(userId, toUserId, newInterest.id);
 

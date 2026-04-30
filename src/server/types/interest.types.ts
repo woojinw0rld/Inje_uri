@@ -12,7 +12,6 @@ export interface InterestProfile {
 export interface ReceivedInterestItem {
   interest_id: number;
   from_user_id: number;
-  source_type: string;
   created_at: string;
   profile: InterestProfile;
 }

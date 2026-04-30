@@ -7,7 +7,6 @@ export interface InterestRow {
   id: number;
   from_user_id: number;
   to_user_id: number;
-  source_type: string;
   status: string;
   matched_at: Date | null;
   declined_at: Date | null;
@@ -30,7 +29,7 @@ export async function findPendingInterest(
   toUserId: number,
 ): Promise<InterestRow | null> {
   const rows = await prisma.$queryRaw<InterestRow[]>`
-    SELECT id, from_user_id, to_user_id, source_type, status,
+    SELECT id, from_user_id, to_user_id, status,
            matched_at, declined_at, created_at, expires_at
     FROM interests
     WHERE from_user_id = ${fromUserId}
@@ -48,7 +47,7 @@ export async function findReversePendingInterest(
   toUserId: number,
 ): Promise<InterestRow | null> {
   const rows = await prisma.$queryRaw<InterestRow[]>`
-    SELECT id, from_user_id, to_user_id, source_type, status,
+    SELECT id, from_user_id, to_user_id, status,
            matched_at, declined_at, created_at, expires_at
     FROM interests
     WHERE from_user_id = ${fromUserId}
@@ -69,7 +68,7 @@ export async function findReceivedInterestsWithProfile(
 
   return prisma.$queryRaw<InterestWithProfile[]>`
     SELECT
-      i.id, i.from_user_id, i.to_user_id, i.source_type, i.status,
+      i.id, i.from_user_id, i.to_user_id, i.status,
       i.matched_at, i.declined_at, i.created_at, i.expires_at,
       u.nickname, u.age, u.department, u.student_year, u.bio,
       upi.image_url AS primary_image_url
@@ -90,7 +89,7 @@ export async function findInterestById(
   interestId: number,
 ): Promise<InterestRow | null> {
   const rows = await prisma.$queryRaw<InterestRow[]>`
-    SELECT id, from_user_id, to_user_id, source_type, status,
+    SELECT id, from_user_id, to_user_id, status,
            matched_at, declined_at, created_at, expires_at
     FROM interests
     WHERE id = ${interestId}
@@ -103,11 +102,10 @@ export async function findInterestById(
 export async function insertInterest(
   fromUserId: number,
   toUserId: number,
-  sourceType: string,
 ): Promise<{ id: number }> {
   const rows = await prisma.$queryRaw<{ id: number }[]>`
-    INSERT INTO interests (from_user_id, to_user_id, source_type, status, created_at)
-    VALUES (${fromUserId}, ${toUserId}, ${sourceType}, 'pending', NOW())
+    INSERT INTO interests (from_user_id, to_user_id, status, created_at)
+    VALUES (${fromUserId}, ${toUserId}, 'pending', NOW())
     RETURNING id
   `;
   return rows[0];
@@ -123,7 +121,7 @@ export async function declineInterestById(
     WHERE id = ${interestId}
       AND matched_at IS NULL
       AND declined_at IS NULL
-    RETURNING id, from_user_id, to_user_id, source_type, status,
+    RETURNING id, from_user_id, to_user_id, status,
               matched_at, declined_at, created_at, expires_at
   `;
   return rows[0] ?? null;
