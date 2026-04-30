@@ -1,6 +1,11 @@
-const { PrismaClient } = require("@prisma/client");
+import { PrismaClient } from "../src/generated/prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import "dotenv/config";
 
-const prisma = new PrismaClient();
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL,
+});
+const prisma = new PrismaClient({ adapter });
 
 const categorySeeds = [
   {
@@ -104,11 +109,18 @@ const categorySeeds = [
 ];
 
 const feedKeywordSeeds = [
-  "First Impression",
-  "Daily Mood",
-  "Campus Spot",
-  "Date Course",
-  "Weekend Plan",
+  "산책",
+  "카페",
+  "맛집",
+  "공부",
+  "영화",
+  "드라이브",
+  "운동",
+  "전시",
+  "술",
+  "독서",
+  "수다",
+  "취미",
 ];
 
 const placeCategorySeeds = [
@@ -120,7 +132,7 @@ const placeCategorySeeds = [
   { code: "activity", name: "Activity" },
 ];
 
-function toKeywordCode(label) {
+function toKeywordCode(label: string) {
   return label
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "_")
@@ -194,10 +206,63 @@ async function seedPlaceCategories() {
   }
 }
 
+const testUserSeeds = [
+  {
+    real_name: "테스트유저A",
+    age: 25,
+    email: "test_a@inje.ac.kr",
+    password_hash: "test_hash_a",
+    nickname: "테스트A",
+    gender: "male",
+    university: "인제대학교",
+    department: "컴퓨터공학과",
+    student_year: 3,
+    onboarding_completed: true,
+  },
+  {
+    real_name: "테스트유저B",
+    age: 24,
+    email: "test_b@inje.ac.kr",
+    password_hash: "test_hash_b",
+    nickname: "테스트B",
+    gender: "female",
+    university: "인제대학교",
+    department: "간호학과",
+    student_year: 2,
+    onboarding_completed: true,
+  },
+  {
+    real_name: "테스트유저C",
+    age: 23,
+    email: "test_c@inje.ac.kr",
+    password_hash: "test_hash_c",
+    nickname: "테스트C",
+    gender: "male",
+    university: "인제대학교",
+    department: "소프트웨어학과",
+    student_year: 1,
+    onboarding_completed: true,
+  },
+];
+
+async function seedTestUsers() {
+  for (const user of testUserSeeds) {
+    await prisma.user.upsert({
+      where: { email: user.email },
+      update: {
+        nickname: user.nickname,
+        real_name: user.real_name,
+      },
+      create: user,
+    });
+  }
+}
+
 async function main() {
   await seedCategories();
   await seedFeedKeywords();
   await seedPlaceCategories();
+  await seedTestUsers();
 
   console.log("Seed baseline data has been prepared.");
 }

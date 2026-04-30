@@ -8,3 +8,9 @@ dist
 .env*
 !.env.example
 .vscode
+.ai-rules
+AGENTS.md
+*.md
+*.cloud
+.cloud
+.cloud/

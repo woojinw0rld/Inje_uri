@@ -4,10 +4,15 @@ export * from './chat';
 export * from './story';
 export * from './keywords';
 
+export interface ApiError {
+  code: string;
+  message: string;
+}
+
 export interface ApiResponse<T> {
-  data: T;
   success: boolean;
-  error?: string;
+  data?: T;
+  error?: ApiError;
 }
 
 export interface PaginatedResponse<T> {

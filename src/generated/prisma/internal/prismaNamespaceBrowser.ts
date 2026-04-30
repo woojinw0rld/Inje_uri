@@ -53,6 +53,7 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   User: 'User',
   AuthSession: 'AuthSession',
+  PreSignupVerification: 'PreSignupVerification',
   EmailVerification: 'EmailVerification',
   UserProfileImage: 'UserProfileImage',
   Category: 'Category',
@@ -102,10 +103,13 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 
 export const UserScalarFieldEnum = {
   id: 'id',
+  login_id: 'login_id',
   real_name: 'real_name',
   age: 'age',
   email: 'email',
   password_hash: 'password_hash',
+  birth: 'birth',
+  birth_hash: 'birth_hash',
   nickname: 'nickname',
   gender: 'gender',
   phone_number: 'phone_number',
@@ -134,6 +138,17 @@ export const AuthSessionScalarFieldEnum = {
 } as const
 
 export type AuthSessionScalarFieldEnum = (typeof AuthSessionScalarFieldEnum)[keyof typeof AuthSessionScalarFieldEnum]
+
+
+export const PreSignupVerificationScalarFieldEnum = {
+  token_hash: 'token_hash',
+  student_number: 'student_number',
+  birth_hash: 'birth_hash',
+  expires_at: 'expires_at',
+  created_at: 'created_at'
+} as const
+
+export type PreSignupVerificationScalarFieldEnum = (typeof PreSignupVerificationScalarFieldEnum)[keyof typeof PreSignupVerificationScalarFieldEnum]
 
 
 export const EmailVerificationScalarFieldEnum = {
@@ -231,7 +246,6 @@ export const InterestScalarFieldEnum = {
   id: 'id',
   from_user_id: 'from_user_id',
   to_user_id: 'to_user_id',
-  source_type: 'source_type',
   status: 'status',
   matched_at: 'matched_at',
   declined_at: 'declined_at',

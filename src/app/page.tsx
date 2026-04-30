@@ -1,6 +1,5 @@
-import { redirect } from 'next/navigation';
+import { InjeCheckPageClient } from '@/components/auth/InjeCheckPageClient';
 
 export default function Home() {
-  // Redirect to match page by default
-  redirect('/match');
+  return <InjeCheckPageClient />;
 }

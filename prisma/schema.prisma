@@ -8,10 +8,9 @@ datasource db {
 }
 
 enum user_status {
-  active
-  inactive
-  suspended
-  withdrawn
+  ACTIVE
+  SUSPENDED
+  WITHDRAWN
 }
 
 enum email_verification_status {
@@ -67,10 +66,13 @@ enum chat_room_source_type {
 
 model User {
   id                         Int                       @id @default(autoincrement())
+  login_id                   String?                   @unique @db.VarChar(100)
   real_name                  String                    @db.VarChar(255)
   age                        Int?
   email                      String                    @unique @db.VarChar(255)
   password_hash              String                    @db.VarChar(255)
+  birth                      String?                   @db.VarChar(6)
+  birth_hash                 String?                   @db.VarChar(255)
   nickname                   String                    @unique @db.VarChar(50)
   gender                     String                    @db.VarChar(50)
   phone_number               String?                   @unique @db.VarChar(30)
@@ -81,7 +83,7 @@ model User {
   student_number             String?                   @db.VarChar(30)
   bio                        String?                   @db.VarChar(500)
   onboarding_completed       Boolean                   @default(false)
-  status                     user_status               @default(active)
+  status                     user_status               @default(ACTIVE)
   created_at                 DateTime                  @default(now()) @db.Timestamptz(6)
   last_active_at             DateTime?                 @db.Timestamptz(6)
   deleted_at                 DateTime?                 @db.Timestamptz(6)
@@ -122,6 +124,17 @@ model AuthSession {
   user         User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("auth_sessions")
+}
+
+model PreSignupVerification {
+  token_hash     String   @id @db.VarChar(255)
+  student_number String   @db.VarChar(30)
+  birth_hash     String   @db.VarChar(255)
+  expires_at     DateTime @db.Timestamptz(6)
+  created_at     DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([expires_at])
+  @@map("pre_signup_verifications")
 }
 
 model EmailVerification {
@@ -233,7 +246,6 @@ model Interest {
   id              Int             @id @default(autoincrement())
   from_user_id    Int
   to_user_id      Int
-  source_type     String          @db.VarChar(50)
   status          interest_status @default(pending)
   matched_at      DateTime?       @db.Timestamptz(6)
   declined_at     DateTime?       @db.Timestamptz(6)
