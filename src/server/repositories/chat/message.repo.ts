@@ -54,6 +54,13 @@ export async function findMessagesByRoomId(
     },
   });
 }
+export async function findMessageById(messageId: number) {
+    return prisma.message.findUnique({
+      where: { id: messageId },
+      select: { id: true, chat_room_id: true },
+    });
+}
+
 
   // ─────────────────────────────────────────────
   // 생성
