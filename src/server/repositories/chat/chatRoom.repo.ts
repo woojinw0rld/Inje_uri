@@ -7,7 +7,8 @@
    */             
 
   import { prisma } from "@/server/db/prisma";
-  import { chat_room_status, chat_room_source_type } from "@/generated/prisma/client";                                           
+  import { chat_room_status, chat_room_source_type } from "@/generated/prisma/client";  
+  import type { Prisma } from "@/generated/prisma/client";                                         
 
   // ─────────────────────────────────────────────
   // 타입
@@ -192,26 +193,28 @@
    * 단일 트랜잭션으로 처리한다.
    * 중간 실패 시 롤백되어 방만 생성된 채로 남는 상황 방지.
    */
-  export async function createRoom(input: CreateChatRoomInput) {
-    return prisma.chatRoom.create({
-      data: {
-        source_type: input.source_type,
-        created_by_user_id: input.created_by_user_id,
-        source_interest_id: input.source_interest_id ?? null, //값이 있으면 넣고 없으면 null
-        source_comment_id: input.source_comment_id ?? null,
-        expires_at: input.expires_at,
-        participants: {
-          create: input.participantUserIds.map((userId) => ({
-            user_id: userId,
-            // joined_at은 DB default(now()) 이므로 생략
-          })),
-        },
+  
+export async function createRoom(
+  input: CreateChatRoomInput,
+  tx?: Prisma.TransactionClient
+) {
+  const db = tx ?? prisma;
+  return db.chatRoom.create({
+    data: {
+      source_type: input.source_type,
+      created_by_user_id: input.created_by_user_id,
+      source_interest_id: input.source_interest_id ?? null,
+      source_comment_id: input.source_comment_id ?? null,
+      expires_at: input.expires_at,
+      participants: {
+        create: input.participantUserIds.map((userId) => ({
+          user_id: userId,
+        })),
       },
-      include: {
-        participants: true,
-      },
-    });
-  }
+    },
+    include: { participants: true },
+  });
+}
 
   // ─────────────────────────────────────────────
   // 상태 갱신

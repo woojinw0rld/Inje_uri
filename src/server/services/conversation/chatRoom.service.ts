@@ -10,6 +10,7 @@
   import * as participantRepo from "@/server/repositories/chat/participant.repo";
   import * as messageRepo from "@/server/repositories/chat/message.repo";
   import { chat_room_source_type } from "@/generated/prisma/client";
+  import { prisma } from "@/server/db/prisma";
 
   // ─────────────────────────────────────────────
   // 타입
@@ -78,24 +79,33 @@
     }
 
     // 4. 채팅방 + 참여자 생성
-    const room = await chatRoomRepo.createRoom({
-      source_type: sourceType,
-      created_by_user_id: requestUserId,
-      source_interest_id: input.sourceInterestId,
-      source_comment_id: input.sourceCommentId,
-      expires_at: expiresAt,
-      participantUserIds: [requestUserId, targetUserId],
-    });
+  const room = await prisma.$transaction(async (tx) => {
+    const newRoom = await chatRoomRepo.createRoom(
+      {
+        source_type: sourceType,
+        created_by_user_id: requestUserId,
+        source_interest_id: input.sourceInterestId,
+        source_comment_id: input.sourceCommentId,
+        expires_at: expiresAt,
+        participantUserIds: [requestUserId, targetUserId],
+      },
+      tx
+    );
 
-    // 시스템 메시지 INSERT
-    await messageRepo.insertMessage({
-      chat_room_id: room.id,
-      sender_user_id: requestUserId,
-      content: "매칭이 성사되었어요! 대화를 시작해보세요 😊",
-      type: "system",
-    });
+    await messageRepo.insertMessage(
+      {
+        chat_room_id: newRoom.id,
+        sender_user_id: requestUserId,
+        content: "매칭이 성사되었어요! 대화를 시작해보세요.",
+        type: "system",
+      },
+      tx
+    );
 
-    return { chatRoomId: room.id };
+    return newRoom;
+  });
+
+  return { chatRoomId: room.id };
   }
 
   // ─────────────────────────────────────────────
