@@ -40,6 +40,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     if (!content || typeof content !== "string" || content.trim() === "") {
         return fail(ERROR.INVALID_CONTENT,  "메시지 내용이 유효하지 않습니다.");
     }
+    if (content.trim().length > 1000) {
+      return fail(ERROR.INVALID_CONTENT, "메시지는 1000자 이하로 입력해주세요.");
+    }
 
     const result = await messageService.sendMessage(roomId, user.id, content.trim());
 
