@@ -257,11 +257,27 @@ async function seedTestUsers() {
   }
 }
 
+async function seedTestInterests() {
+  const userA = await prisma.user.findUnique({ where: { email: "test_a@inje.ac.kr" } });
+  const userB = await prisma.user.findUnique({ where: { email: "test_b@inje.ac.kr" } });
+  if (!userA || !userB) return;
+
+  const existing = await prisma.interest.findFirst({
+    where: { from_user_id: userA.id, to_user_id: userB.id },
+  });
+  if (!existing) {
+    await prisma.interest.create({
+      data: { from_user_id: userA.id, to_user_id: userB.id, status: "accepted" },
+    });
+  }
+}
+
 async function main() {
   await seedCategories();
   await seedFeedKeywords();
   await seedPlaceCategories();
   await seedTestUsers();
+  await seedTestInterests();
 
   console.log("Seed baseline data has been prepared.");
 }
