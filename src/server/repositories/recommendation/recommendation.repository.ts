@@ -149,13 +149,14 @@ export async function passItemInTx(
 export async function getRecentlyRecommendedUserIds(
   userId: number,
   withinDays: number,
+  today: string,
 ): Promise<Set<number>> {
   const rows = await prisma.$queryRaw<{ candidate_user_id: number }[]>`
     SELECT DISTINCT dri.candidate_user_id
     FROM daily_recommendation_items dri
     JOIN daily_recommendations dr ON dr.id = dri.daily_recommendation_id
     WHERE dr.user_id = ${userId}
-      AND dr.recommendation_date >= (CURRENT_DATE - ${withinDays}::int)
+      AND dr.recommendation_date >= (${today}::date - ${withinDays}::int)
   `;
   return new Set(rows.map((r) => r.candidate_user_id));
 }

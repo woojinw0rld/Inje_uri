@@ -52,8 +52,8 @@ export async function getTodayRecommendations(
 
     if (user?.onboarding_completed) {
       await generateRecommendationsForUser(userId, today).catch((e) => {
-  console.error("[recommendation] 즉시 생성 실패:", userId, e);
-});
+        console.error("[recommendation] 즉시 생성 실패:", userId, e);
+      });
       rec = await findTodayRecommendation(userId, today);
     }
 
@@ -85,14 +85,14 @@ export async function getTodayRecommendations(
         profile: isBlocked
           ? null
           : {
-              nickname: c.nickname,
-              age: c.age,
-              department: c.department,
-              student_year: c.student_year,
-              bio: c.bio,
-              primary_image_url: c.primary_image_url,
-              keywords: keywordsMap.get(c.candidate_user_id) ?? [],
-            },
+            nickname: c.nickname,
+            age: c.age,
+            department: c.department,
+            student_year: c.student_year,
+            bio: c.bio,
+            primary_image_url: c.primary_image_url,
+            keywords: keywordsMap.get(c.candidate_user_id) ?? [],
+          },
       };
     }),
   };
@@ -304,7 +304,7 @@ export async function generateRecommendationsForUser(
   let candidates: number[] = [];
 
   for (const step of fallbackSteps) {
-    const recentIds = await getRecentlyRecommendedUserIds(userId, step.recentDays);
+   const recentIds = await getRecentlyRecommendedUserIds(userId, step.recentDays, date);
 
     const excludeIds = new Set([
       userId,
