@@ -1,10 +1,10 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { APP_AUTH_COOKIE_NAME, APP_AUTH_COOKIE_VALUE, isProtectedAppPath } from '@/lib/auth/constants';
+import { SESSION_COOKIE_NAME, isProtectedAppPath } from '@/lib/auth/constants';
 
 export function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
-  const isAuthenticated = request.cookies.get(APP_AUTH_COOKIE_NAME)?.value === APP_AUTH_COOKIE_VALUE;
+  const isAuthenticated = request.cookies.has(SESSION_COOKIE_NAME);
 
   if (!isAuthenticated && isProtectedAppPath(pathname)) {
     const loginUrl = new URL('/', request.url);

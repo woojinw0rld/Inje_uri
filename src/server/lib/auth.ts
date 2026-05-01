@@ -2,14 +2,12 @@ import { createHash, randomBytes } from 'node:crypto';
 import type { NextRequest, NextResponse } from 'next/server';
 import type { AuthSession, User } from '@/generated/prisma/client';
 import {
-  APP_AUTH_COOKIE_MAX_AGE_SECONDS,
   APP_AUTH_COOKIE_NAME,
-  APP_AUTH_COOKIE_VALUE,
   PRE_SIGNUP_COOKIE_MAX_AGE_SECONDS,
   PRE_SIGNUP_COOKIE_NAME,
+  SESSION_COOKIE_NAME,
 } from '@/lib/auth/constants';
 import { ApiError, ERROR } from '@/server/lib/errors';
-import { fail } from '@/server/lib/response';
 import {
   createAuthSession,
   deleteAuthSessionById,
@@ -23,7 +21,7 @@ import {
   prunePreSignupVerifications,
 } from '@/server/repositories/auth/pre-signup.repository';
 
-export const SESSION_COOKIE_NAME = 'injeuri_session';
+export { SESSION_COOKIE_NAME };
 export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 export const SESSION_TOUCH_INTERVAL_SECONDS = 60 * 5;
 
@@ -136,16 +134,6 @@ export function clearSessionCookie(response: NextResponse) {
     path: '/',
     expires: new Date(0),
     maxAge: 0,
-  });
-}
-
-export function attachAppAccessCookie(response: NextResponse) {
-  response.cookies.set(APP_AUTH_COOKIE_NAME, APP_AUTH_COOKIE_VALUE, {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-    path: '/',
-    maxAge: APP_AUTH_COOKIE_MAX_AGE_SECONDS,
   });
 }
 
