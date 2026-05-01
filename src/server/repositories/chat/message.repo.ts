@@ -5,19 +5,19 @@
    * 비즈니스 로직(만료 체크, 권한 판단)은 여기 두지 않는다 —  service 몫.
    */
 
-  import { prisma } from "@/server/db/prisma";
-  import { message_type } from "@/generated/prisma/client";
+import { prisma } from "@/server/db/prisma";
+import { message_type, type Prisma } from "@/generated/prisma/client";   
 
   // ─────────────────────────────────────────────
   // 타입
   // ─────────────────────────────────────────────
 
-  export type InsertMessageInput = {
-    chat_room_id: number;
-    sender_user_id: number;
-    content: string;
-    type?: message_type; // 생략 시 DB default(text)
-  };
+export type InsertMessageInput = {
+  chat_room_id: number;
+  sender_user_id: number;
+  content: string;
+  type?: message_type; // 생략 시 DB default(text)
+};
 
   // ─────────────────────────────────────────────
   // 조회
@@ -32,28 +32,35 @@
    * - soft delete된 메시지(deleted_at IS NOT NULL) 제외
    * - id DESC 정렬 → 클라이언트에서 뒤집어서 표시
    */
-  export async function findMessagesByRoomId(
-    roomId: number,
-    cursor?: number,
-    limit: number = 30
-  ) {
-    return prisma.message.findMany({
-      where: {
-        chat_room_id: roomId,
-        deleted_at: null,
-        ...(cursor !== undefined ? { id: { lt: cursor } } : {}),
-      },
-      orderBy: { id: "desc" },
-      take: limit,
-      select: {
-        id: true,
-        sender_user_id: true,
-        type: true,
-        content: true,
-        created_at: true,
-      },
+export async function findMessagesByRoomId(
+  roomId: number,
+  cursor?: number,
+  limit: number = 30
+) {
+  return prisma.message.findMany({
+    where: {
+      chat_room_id: roomId,
+      deleted_at: null,
+      ...(cursor !== undefined ? { id: { lt: cursor } } : {}),
+    },
+    orderBy: { id: "desc" },
+    take: limit,
+    select: {
+      id: true,
+      sender_user_id: true,
+      type: true,
+      content: true,
+      created_at: true,
+    },
+  });
+}
+export async function findMessageById(messageId: number) {
+    return prisma.message.findUnique({
+      where: { id: messageId },
+      select: { id: true, chat_room_id: true },
     });
-  }
+}
+
 
   // ─────────────────────────────────────────────
   // 생성
@@ -67,14 +74,14 @@
    * 시스템 메시지(채팅방 생성 안내)도 type: "system"으로 이
   함수 사용.
    */
-  export async function insertMessage(input:
-  InsertMessageInput) {
-    return prisma.message.create({
-      data: {
-        chat_room_id: input.chat_room_id,
-        sender_user_id: input.sender_user_id,
-        content: input.content,
-        ...(input.type !== undefined ? { type: input.type } : {}),
-      },
-    });
-  }
+export async function insertMessage(input: InsertMessageInput,  tx?: Prisma.TransactionClient) {
+  const db = tx ?? prisma;
+  return db.message.create({
+    data: {
+      chat_room_id: input.chat_room_id,
+      sender_user_id: input.sender_user_id,
+      content: input.content,
+      ...(input.type !== undefined ? { type: input.type } : {}),
+    },
+  });
+}

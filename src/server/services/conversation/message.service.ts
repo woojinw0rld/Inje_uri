@@ -114,16 +114,21 @@
     userId: number,
     lastReadMessageId: number
   ) {
-    const participant = await
-  participantRepo.findParticipant(roomId, userId);
+    const participant = await participantRepo.findParticipant(roomId, userId);
     if (!participant) return { error: ERROR.FORBIDDEN } as const;
 
+    const message = await messageRepo.findMessageById(lastReadMessageId);
+
+    if (!message || message.chat_room_id !== roomId) {
+      return { error: ERROR.INVALID_CURSOR } as const;
+    }
+
     const currentLastRead = participant.last_read_message_id ?? 0;
+
     if (lastReadMessageId <= currentLastRead) {
       return { success: true }; // 이미 더 앞까지 읽음, 무시
     }
 
-    await participantRepo.updateLastRead(roomId, userId,
-  lastReadMessageId);
+    await participantRepo.updateLastRead(roomId, userId, lastReadMessageId);
     return { success: true };
   }

@@ -130,6 +130,19 @@ const placeCategorySeeds = [
   { code: "bar", name: "Bar" },
   { code: "park", name: "Park" },
   { code: "activity", name: "Activity" },
+  { code: "campus", name: "Campus" },
+];
+
+const campusPlaceSeeds = [
+  { name: "A동", description: "인제대학교 A동", tags: ["a동", "에이동"] },
+  { name: "B동", description: "인제대학교 B동", tags: ["b동", "비동"] },
+  { name: "C동", description: "인제대학교 C동", tags: ["c동", "씨동"] },
+  { name: "D동", description: "인제대학교 D동", tags: ["d동", "디동"] },
+  { name: "E동", description: "인제대학교 E동", tags: ["e동", "이동"] },
+  { name: "F동", description: "인제대학교 F동", tags: ["f동", "에프동"] },
+  { name: "G동", description: "인제대학교 G동", tags: ["g동", "지동"] },
+  { name: "도서관", description: "인제대학교 중앙도서관", tags: ["도서관", "도서", "공부"] },
+  { name: "본관", description: "인제대학교 본관", tags: ["본관", "행정관"] },
 ];
 
 function toKeywordCode(label: string) {
@@ -257,11 +270,89 @@ async function seedTestUsers() {
   }
 }
 
+async function seedTestInterests() {
+  const userA = await prisma.user.findUnique({ where: { email: "test_a@inje.ac.kr" } });
+  const userB = await prisma.user.findUnique({ where: { email: "test_b@inje.ac.kr" } });
+  if (!userA || !userB) return;
+
+  const existing = await prisma.interest.findFirst({
+    where: { from_user_id: userA.id, to_user_id: userB.id },
+  });
+  if (!existing) {
+    await prisma.interest.create({
+      data: { from_user_id: userA.id, to_user_id: userB.id, status: "accepted" },
+    });
+  }
+}
+
+async function seedTestFeedAndComment() {
+  const userB = await prisma.user.findUnique({ where: { email: "test_b@inje.ac.kr" } });
+  const userA = await prisma.user.findUnique({ where: { email: "test_a@inje.ac.kr" } });
+  if (!userA || !userB) return;
+
+  const existingFeed = await prisma.selfDateFeed.findFirst({
+    where: { author_user_id: userB.id },
+  });
+
+  const feed = existingFeed ?? await prisma.selfDateFeed.create({
+    data: {
+      author_user_id: userB.id,
+      text: "테스트 피드입니다",
+      expires_at: new Date(Date.now() + 1000 * 60 * 60 * 24),
+    },
+  });
+
+  const existingComment = await prisma.feedComment.findFirst({
+    where: { feed_id: feed.id, commenter_user_id: userA.id },
+  });
+
+  if (!existingComment) {
+    await prisma.feedComment.create({
+      data: {
+        feed_id: feed.id,
+        commenter_user_id: userA.id,
+        content: "테스트 댓글입니다",
+      },
+    });
+  }
+}
+
+async function seedCampusPlaces() {
+  const category = await prisma.placeCategory.findUnique({ where: { code: "campus" } });
+  if (!category) return;
+
+  for (const seed of campusPlaceSeeds) {
+    const existing = await prisma.place.findFirst({
+      where: { category_id: category.id, name: seed.name },
+    });
+
+    const place = existing ?? await prisma.place.create({
+      data: {
+        category_id: category.id,
+        name: seed.name,
+        address: `경남 김해시 인제로 197 인제대학교 ${seed.name}`,
+        description: seed.description,
+      },
+    });
+
+    for (const tag of seed.tags) {
+      await prisma.placeTag.upsert({
+        where: { place_id_tag: { place_id: place.id, tag } },
+        update: {},
+        create: { place_id: place.id, tag },
+      });
+    }
+  }
+}
+
 async function main() {
   await seedCategories();
   await seedFeedKeywords();
   await seedPlaceCategories();
   await seedTestUsers();
+  await seedTestInterests();
+  await seedTestFeedAndComment();
+  await seedCampusPlaces();
 
   console.log("Seed baseline data has been prepared.");
 }
