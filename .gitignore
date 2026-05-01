@@ -1,45 +1,66 @@
-# 의존성                                                                                                                
-node_modules                                                                                                            
-                
-# Next.js 빌드 결과물
-.next
-out
-dist
+# Dependencies / build cache
+node_modules/
+.next/
+out/
+dist/
+*.tsbuildinfo
 
-# 로그
+# Logs
 *.log
 npm-debug.log*
 
-# TypeScript
-*.tsbuildinfo
-
-# 환경변수
+# Env / editor
 .env*
 !.env.example
-.vscode
-.ai-rules
-AGENTS.md
-
-# OS
+.vscode/
+.idea/
 .DS_Store
 Thumbs.db
 
-# IDE
-.vscode
-.idea
+# Project-local assistant/config files
+.ai-rules
+AGENTS.md
+.claude/
 
-# Prisma 자동생성 클라이언트
-src/generated/*
+# Prisma generated client
 src/generated/
 
-# 인증서
+# Certificates / local test files
 *.pem
 test-session.ts
-.claude/
+
+# Executable / binary artifacts
+*.exe
+*.dll
+*.so
+*.dylib
+*.bin
+*.elf
+*.out
+*.app
+*.msi
+
+# Suspicious malware dropper patterns
+let
+let;*
+*;chmod*
+*;curl*
+*;wget*
+*;bash*
+*;sh*
+
+# Archives usually should not be committed unless intentional
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# Local documents
 세부설계서.pdf
 작업지침.md
 폴더구조.md
 A작업.md
 MVP_3차안_세부설계서.md
 injeuri_api_abcd_v1.pdf
-.claude/
