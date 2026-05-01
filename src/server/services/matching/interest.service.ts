@@ -55,13 +55,17 @@ export async function acceptInterest(
 ): Promise<AcceptInterestResponse> {
   const interest = await findInterestById(interestId);
 
-  if (
+    if (
     !interest ||
     interest.to_user_id !== userId ||
     interest.matched_at !== null ||
     interest.declined_at !== null
   ) {
     throw new ApiError(ERROR.INVALID_INTEREST, "유효하지 않은 호감입니다.");
+  }
+
+  if (interest.expires_at !== null && interest.expires_at < new Date()) {
+    throw new ApiError(ERROR.INTEREST_EXPIRED, "만료된 호감은 수락할 수 없습니다.");
   }
 
   const fromUserId = interest.from_user_id;
