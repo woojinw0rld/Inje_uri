@@ -36,6 +36,7 @@ export async function findPendingInterest(
       AND to_user_id = ${toUserId}
       AND matched_at IS NULL
       AND declined_at IS NULL
+      AND (expires_at IS NULL OR expires_at > NOW())
     LIMIT 1
   `;
   return rows[0] ?? null;
@@ -54,6 +55,7 @@ export async function findReversePendingInterest(
       AND to_user_id = ${toUserId}
       AND matched_at IS NULL
       AND declined_at IS NULL
+      AND (expires_at IS NULL OR expires_at > NOW())
     LIMIT 1
   `;
   return rows[0] ?? null;
@@ -79,6 +81,7 @@ export async function findReceivedInterestsWithProfile(
     WHERE i.to_user_id = ${userId}
       AND i.matched_at IS NULL
       AND i.declined_at IS NULL
+      AND (i.expires_at IS NULL OR i.expires_at > NOW())
       AND i.from_user_id NOT IN (${Prisma.join(excludeArray)})
     ORDER BY i.created_at DESC
   `;
