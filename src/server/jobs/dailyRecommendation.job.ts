@@ -71,7 +71,8 @@ export async function runDailyRecommendationJobIfNeeded(): Promise<void> {
         try {
           await generateRecommendationsForUser(user.id, today);
           success++;
-        } catch {
+         } catch (e) {
+          console.error("[dailyRecommendation.job] 유저 추천 생성 실패:", user.id, e);
           failed++;
         }
       }

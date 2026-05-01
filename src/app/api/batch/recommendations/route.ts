@@ -48,7 +48,8 @@ export async function POST(req: NextRequest) {
       try {
         await generateRecommendationsForUser(user.id, today);
         success++;
-      } catch {
+      } catch (e) {
+        console.error("[POST /api/batch/recommendations] 유저 추천 생성 실패:", user.id, e);
         failed++;
       }
     }

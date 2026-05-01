@@ -51,7 +51,9 @@ export async function getTodayRecommendations(
     });
 
     if (user?.onboarding_completed) {
-      await generateRecommendationsForUser(userId, today).catch(() => {});
+      await generateRecommendationsForUser(userId, today).catch((e) => {
+  console.error("[recommendation] 즉시 생성 실패:", userId, e);
+});
       rec = await findTodayRecommendation(userId, today);
     }
 
