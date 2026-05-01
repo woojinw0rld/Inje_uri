@@ -188,28 +188,31 @@ export async function createDailyRecommendation(
   today: string,
   candidateIds: number[],
 ): Promise<number> {
-  const recRows = await prisma.$queryRaw<{ id: number }[]>`
-    INSERT INTO daily_recommendations (user_id, recommendation_date, generated_at)
-    VALUES (${userId}, ${today}::date, NOW())
-    ON CONFLICT (user_id, recommendation_date) DO NOTHING
-    RETURNING id
-  `;
-
-  if (recRows.length === 0) {
-    const existing = await findTodayRecommendation(userId, today);
-    if (!existing) throw new Error("추천 생성 실패");
-    return existing.id;
-  }
-
-  const recId = recRows[0].id;
-
-  for (let i = 0; i < candidateIds.length; i++) {
-    await prisma.$executeRaw`
-      INSERT INTO daily_recommendation_items
-        (daily_recommendation_id, candidate_user_id, rank_order)
-      VALUES (${recId}, ${candidateIds[i]}, ${i + 1})
+  return prisma.$transaction(async (tx) => {
+    const recRows = await tx.$queryRaw<{ id: number }[]>`
+      INSERT INTO daily_recommendations (user_id, recommendation_date, generated_at)
+      VALUES (${userId}, ${today}::date, NOW())
+      ON CONFLICT (user_id, recommendation_date) DO NOTHING
+      RETURNING id
     `;
-  }
 
-  return recId;
+    if (recRows.length === 0) {
+      const existing = await findTodayRecommendation(userId, today);
+      if (!existing) throw new Error("추천 생성 실패");
+      return existing.id;
+    }
+
+    const recId = recRows[0].id;
+
+    for (let i = 0; i < candidateIds.length; i++) {
+      await tx.$executeRaw`
+        INSERT INTO daily_recommendation_items
+          (daily_recommendation_id, candidate_user_id, rank_order)
+        VALUES (${recId}, ${candidateIds[i]}, ${i + 1})
+      `;
+    }
+
+    return recId;
+  });
 }
+
