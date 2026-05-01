@@ -164,6 +164,11 @@ export async function register(input: RegisterInput, preSignupToken: string | nu
     throw new ApiError(ERROR.CONFLICT, '이미 가입된 학번입니다. 로그인해주세요.');
   }
 
+  const inputBirthHash = hashBirth(input.birth);
+  if (preSignup.birthHash !== inputBirthHash) {
+    throw new ApiError(ERROR.INVALID_VERIFICATION, '인증 정보와 생년월일이 일치하지 않습니다.');
+  }
+
   const passwordHash = await bcrypt.hash(input.password, 10);
   await createUser({
     login_id: input.loginId,
@@ -172,7 +177,7 @@ export async function register(input: RegisterInput, preSignupToken: string | nu
     email: input.email,
     password_hash: passwordHash,
     birth: input.birth,
-    birth_hash: hashBirth(input.birth),
+    birth_hash: inputBirthHash,
     nickname: input.nickname,
     gender: input.gender,
     university: input.university,

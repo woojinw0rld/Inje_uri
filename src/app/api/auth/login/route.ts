@@ -1,6 +1,6 @@
 import {
-  attachAppAccessCookie,
   attachSessionCookie,
+  clearAppAccessCookie,
 } from '@/server/lib/auth';
 import { ApiError, ERROR } from '@/server/lib/errors';
 import { ok, fail } from '@/server/lib/response';
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
     });
 
     attachSessionCookie(response, result.token, result.expiresAt);
-    attachAppAccessCookie(response);
+    clearAppAccessCookie(response);
     return response;
   } catch (error) {
     if (error instanceof ApiError) {

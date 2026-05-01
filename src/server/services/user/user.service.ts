@@ -6,6 +6,7 @@ import {
   replaceUserKeywordSelections,
 } from '@/server/repositories/user/keyword-selection.repository';
 import {
+  findUserById,
   findUserByNickname,
   findUserProfileById,
   type UserUpdateData,
@@ -97,6 +98,17 @@ function groupSelectionsByCategory(
   }
 
   return Array.from(grouped.values()).sort((left, right) => left.categoryId - right.categoryId);
+}
+
+function getKSTDateString(): string {
+  const now = new Date();
+  const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  return kst.toISOString().split('T')[0];
+}
+
+async function generateTodayRecommendationsAfterOnboarding(userId: number) {
+  const { generateRecommendationsForUser } = await import('@/server/services/matching/recommendation.service');
+  await generateRecommendationsForUser(userId, getKSTDateString());
 }
 
 async function normalizeKeywordSelections(rawValue: unknown) {
@@ -215,6 +227,7 @@ export async function getCurrentUserProfile(userId: number) {
 export async function updateCurrentUserProfile(userId: number, body: UserPatchBody) {
   const updateData: UserUpdateData = {};
   const profile = body.profile ?? {};
+  let shouldGenerateTodayRecommendations = false;
 
   if (profile.nickname !== undefined) {
     const nickname = toOptionalString(profile.nickname);
@@ -310,6 +323,14 @@ export async function updateCurrentUserProfile(userId: number, body: UserPatchBo
       throw new ApiError(ERROR.VALIDATION_ERROR, 'onboardingCompleted 형식을 확인해주세요.');
     }
 
+    if (profile.onboardingCompleted) {
+      const currentUser = await findUserById(userId);
+      if (!currentUser) {
+        throw new ApiError(ERROR.NOT_FOUND, '사용자 정보를 찾을 수 없습니다.');
+      }
+      shouldGenerateTodayRecommendations = !currentUser.onboarding_completed;
+    }
+
     updateData.onboarding_completed = profile.onboardingCompleted;
   }
 
@@ -328,6 +349,12 @@ export async function updateCurrentUserProfile(userId: number, body: UserPatchBo
     ));
 
     await replaceUserKeywordSelections(userId, rows);
+  }
+
+  if (shouldGenerateTodayRecommendations) {
+    await generateTodayRecommendationsAfterOnboarding(userId).catch((error) => {
+      console.error('[PATCH /api/users/me onboarding recommendations]', error);
+    });
   }
 
   return getCurrentUserProfile(userId);

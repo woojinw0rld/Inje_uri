@@ -1,9 +1,8 @@
 ﻿export const BUS_LOGIN_ENDPOINT = 'https://bus.inje.ac.kr/app/api.php?ctrl=Member&action=Login&lang=1';
 export const BUS_INJE_CHECK_ENDPOINT = 'https://bus.inje.ac.kr/app/api.php?ctrl=Member&action=InjeCheck';
 
+export const SESSION_COOKIE_NAME = 'injeuri_session';
 export const APP_AUTH_COOKIE_NAME = 'injeuri_bus_auth';
-export const APP_AUTH_COOKIE_VALUE = '1';
-export const APP_AUTH_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 12;
 export const PRE_SIGNUP_COOKIE_NAME = 'injeuri_pre_signup';
 export const PRE_SIGNUP_COOKIE_MAX_AGE_SECONDS = 60 * 10;
 export const PRE_AUTH_CREDENTIALS_STORAGE_KEY = 'injeuri_pre_auth_credentials';
