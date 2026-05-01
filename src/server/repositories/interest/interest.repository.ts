@@ -131,15 +131,17 @@ export async function declineInterestById(
 export async function confirmMatch(
   interestId1: number,
   interestId2: number,
+  matchTransaction?: Prisma.TransactionClient,
 ): Promise<void> {
-  await prisma.$executeRaw`
+  const db = matchTransaction ?? prisma;
+  await db.$executeRaw`
     UPDATE interests
     SET matched_at = NOW(), status = 'accepted'
     WHERE id IN (${interestId1}, ${interestId2})
   `;
 }
 
-/** 매칭 롤백: 양쪽 Interest를 pending으로 복원 */
+/** 매칭 롤백: 양쪽 Interest를 pending으로 복원 - 트랜잭션으로 묶었기에  실패시 DB가 자동 롤백 ( 삭제 권장 ) */
 export async function rollbackMatch(
   interestId1: number,
   interestId2: number,

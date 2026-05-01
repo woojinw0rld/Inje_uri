@@ -50,8 +50,25 @@ export async function checkAndCreateMatch(
   const sourceInterestId =
     reverseInterest.created_at <= myCreatedAt ? reverseInterest.id : myInterestId;
 
-  // 양쪽 Interest matched_at 업데이트
-  await confirmMatch(myInterestId, reverseInterest.id);
+  // 양쪽 Interest matched_at 업데이트 + C파트 chatRoomService 직접 호출을 트랜잭션으로 묶음
+  const chatRoomId = await prisma.$transaction(async (matchTransaction) => {
+    // 양쪽 Interest matched_at 업데이트
+    await confirmMatch(myInterestId, reverseInterest.id, matchTransaction);
+
+    // C파트 chatRoomService 직접 호출 (네트워크/인증 우회 없음)
+    const result = await chatRoomService.createChatRoom({
+      requestUserId: myUserId,
+      targetUserId,
+      sourceType: "interest",
+      sourceInterestId,
+    }, matchTransaction);
+
+    if ("error" in result) {
+      throw new Error(result.error);
+    }
+
+    return result.chatRoomId;
+  });
 
   // 매칭된 두 유저의 오늘 추천 목록에서 서로를 passed_at 처리
   const today = getKSTDateString();
@@ -60,18 +77,5 @@ export async function checkAndCreateMatch(
     passMatchedCandidateItem(targetUserId, myUserId, today),
   ]);
 
-  // C파트 chatRoomService 직접 호출 (네트워크/인증 우회 없음)
-  const result = await chatRoomService.createChatRoom({
-    requestUserId: myUserId,
-    targetUserId,
-    sourceType: "interest",
-    sourceInterestId,
-  });
-
-  if ("error" in result) {
-    console.warn("[matching.service] 채팅방 생성 실패, 매칭은 유지됨:", result.error);
-    return { matched: true, chat_room_id: null };
-  }
-
-  return { matched: true, chat_room_id: result.chatRoomId };
+  return { matched: true, chat_room_id: chatRoomId };
 }

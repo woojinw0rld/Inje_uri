@@ -7,6 +7,7 @@
    */             
 
   import { prisma } from "@/server/db/prisma";
+  import { Prisma } from "@/generated/prisma/client";
   import { chat_room_status, chat_room_source_type } from "@/generated/prisma/client";                                           
 
   // ─────────────────────────────────────────────
@@ -130,9 +131,11 @@
    */
   export async function findActiveRoomBetweenUsers(
     userIdA: number,
-    userIdB: number
+    userIdB: number,
+    matchTransaction?: Prisma.TransactionClient,
   ) {
-    return prisma.chatRoom.findFirst({
+    const db = matchTransaction ?? prisma;
+    return db.chatRoom.findFirst({
       where: {
         status: "active",
         AND: [
@@ -154,9 +157,11 @@
    */
   export async function findLastLeftRoomBetweenUsers(
     userIdA: number,
-    userIdB: number
+    userIdB: number,
+    matchTransaction?: Prisma.TransactionClient,
   ) {
-    return prisma.chatRoom.findFirst({
+    const db = matchTransaction ?? prisma;
+    return db.chatRoom.findFirst({
       where: {
         AND: [
           { participants: { some: { user_id: userIdA } } }, //A가 이방 참여
@@ -192,8 +197,12 @@
    * 단일 트랜잭션으로 처리한다.
    * 중간 실패 시 롤백되어 방만 생성된 채로 남는 상황 방지.
    */
-  export async function createRoom(input: CreateChatRoomInput) {
-    return prisma.chatRoom.create({
+  export async function createRoom(
+    input: CreateChatRoomInput,
+    matchTransaction?: Prisma.TransactionClient,)
+    {
+    const db = matchTransaction ?? prisma;
+    return db.chatRoom.create({
       data: {
         source_type: input.source_type,
         created_by_user_id: input.created_by_user_id,
