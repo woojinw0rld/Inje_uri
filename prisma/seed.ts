@@ -130,6 +130,19 @@ const placeCategorySeeds = [
   { code: "bar", name: "Bar" },
   { code: "park", name: "Park" },
   { code: "activity", name: "Activity" },
+  { code: "campus", name: "Campus" },
+];
+
+const campusPlaceSeeds = [
+  { name: "A동", description: "인제대학교 A동", tags: ["a동", "에이동"] },
+  { name: "B동", description: "인제대학교 B동", tags: ["b동", "비동"] },
+  { name: "C동", description: "인제대학교 C동", tags: ["c동", "씨동"] },
+  { name: "D동", description: "인제대학교 D동", tags: ["d동", "디동"] },
+  { name: "E동", description: "인제대학교 E동", tags: ["e동", "이동"] },
+  { name: "F동", description: "인제대학교 F동", tags: ["f동", "에프동"] },
+  { name: "G동", description: "인제대학교 G동", tags: ["g동", "지동"] },
+  { name: "도서관", description: "인제대학교 중앙도서관", tags: ["도서관", "도서", "공부"] },
+  { name: "본관", description: "인제대학교 본관", tags: ["본관", "행정관"] },
 ];
 
 function toKeywordCode(label: string) {
@@ -304,6 +317,34 @@ async function seedTestFeedAndComment() {
   }
 }
 
+async function seedCampusPlaces() {
+  const category = await prisma.placeCategory.findUnique({ where: { code: "campus" } });
+  if (!category) return;
+
+  for (const seed of campusPlaceSeeds) {
+    const existing = await prisma.place.findFirst({
+      where: { category_id: category.id, name: seed.name },
+    });
+
+    const place = existing ?? await prisma.place.create({
+      data: {
+        category_id: category.id,
+        name: seed.name,
+        address: `경남 김해시 인제로 197 인제대학교 ${seed.name}`,
+        description: seed.description,
+      },
+    });
+
+    for (const tag of seed.tags) {
+      await prisma.placeTag.upsert({
+        where: { place_id_tag: { place_id: place.id, tag } },
+        update: {},
+        create: { place_id: place.id, tag },
+      });
+    }
+  }
+}
+
 async function main() {
   await seedCategories();
   await seedFeedKeywords();
@@ -311,6 +352,7 @@ async function main() {
   await seedTestUsers();
   await seedTestInterests();
   await seedTestFeedAndComment();
+  await seedCampusPlaces();
 
   console.log("Seed baseline data has been prepared.");
 }
