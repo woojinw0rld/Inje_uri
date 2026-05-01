@@ -221,7 +221,7 @@ export type SelfDateFeedGroupByOutputType = {
   _max: SelfDateFeedMaxAggregateOutputType | null
 }
 
-type GetSelfDateFeedGroupByPayload<T extends SelfDateFeedGroupByArgs> = Prisma.PrismaPromise<
+export type GetSelfDateFeedGroupByPayload<T extends SelfDateFeedGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<SelfDateFeedGroupByOutputType, T['by']> &
       {
@@ -1741,6 +1741,11 @@ export type SelfDateFeedFindManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * Skip the first `n` SelfDateFeeds.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of SelfDateFeeds.
+   */
   distinct?: Prisma.SelfDateFeedScalarFieldEnum | Prisma.SelfDateFeedScalarFieldEnum[]
 }
 

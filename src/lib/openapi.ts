@@ -18,6 +18,7 @@
       { name: "댓글", description: "피드 댓글 조회, 작성, 댓글 선택 채팅 생성" },
       { name: "차단", description: "사용자 차단, 전화번호 차단, 차단 목록/해제" },
       { name: "신고", description: "사용자/피드/댓글/채팅방/메시지 신고" },
+      { name: "장소 추천", description: "장소 목록 조회, 추천 생성/조회/상태 업데이트" },
     ],
     paths: {
       "/api/recommendations/today": {
@@ -774,6 +775,100 @@
         },
       },
 
+      "/api/places": {
+        get: {
+          tags: ["장소 추천"],
+          summary: "장소 목록 조회",
+          description: "카테고리 또는 태그 필터로 장소 목록 반환. 파라미터 없으면 전체 반환 (이제우리 트리거용).",
+          parameters: [
+            { name: "category", in: "query", schema: { type: "string", example: "campus" }, description: "카테고리 코드 필터" },
+            { name: "tag", in: "query", schema: { type: "string", example: "도서관" }, description: "태그 키워드 필터" },
+          ],
+          responses: {
+            "200": {
+              description: "장소 목록 반환",
+              content: { "application/json": { schema: { $ref: "#/components/schemas/PlaceListResponse" } } },
+            },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
+      "/api/chat-room/{id}/place-suggestions": {
+        get: {
+          tags: ["장소 추천"],
+          summary: "채팅방 장소 추천 목록 조회",
+          parameters: [{ $ref: "#/components/parameters/ChatRoomId" }],
+          responses: {
+            "200": {
+              description: "추천 목록 반환",
+              content: { "application/json": { schema: { $ref: "#/components/schemas/PlaceSuggestionListResponse" } } },
+            },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+        post: {
+          tags: ["장소 추천"],
+          summary: "장소 추천 생성",
+          description: "클라이언트가 장소를 선택하면 채팅방에 추천 카드 생성",
+          parameters: [{ $ref: "#/components/parameters/ChatRoomId" }],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["placeId"],
+                  properties: {
+                    placeId: { type: "integer", example: 1 },
+                    triggeredKeyword: { type: "string", nullable: true, example: "도서관" },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            "201": {
+              description: "추천 생성 성공",
+              content: { "application/json": { schema: { $ref: "#/components/schemas/CreatePlaceSuggestionResponse" } } },
+            },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
+      "/api/chat-room/{id}/place-suggestions/{suggestionId}": {
+        patch: {
+          tags: ["장소 추천"],
+          summary: "추천 상태 업데이트 (수락/거절)",
+          parameters: [
+            { $ref: "#/components/parameters/ChatRoomId" },
+            { $ref: "#/components/parameters/SuggestionId" },
+          ],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["status"],
+                  properties: {
+                    status: { type: "string", enum: ["accepted", "dismissed"], example: "accepted" },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            "200": {
+              description: "상태 업데이트 성공",
+              content: { "application/json": { schema: { $ref: "#/components/schemas/UpdatePlaceSuggestionResponse" } } },
+            },
+            "400": { $ref: "#/components/responses/BadRequest" },
+          },
+        },
+      },
+
       "/api/reports": {
         post: {
           tags: ["신고"],
@@ -840,6 +935,13 @@
           required: true,
           schema: { type: "integer" },
           description: "호감 ID",
+        },
+        SuggestionId: {
+          name: "suggestionId",
+          in: "path",
+          required: true,
+          schema: { type: "integer" },
+          description: "장소 추천 ID",
         },
       },
       schemas: {
@@ -1221,6 +1323,74 @@
         CreateReportResponse: {
           type: "object",
           properties: { success: { type: "boolean", example: true }, data: { type: "object", properties: { reportId: { type: "integer", example: 1 } } } },
+        },
+        PlaceTag: {
+          type: "object",
+          properties: {
+            id: { type: "integer" },
+            tag: { type: "string", example: "도서관" },
+          },
+        },
+        PlaceCategory: {
+          type: "object",
+          properties: {
+            id: { type: "integer" },
+            code: { type: "string", example: "campus" },
+            name: { type: "string", example: "Campus" },
+          },
+        },
+        Place: {
+          type: "object",
+          properties: {
+            id: { type: "integer", example: 1 },
+            name: { type: "string", example: "도서관" },
+            address: { type: "string", example: "경남 김해시 인제로 197 인제대학교 도서관" },
+            description: { type: "string", nullable: true, example: "인제대학교 중앙도서관" },
+            image_url: { type: "string", nullable: true, example: null },
+            is_active: { type: "boolean", example: true },
+            category: { $ref: "#/components/schemas/PlaceCategory" },
+            tags: { type: "array", items: { $ref: "#/components/schemas/PlaceTag" } },
+          },
+        },
+        PlaceSuggestion: {
+          type: "object",
+          properties: {
+            id: { type: "integer", example: 1 },
+            chat_room_id: { type: "integer", example: 5 },
+            place_id: { type: "integer", example: 1 },
+            triggered_keyword: { type: "string", nullable: true, example: "도서관" },
+            status: { type: "string", enum: ["pending", "accepted", "dismissed"], example: "pending" },
+            suggested_at: { type: "string", format: "date-time" },
+            place: { $ref: "#/components/schemas/Place" },
+          },
+        },
+        PlaceListResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: { type: "object", properties: { places: { type: "array", items: { $ref: "#/components/schemas/Place" } } } },
+          },
+        },
+        PlaceSuggestionListResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: { type: "object", properties: { suggestions: { type: "array", items: { $ref: "#/components/schemas/PlaceSuggestion" } } } },
+          },
+        },
+        CreatePlaceSuggestionResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: { type: "object", properties: { suggestion: { $ref: "#/components/schemas/PlaceSuggestion" } } },
+          },
+        },
+        UpdatePlaceSuggestionResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            data: { type: "object", properties: { suggestion: { $ref: "#/components/schemas/PlaceSuggestion" } } },
+          },
         },
       },
       responses: {

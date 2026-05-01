@@ -204,7 +204,7 @@ export type DailyRecommendationItemGroupByOutputType = {
   _max: DailyRecommendationItemMaxAggregateOutputType | null
 }
 
-type GetDailyRecommendationItemGroupByPayload<T extends DailyRecommendationItemGroupByArgs> = Prisma.PrismaPromise<
+export type GetDailyRecommendationItemGroupByPayload<T extends DailyRecommendationItemGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<DailyRecommendationItemGroupByOutputType, T['by']> &
       {
@@ -1309,6 +1309,11 @@ export type DailyRecommendationItemFindManyArgs<ExtArgs extends runtime.Types.Ex
    * Skip the first `n` DailyRecommendationItems.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of DailyRecommendationItems.
+   */
   distinct?: Prisma.DailyRecommendationItemScalarFieldEnum | Prisma.DailyRecommendationItemScalarFieldEnum[]
 }
 

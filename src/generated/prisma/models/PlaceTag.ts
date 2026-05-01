@@ -182,7 +182,7 @@ export type PlaceTagGroupByOutputType = {
   _max: PlaceTagMaxAggregateOutputType | null
 }
 
-type GetPlaceTagGroupByPayload<T extends PlaceTagGroupByArgs> = Prisma.PrismaPromise<
+export type GetPlaceTagGroupByPayload<T extends PlaceTagGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<PlaceTagGroupByOutputType, T['by']> &
       {
@@ -1103,6 +1103,11 @@ export type PlaceTagFindManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Skip the first `n` PlaceTags.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of PlaceTags.
+   */
   distinct?: Prisma.PlaceTagScalarFieldEnum | Prisma.PlaceTagScalarFieldEnum[]
 }
 

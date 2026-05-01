@@ -200,7 +200,7 @@ export type UserProfileImageGroupByOutputType = {
   _max: UserProfileImageMaxAggregateOutputType | null
 }
 
-type GetUserProfileImageGroupByPayload<T extends UserProfileImageGroupByArgs> = Prisma.PrismaPromise<
+export type GetUserProfileImageGroupByPayload<T extends UserProfileImageGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<UserProfileImageGroupByOutputType, T['by']> &
       {
@@ -1179,6 +1179,11 @@ export type UserProfileImageFindManyArgs<ExtArgs extends runtime.Types.Extension
    * Skip the first `n` UserProfileImages.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of UserProfileImages.
+   */
   distinct?: Prisma.UserProfileImageScalarFieldEnum | Prisma.UserProfileImageScalarFieldEnum[]
 }
 

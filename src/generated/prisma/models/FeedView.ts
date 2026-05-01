@@ -193,7 +193,7 @@ export type FeedViewGroupByOutputType = {
   _max: FeedViewMaxAggregateOutputType | null
 }
 
-type GetFeedViewGroupByPayload<T extends FeedViewGroupByArgs> = Prisma.PrismaPromise<
+export type GetFeedViewGroupByPayload<T extends FeedViewGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<FeedViewGroupByOutputType, T['by']> &
       {
@@ -1256,6 +1256,11 @@ export type FeedViewFindManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Skip the first `n` FeedViews.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of FeedViews.
+   */
   distinct?: Prisma.FeedViewScalarFieldEnum | Prisma.FeedViewScalarFieldEnum[]
 }
 

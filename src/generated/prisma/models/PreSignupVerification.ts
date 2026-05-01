@@ -158,7 +158,7 @@ export type PreSignupVerificationGroupByOutputType = {
   _max: PreSignupVerificationMaxAggregateOutputType | null
 }
 
-type GetPreSignupVerificationGroupByPayload<T extends PreSignupVerificationGroupByArgs> = Prisma.PrismaPromise<
+export type GetPreSignupVerificationGroupByPayload<T extends PreSignupVerificationGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<PreSignupVerificationGroupByOutputType, T['by']> &
       {
@@ -954,6 +954,11 @@ export type PreSignupVerificationFindManyArgs<ExtArgs extends runtime.Types.Exte
    * Skip the first `n` PreSignupVerifications.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of PreSignupVerifications.
+   */
   distinct?: Prisma.PreSignupVerificationScalarFieldEnum | Prisma.PreSignupVerificationScalarFieldEnum[]
 }
 

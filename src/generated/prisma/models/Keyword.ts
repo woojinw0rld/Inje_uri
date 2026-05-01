@@ -200,7 +200,7 @@ export type KeywordGroupByOutputType = {
   _max: KeywordMaxAggregateOutputType | null
 }
 
-type GetKeywordGroupByPayload<T extends KeywordGroupByArgs> = Prisma.PrismaPromise<
+export type GetKeywordGroupByPayload<T extends KeywordGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<KeywordGroupByOutputType, T['by']> &
       {
@@ -1290,6 +1290,11 @@ export type KeywordFindManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Skip the first `n` Keywords.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Keywords.
+   */
   distinct?: Prisma.KeywordScalarFieldEnum | Prisma.KeywordScalarFieldEnum[]
 }
 

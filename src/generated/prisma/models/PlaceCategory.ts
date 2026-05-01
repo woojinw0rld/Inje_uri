@@ -178,7 +178,7 @@ export type PlaceCategoryGroupByOutputType = {
   _max: PlaceCategoryMaxAggregateOutputType | null
 }
 
-type GetPlaceCategoryGroupByPayload<T extends PlaceCategoryGroupByArgs> = Prisma.PrismaPromise<
+export type GetPlaceCategoryGroupByPayload<T extends PlaceCategoryGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<PlaceCategoryGroupByOutputType, T['by']> &
       {
@@ -1063,6 +1063,11 @@ export type PlaceCategoryFindManyArgs<ExtArgs extends runtime.Types.Extensions.I
    * Skip the first `n` PlaceCategories.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of PlaceCategories.
+   */
   distinct?: Prisma.PlaceCategoryScalarFieldEnum | Prisma.PlaceCategoryScalarFieldEnum[]
 }
 

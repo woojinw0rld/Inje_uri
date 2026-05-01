@@ -197,7 +197,7 @@ export type UserKeywordSelectionGroupByOutputType = {
   _max: UserKeywordSelectionMaxAggregateOutputType | null
 }
 
-type GetUserKeywordSelectionGroupByPayload<T extends UserKeywordSelectionGroupByArgs> = Prisma.PrismaPromise<
+export type GetUserKeywordSelectionGroupByPayload<T extends UserKeywordSelectionGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<UserKeywordSelectionGroupByOutputType, T['by']> &
       {
@@ -1375,6 +1375,11 @@ export type UserKeywordSelectionFindManyArgs<ExtArgs extends runtime.Types.Exten
    * Skip the first `n` UserKeywordSelections.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of UserKeywordSelections.
+   */
   distinct?: Prisma.UserKeywordSelectionScalarFieldEnum | Prisma.UserKeywordSelectionScalarFieldEnum[]
 }
 

@@ -199,7 +199,7 @@ export type InternalJobRunGroupByOutputType = {
   _max: InternalJobRunMaxAggregateOutputType | null
 }
 
-type GetInternalJobRunGroupByPayload<T extends InternalJobRunGroupByArgs> = Prisma.PrismaPromise<
+export type GetInternalJobRunGroupByPayload<T extends InternalJobRunGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<InternalJobRunGroupByOutputType, T['by']> &
       {
@@ -1027,6 +1027,11 @@ export type InternalJobRunFindManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Skip the first `n` InternalJobRuns.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of InternalJobRuns.
+   */
   distinct?: Prisma.InternalJobRunScalarFieldEnum | Prisma.InternalJobRunScalarFieldEnum[]
 }
 

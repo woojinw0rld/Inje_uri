@@ -210,7 +210,7 @@ export type EmailVerificationGroupByOutputType = {
   _max: EmailVerificationMaxAggregateOutputType | null
 }
 
-type GetEmailVerificationGroupByPayload<T extends EmailVerificationGroupByArgs> = Prisma.PrismaPromise<
+export type GetEmailVerificationGroupByPayload<T extends EmailVerificationGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<EmailVerificationGroupByOutputType, T['by']> &
       {
@@ -1241,6 +1241,11 @@ export type EmailVerificationFindManyArgs<ExtArgs extends runtime.Types.Extensio
    * Skip the first `n` EmailVerifications.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of EmailVerifications.
+   */
   distinct?: Prisma.EmailVerificationScalarFieldEnum | Prisma.EmailVerificationScalarFieldEnum[]
 }
 

@@ -196,7 +196,7 @@ export type FeedKeywordGroupByOutputType = {
   _max: FeedKeywordMaxAggregateOutputType | null
 }
 
-type GetFeedKeywordGroupByPayload<T extends FeedKeywordGroupByArgs> = Prisma.PrismaPromise<
+export type GetFeedKeywordGroupByPayload<T extends FeedKeywordGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<FeedKeywordGroupByOutputType, T['by']> &
       {
@@ -1133,6 +1133,11 @@ export type FeedKeywordFindManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Skip the first `n` FeedKeywords.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of FeedKeywords.
+   */
   distinct?: Prisma.FeedKeywordScalarFieldEnum | Prisma.FeedKeywordScalarFieldEnum[]
 }
 

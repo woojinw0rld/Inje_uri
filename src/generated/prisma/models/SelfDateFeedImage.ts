@@ -193,7 +193,7 @@ export type SelfDateFeedImageGroupByOutputType = {
   _max: SelfDateFeedImageMaxAggregateOutputType | null
 }
 
-type GetSelfDateFeedImageGroupByPayload<T extends SelfDateFeedImageGroupByArgs> = Prisma.PrismaPromise<
+export type GetSelfDateFeedImageGroupByPayload<T extends SelfDateFeedImageGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<SelfDateFeedImageGroupByOutputType, T['by']> &
       {
@@ -1144,6 +1144,11 @@ export type SelfDateFeedImageFindManyArgs<ExtArgs extends runtime.Types.Extensio
    * Skip the first `n` SelfDateFeedImages.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of SelfDateFeedImages.
+   */
   distinct?: Prisma.SelfDateFeedImageScalarFieldEnum | Prisma.SelfDateFeedImageScalarFieldEnum[]
 }
 

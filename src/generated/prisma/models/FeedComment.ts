@@ -207,7 +207,7 @@ export type FeedCommentGroupByOutputType = {
   _max: FeedCommentMaxAggregateOutputType | null
 }
 
-type GetFeedCommentGroupByPayload<T extends FeedCommentGroupByArgs> = Prisma.PrismaPromise<
+export type GetFeedCommentGroupByPayload<T extends FeedCommentGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<FeedCommentGroupByOutputType, T['by']> &
       {
@@ -1459,6 +1459,11 @@ export type FeedCommentFindManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Skip the first `n` FeedComments.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of FeedComments.
+   */
   distinct?: Prisma.FeedCommentScalarFieldEnum | Prisma.FeedCommentScalarFieldEnum[]
 }
 

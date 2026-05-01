@@ -221,7 +221,7 @@ export type InterestGroupByOutputType = {
   _max: InterestMaxAggregateOutputType | null
 }
 
-type GetInterestGroupByPayload<T extends InterestGroupByArgs> = Prisma.PrismaPromise<
+export type GetInterestGroupByPayload<T extends InterestGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<InterestGroupByOutputType, T['by']> &
       {
@@ -1547,6 +1547,11 @@ export type InterestFindManyArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Skip the first `n` Interests.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of Interests.
+   */
   distinct?: Prisma.InterestScalarFieldEnum | Prisma.InterestScalarFieldEnum[]
 }
 

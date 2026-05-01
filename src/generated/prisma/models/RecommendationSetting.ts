@@ -207,7 +207,7 @@ export type RecommendationSettingGroupByOutputType = {
   _max: RecommendationSettingMaxAggregateOutputType | null
 }
 
-type GetRecommendationSettingGroupByPayload<T extends RecommendationSettingGroupByArgs> = Prisma.PrismaPromise<
+export type GetRecommendationSettingGroupByPayload<T extends RecommendationSettingGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<RecommendationSettingGroupByOutputType, T['by']> &
       {
@@ -1160,6 +1160,11 @@ export type RecommendationSettingFindManyArgs<ExtArgs extends runtime.Types.Exte
    * Skip the first `n` RecommendationSettings.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of RecommendationSettings.
+   */
   distinct?: Prisma.RecommendationSettingScalarFieldEnum | Prisma.RecommendationSettingScalarFieldEnum[]
 }
 

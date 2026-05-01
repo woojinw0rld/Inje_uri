@@ -211,7 +211,7 @@ export type RecommendationDismissGroupByOutputType = {
   _max: RecommendationDismissMaxAggregateOutputType | null
 }
 
-type GetRecommendationDismissGroupByPayload<T extends RecommendationDismissGroupByArgs> = Prisma.PrismaPromise<
+export type GetRecommendationDismissGroupByPayload<T extends RecommendationDismissGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<RecommendationDismissGroupByOutputType, T['by']> &
       {
@@ -1468,6 +1468,11 @@ export type RecommendationDismissFindManyArgs<ExtArgs extends runtime.Types.Exte
    * Skip the first `n` RecommendationDismisses.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of RecommendationDismisses.
+   */
   distinct?: Prisma.RecommendationDismissScalarFieldEnum | Prisma.RecommendationDismissScalarFieldEnum[]
 }
 

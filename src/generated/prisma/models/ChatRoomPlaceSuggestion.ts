@@ -207,7 +207,7 @@ export type ChatRoomPlaceSuggestionGroupByOutputType = {
   _max: ChatRoomPlaceSuggestionMaxAggregateOutputType | null
 }
 
-type GetChatRoomPlaceSuggestionGroupByPayload<T extends ChatRoomPlaceSuggestionGroupByArgs> = Prisma.PrismaPromise<
+export type GetChatRoomPlaceSuggestionGroupByPayload<T extends ChatRoomPlaceSuggestionGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<ChatRoomPlaceSuggestionGroupByOutputType, T['by']> &
       {
@@ -1332,6 +1332,11 @@ export type ChatRoomPlaceSuggestionFindManyArgs<ExtArgs extends runtime.Types.Ex
    * Skip the first `n` ChatRoomPlaceSuggestions.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   * 
+   * Filter by unique combinations of ChatRoomPlaceSuggestions.
+   */
   distinct?: Prisma.ChatRoomPlaceSuggestionScalarFieldEnum | Prisma.ChatRoomPlaceSuggestionScalarFieldEnum[]
 }
 
